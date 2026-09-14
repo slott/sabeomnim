@@ -1,11 +1,11 @@
+**/build/
+build/
+.gradle/
+.idea/
 *.iml
-.gradle
-/build
-!gradle/wrapper/gradle-wrapper.jar
-.idea
 .DS_Store
-/build
 /captures
 .externalNativeBuild
 .cxx
 local.properties
+*.hprof
