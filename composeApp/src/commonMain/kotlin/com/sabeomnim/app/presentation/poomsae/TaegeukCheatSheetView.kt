@@ -1,0 +1,575 @@
+package com.sabeomnim.app.presentation.poomsae
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import com.sabeomnim.app.core.audio.rememberAudioService
+import com.sabeomnim.app.core.designsystem.KukkiwonGold
+import com.sabeomnim.app.core.designsystem.TaegeukBlue
+import com.sabeomnim.app.core.designsystem.TaegeukRed
+import com.sabeomnim.app.data.models.Poomsae
+import com.sabeomnim.app.data.models.PoomsaeStep
+import org.jetbrains.compose.resources.painterResource
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TaegeukCheatSheetView(
+    poomsae: Poomsae,
+    modifier: Modifier = Modifier
+) {
+    var scale by remember(poomsae.id) { mutableStateOf(1f) }
+    var offset by remember(poomsae.id) { mutableStateOf(Offset.Zero) }
+    var isFullScreenOpen by remember { mutableStateOf(false) }
+    val audioService = rememberAudioService()
+
+    val transformState = rememberTransformableState { zoomChange, panChange, _ ->
+        scale = (scale * zoomChange).coerceIn(1f, 3.5f)
+        if (scale > 1f) {
+            val maxOffset = (scale - 1f) * 400f
+            offset = Offset(
+                x = (offset.x + panChange.x).coerceIn(-maxOffset, maxOffset),
+                y = (offset.y + panChange.y).coerceIn(-maxOffset, maxOffset)
+            )
+        } else {
+            offset = Offset.Zero
+        }
+    }
+
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        // Form Overview & Trigram Philosophy Card
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = TaegeukBlue.copy(alpha = 0.08f)
+                ),
+                border = androidx.compose.foundation.BorderStroke(1.dp, TaegeukBlue.copy(alpha = 0.3f))
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = "태극 ${poomsae.number}장 Cheat Sheet",
+                                fontSize = 19.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = TaegeukBlue
+                            )
+                            Text(
+                                text = "${poomsae.nameRomanized} • ${poomsae.nameEnglish}",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
+                        // Trigram Badge
+                        Surface(
+                            shape = RoundedCornerShape(10.dp),
+                            color = TaegeukBlue,
+                            modifier = Modifier.size(48.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = poomsae.trigramSymbol,
+                                    fontSize = 26.sp,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = poomsae.description,
+                        fontSize = 12.sp,
+                        lineHeight = 17.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant
+                        ) {
+                            Text(
+                                text = "🥋 ${poomsae.beltRank.gradeText} (${poomsae.beltRank.title})",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant
+                        ) {
+                            Text(
+                                text = "👣 ${poomsae.movementCount} Movements",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = TaegeukRed.copy(alpha = 0.15f)
+                        ) {
+                            Text(
+                                text = "⚡ Kihap: Step ${poomsae.steps.lastOrNull { it.isKihap }?.stepIndex ?: poomsae.movementCount}",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TaegeukRed,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Interactive Cheat Sheet Visual Diagram
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+            ) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    // Header & Zoom controls
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Default.Map,
+                                contentDescription = null,
+                                tint = TaegeukBlue,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "Official Movement Diagram",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        // Zoom control pills
+                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            IconButton(
+                                onClick = { scale = (scale + 0.5f).coerceAtMost(3.5f) },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(Icons.Default.ZoomIn, contentDescription = "Zoom In", modifier = Modifier.size(18.dp))
+                            }
+                            IconButton(
+                                onClick = {
+                                    scale = (scale - 0.5f).coerceAtLeast(1f)
+                                    if (scale == 1f) offset = Offset.Zero
+                                },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(Icons.Default.ZoomOut, contentDescription = "Zoom Out", modifier = Modifier.size(18.dp))
+                            }
+                            IconButton(
+                                onClick = {
+                                    scale = 1f
+                                    offset = Offset.Zero
+                                },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(Icons.Default.Refresh, contentDescription = "Reset Zoom", modifier = Modifier.size(18.dp))
+                            }
+                            IconButton(
+                                onClick = { isFullScreenOpen = true },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(Icons.Default.Fullscreen, contentDescription = "Full Screen", modifier = Modifier.size(18.dp))
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Cheat sheet image container with pinch & pan gestures
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(280.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color.White)
+                            .transformable(state = transformState, enabled = scale > 1.05f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(getTaegeukCheatSheetResource(poomsae.number)),
+                            contentDescription = "Taegeuk ${poomsae.number} Diagram Cheat Sheet",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .graphicsLayer(
+                                    scaleX = scale,
+                                    scaleY = scale,
+                                    translationX = offset.x,
+                                    translationY = offset.y
+                                ),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "💡 Pinch to zoom • Drag to pan • Tap ⛶ for full-screen view",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                }
+            }
+        }
+
+        // Section Title: Choreography Step Breakdown
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Choreography Step Directory",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Tap 🔊 for Korean audio",
+                    fontSize = 11.sp,
+                    color = TaegeukBlue,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+
+        // Ready Position Info Card
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clip(CircleShape)
+                            .background(TaegeukBlue),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("준비", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("기본 준비서기 (Kibon Junbi-seogi)", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text("Basic Ready Stance • Facing front line A, parallel stance, fists at solar plexus level", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    IconButton(onClick = { audioService.speak("준비서기") }) {
+                        Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = "Hear Junbi", tint = TaegeukBlue, modifier = Modifier.size(20.dp))
+                    }
+                }
+            }
+        }
+
+        // Step by Step Cards
+        items(poomsae.steps, key = { it.stepIndex }) { step ->
+            CheatSheetStepCard(step = step, onAudioPlay = { audioService.speak(step.korean) })
+        }
+
+        // Return to Ready (Baro) Card
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clip(CircleShape)
+                            .background(TaegeukRed),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("바로", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("바로 / 쉬어 (Baro / Shwieo)", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text("Return to ready stance by drawing left foot back to original position. Bow and rest.", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    IconButton(onClick = { audioService.speak("바로") }) {
+                        Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = "Hear Baro", tint = TaegeukRed, modifier = Modifier.size(20.dp))
+                    }
+                }
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(36.dp))
+        }
+    }
+
+    // Full-screen Dialog Modal
+    if (isFullScreenOpen) {
+        Dialog(
+            onDismissRequest = { isFullScreenOpen = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            var dialogScale by remember { mutableStateOf(1.2f) }
+            var dialogOffset by remember { mutableStateOf(Offset.Zero) }
+
+            val dialogTransform = rememberTransformableState { zoomChange, panChange, _ ->
+                dialogScale = (dialogScale * zoomChange).coerceIn(1f, 5f)
+                val maxOffset = (dialogScale - 1f) * 600f
+                dialogOffset = Offset(
+                    x = (dialogOffset.x + panChange.x).coerceIn(-maxOffset, maxOffset),
+                    y = (dialogOffset.y + panChange.y).coerceIn(-maxOffset, maxOffset)
+                )
+            }
+
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = Color.Black
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Image(
+                        painter = painterResource(getTaegeukCheatSheetResource(poomsae.number)),
+                        contentDescription = "Fullscreen Taegeuk ${poomsae.number} Diagram",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .transformable(state = dialogTransform)
+                            .graphicsLayer(
+                                scaleX = dialogScale,
+                                scaleY = dialogScale,
+                                translationX = dialogOffset.x,
+                                translationY = dialogOffset.y
+                            ),
+                        contentScale = ContentScale.Fit
+                    )
+
+                    // Close Button
+                    IconButton(
+                        onClick = { isFullScreenOpen = false },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(16.dp)
+                            .background(Color.Black.copy(alpha = 0.6f), CircleShape)
+                    ) {
+                        Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
+                    }
+
+                    // Reset button
+                    IconButton(
+                        onClick = {
+                            dialogScale = 1.2f
+                            dialogOffset = Offset.Zero
+                        },
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(16.dp)
+                            .background(Color.Black.copy(alpha = 0.6f), CircleShape)
+                    ) {
+                        Icon(Icons.Default.Refresh, contentDescription = "Reset Zoom", tint = Color.White)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CheatSheetStepCard(
+    step: PoomsaeStep,
+    onAudioPlay: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(0.8.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Step Badge
+                Box(
+                    modifier = Modifier
+                        .size(34.dp)
+                        .clip(CircleShape)
+                        .background(if (step.isKihap) TaegeukRed else TaegeukBlue),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "${step.stepIndex}",
+                        color = Color.White,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 13.sp
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = step.korean,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        if (step.isKihap) {
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Surface(
+                                shape = RoundedCornerShape(4.dp),
+                                color = TaegeukRed
+                            ) {
+                                Text(
+                                    text = "⚡ KIHAP",
+                                    color = Color.White,
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
+                                )
+                            }
+                        }
+                    }
+                    Text(
+                        text = step.romanized,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                // Korean pronunciation audio button
+                IconButton(onClick = onAudioPlay) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.VolumeUp,
+                        contentDescription = "Hear Step",
+                        tint = TaegeukBlue,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Action translation
+            Text(
+                text = step.english,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            // Stance & Technique chips
+            Spacer(modifier = Modifier.height(6.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Surface(
+                    shape = RoundedCornerShape(4.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant
+                ) {
+                    Text(
+                        text = "Stance: ${step.stance}",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
+                }
+                Surface(
+                    shape = RoundedCornerShape(4.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant
+                ) {
+                    Text(
+                        text = "Action: ${step.technique}",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
+                }
+            }
+
+            // Coaching deduction tips
+            step.coachingTip?.let { tip ->
+                Spacer(modifier = Modifier.height(6.dp))
+                Row(verticalAlignment = Alignment.Top) {
+                    Icon(
+                        Icons.Default.Lightbulb,
+                        contentDescription = null,
+                        tint = KukkiwonGold,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = tip,
+                        fontSize = 11.sp,
+                        lineHeight = 15.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}

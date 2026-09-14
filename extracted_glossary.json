@@ -1,0 +1,822 @@
+[
+  {
+    "category": "GENERAL",
+    "english": "Taekwondo",
+    "korean_raw": "Foot-Hand-Art/Mind"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Studio or training facility",
+    "korean_raw": "Do Jang"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Uniform",
+    "korean_raw": "Do Boak or Dobok"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Belt",
+    "korean_raw": "Dhee"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Grade,Rank or Color Belt",
+    "korean_raw": "Geup"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Degree (Black Belt)",
+    "korean_raw": "Dan"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Flag",
+    "korean_raw": "Kook Ki"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Bow",
+    "korean_raw": "Kyung Neh"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Yell",
+    "korean_raw": "Keup"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Form",
+    "korean_raw": "Poomse"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Red",
+    "korean_raw": "Hong"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Blue",
+    "korean_raw": "Chung"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Sparring",
+    "korean_raw": "Gyoroogi"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Breaking",
+    "korean_raw": "Kyopka"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Student",
+    "korean_raw": "Hak Saeng, Koo Ga"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Senior Student",
+    "korean_raw": "Sun Bae Nim"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Assistant Instructor (1 Dan)",
+    "korean_raw": "Chokyo Nim"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Assistant Instructor (2 Dan)",
+    "korean_raw": "Keo Sa Nim"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Assistant Instructor (3 Dan)",
+    "korean_raw": "Keo Bum Nim"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Assistant Instructor (4 Dan or higher)",
+    "korean_raw": "Sa Bum Nim"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Head of organization or GrandMaster",
+    "korean_raw": "Kwan Jang Nim"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Bow to Flag",
+    "korean_raw": "Koo Ki Eh, Kyung Neh"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Bow to Master",
+    "korean_raw": "Kwan Jang Nim, Kyung Neh"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Friend",
+    "korean_raw": "Chin Goo"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Hello",
+    "korean_raw": "Annyong Hashimnigga"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Goodbye",
+    "korean_raw": "Annyonghi Kyeseyo"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Please",
+    "korean_raw": "Put’ak Hamnida"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Thank you",
+    "korean_raw": "Kamsa Hamnida"
+  },
+  {
+    "category": "GENERAL",
+    "english": "You are Welcome",
+    "korean_raw": "Ch’un Man E Yo"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Good Luck",
+    "korean_raw": "Haeng Oon Eul Bil Gett U Yo"
+  },
+  {
+    "category": "GENERAL",
+    "english": "Congratulations",
+    "korean_raw": "Ch’ook Ha"
+  },
+  {
+    "category": "DIRECTIONS",
+    "english": "Front",
+    "korean_raw": "Up (Ap)"
+  },
+  {
+    "category": "DIRECTIONS",
+    "english": "Back",
+    "korean_raw": "Dwi"
+  },
+  {
+    "category": "DIRECTIONS",
+    "english": "Side",
+    "korean_raw": "Yop"
+  },
+  {
+    "category": "DIRECTIONS",
+    "english": "High",
+    "korean_raw": "Eulgool"
+  },
+  {
+    "category": "DIRECTIONS",
+    "english": "Middle",
+    "korean_raw": "Momtong"
+  },
+  {
+    "category": "DIRECTIONS",
+    "english": "Low",
+    "korean_raw": "Arae"
+  },
+  {
+    "category": "DIRECTIONS",
+    "english": "Left",
+    "korean_raw": "Wen"
+  },
+  {
+    "category": "DIRECTIONS",
+    "english": "Right",
+    "korean_raw": "Oreum"
+  },
+  {
+    "category": "DIRECTIONS",
+    "english": "Outward",
+    "korean_raw": "Bakkat"
+  },
+  {
+    "category": "DIRECTIONS",
+    "english": "Inward",
+    "korean_raw": "An"
+  },
+  {
+    "category": "DIRECTIONS",
+    "english": "Downward",
+    "korean_raw": "Naeryo"
+  },
+  {
+    "category": "DIRECTIONS",
+    "english": "Upward",
+    "korean_raw": "Allyo"
+  },
+  {
+    "category": "DIRECTIONS",
+    "english": "Sideways (Turning)",
+    "korean_raw": "Dollyo"
+  },
+  {
+    "category": "STANCES",
+    "english": "Ready Stance",
+    "korean_raw": "Cha Ryot Seogi"
+  },
+  {
+    "category": "STANCES",
+    "english": "Ready Motion",
+    "korean_raw": "Joonbe Seogi"
+  },
+  {
+    "category": "STANCES",
+    "english": "Parallel Stance",
+    "korean_raw": "Naranhi Seogi"
+  },
+  {
+    "category": "STANCES",
+    "english": "Front Stance",
+    "korean_raw": "Ap Koo Bi Seogi"
+  },
+  {
+    "category": "STANCES",
+    "english": "Walking Stance",
+    "korean_raw": "Ap Seogi"
+  },
+  {
+    "category": "STANCES",
+    "english": "Back Stance",
+    "korean_raw": "Dwitkoobi Seogi"
+  },
+  {
+    "category": "STANCES",
+    "english": "Horse Ridding Stance",
+    "korean_raw": "Joochoom Seogi"
+  },
+  {
+    "category": "STANCES",
+    "english": "Cross Stance (Front)",
+    "korean_raw": "Up-kkoa Seogi"
+  },
+  {
+    "category": "STANCES",
+    "english": "Cross Stance (Back)",
+    "korean_raw": "Dwi-kkoa Seogi"
+  },
+  {
+    "category": "STANCES",
+    "english": "Crane Stance",
+    "korean_raw": "Hakdari Seogi"
+  },
+  {
+    "category": "STANCES",
+    "english": "Lef-hand Stance",
+    "korean_raw": "Wen Seogi"
+  },
+  {
+    "category": "STANCES",
+    "english": "Right-hand Stance",
+    "korean_raw": "Oreum Seogi"
+  },
+  {
+    "category": "STANCES",
+    "english": "Tiger Stance",
+    "korean_raw": "Beom Seogi"
+  },
+  {
+    "category": "BLOCKS",
+    "english": "Down/Low Block",
+    "korean_raw": "Arae Makki"
+  },
+  {
+    "category": "BLOCKS",
+    "english": "High Block",
+    "korean_raw": "Eulgool Makki"
+  },
+  {
+    "category": "BLOCKS",
+    "english": "Inward Block",
+    "korean_raw": "An Makki"
+  },
+  {
+    "category": "BLOCKS",
+    "english": "Knife Hand Block (Double)",
+    "korean_raw": "Sonnal Makki"
+  },
+  {
+    "category": "BLOCKS",
+    "english": "Knife Hand Block (Single)",
+    "korean_raw": "Han-Sonnal Makki"
+  },
+  {
+    "category": "BLOCKS",
+    "english": "Middle Block",
+    "korean_raw": "Momtong Makki"
+  },
+  {
+    "category": "BLOCKS",
+    "english": "Outward Block",
+    "korean_raw": "Bakkat Makki"
+  },
+  {
+    "category": "BLOCKS",
+    "english": "Palm Hell Block",
+    "korean_raw": "Batangson Makki"
+  },
+  {
+    "category": "BLOCKS",
+    "english": "Scissors Block",
+    "korean_raw": "Kawi Makki"
+  },
+  {
+    "category": "BLOCKS",
+    "english": "Twist Block",
+    "korean_raw": "Bituro Makki"
+  },
+  {
+    "category": "BLOCKS",
+    "english": "Wide Open Block",
+    "korean_raw": "Santeul Makki"
+  },
+  {
+    "category": "BLOCKS",
+    "english": "Spreading Block",
+    "korean_raw": "Hechyo Makki"
+  },
+  {
+    "category": "BLOCKS",
+    "english": "X-Block",
+    "korean_raw": "Otgoreo Makki"
+  },
+  {
+    "category": "STRIKES",
+    "english": "Strike",
+    "korean_raw": "Chigi"
+  },
+  {
+    "category": "STRIKES",
+    "english": "Knife-hand Strike (Inward)",
+    "korean_raw": "Sonnal An-Chigi"
+  },
+  {
+    "category": "STRIKES",
+    "english": "Knife-hand Strike (Outward)",
+    "korean_raw": "Sonnal Bakkat-Chigi"
+  },
+  {
+    "category": "STRIKES",
+    "english": "Hammer Fist (Down)",
+    "korean_raw": "Meori-Naeryo Chigi"
+  },
+  {
+    "category": "STRIKES",
+    "english": "Palm Heel Strike",
+    "korean_raw": "Batangson Teok-Chigi"
+  },
+  {
+    "category": "STRIKES",
+    "english": "Elbow Strike",
+    "korean_raw": "Palkup Chigi"
+  },
+  {
+    "category": "STRIKES",
+    "english": "Knee Strike",
+    "korean_raw": "Mureup Chigi"
+  },
+  {
+    "category": "STRIKES",
+    "english": "Back Fist Strike",
+    "korean_raw": "Deung Jumeok Chigi"
+  },
+  {
+    "category": "STRIKES",
+    "english": "Fingertips (2) Thrust",
+    "korean_raw": "Kawinsonkkeut Tzireuki"
+  },
+  {
+    "category": "PUNCHES",
+    "english": "Punch",
+    "korean_raw": "Jireuki"
+  },
+  {
+    "category": "PUNCHES",
+    "english": "Reverse Punch",
+    "korean_raw": "Bahro Jireuki"
+  },
+  {
+    "category": "PUNCHES",
+    "english": "Straight Punch",
+    "korean_raw": "Bandae Jireuki"
+  },
+  {
+    "category": "PUNCHES",
+    "english": "Middle Punch",
+    "korean_raw": "Momtong Jireuki"
+  },
+  {
+    "category": "PUNCHES",
+    "english": "Upper Cut Punch",
+    "korean_raw": "Chi Jireuki"
+  },
+  {
+    "category": "PUNCHES",
+    "english": "Side Punch",
+    "korean_raw": "Yop Jireuki"
+  },
+  {
+    "category": "PUNCHES",
+    "english": "Hook Punch",
+    "korean_raw": "Dollyo Jireuki"
+  },
+  {
+    "category": "PUNCHES",
+    "english": "Downward Punch",
+    "korean_raw": "Naeryo Jireuki"
+  },
+  {
+    "category": "PUNCHES",
+    "english": "Erected Fist Punch",
+    "korean_raw": "Sewo Jireuki"
+  },
+  {
+    "category": "KICKS",
+    "english": "Front Kick",
+    "korean_raw": "Ap Chagi"
+  },
+  {
+    "category": "KICKS",
+    "english": "Roundhouse Kick",
+    "korean_raw": "Ap Dollyo Chagi"
+  },
+  {
+    "category": "KICKS",
+    "english": "Side Kick",
+    "korean_raw": "Yop Chagi"
+  },
+  {
+    "category": "KICKS",
+    "english": "Half Moon kick",
+    "korean_raw": "Badal Chagi"
+  },
+  {
+    "category": "KICKS",
+    "english": "Axe kick",
+    "korean_raw": "Nareyo or Chiko Chagi"
+  },
+  {
+    "category": "KICKS",
+    "english": "High  Stretch Kick (straight leg)",
+    "korean_raw": "Ap-Olligi or Krohlligi"
+  },
+  {
+    "category": "KICKS",
+    "english": "Back Kick",
+    "korean_raw": "Dwi Chagi"
+  },
+  {
+    "category": "KICKS",
+    "english": "Hook Kick",
+    "korean_raw": "Nakka Chagi"
+  },
+  {
+    "category": "KICKS",
+    "english": "Thrashing or Spinning Kick",
+    "korean_raw": "Huryo Chagi"
+  },
+  {
+    "category": "KICKS",
+    "english": "Push Kick",
+    "korean_raw": "Mireo Chagi"
+  },
+  {
+    "category": "KICKS",
+    "english": "Stretch kick",
+    "korean_raw": "Ap-Ollyo Chagi"
+  },
+  {
+    "category": "KICKS",
+    "english": "Swing Kick (Outward)",
+    "korean_raw": "Bakkat Chagi"
+  },
+  {
+    "category": "KICKS",
+    "english": "Swing Kick (Inward)",
+    "korean_raw": "An Chagi"
+  },
+  {
+    "category": "KICKS",
+    "english": "Target Kick",
+    "korean_raw": "Pyojeok Chagi"
+  },
+  {
+    "category": "KICKS",
+    "english": "Twist Kick",
+    "korean_raw": "Bitureo Chagi"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Ball of Foot",
+    "korean_raw": "Apchook"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Foot",
+    "korean_raw": "Bal"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Top of Foot",
+    "korean_raw": "Baldeung"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Foot Edge",
+    "korean_raw": "Balnal"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Joint of one finger, or strike using a joint of one finger",
+    "korean_raw": "Bam Joomeok"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Palm",
+    "korean_raw": "Batang Son"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Leg",
+    "korean_raw": "Dari"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Back Fist",
+    "korean_raw": "Deung Joomeok"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Heel Back",
+    "korean_raw": "Dwikoomchi"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Heel Bottom",
+    "korean_raw": "Dwichook"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Fist",
+    "korean_raw": "Joomeok"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Neck",
+    "korean_raw": "Mok"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Body",
+    "korean_raw": "Mom"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Knee",
+    "korean_raw": "Mooreup"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Arm",
+    "korean_raw": "Pal"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Elbow",
+    "korean_raw": "Palkoop"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Forearm",
+    "korean_raw": "Palmok"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Finger Joints, or strike using finger joints",
+    "korean_raw": "Pyon Joomeok"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Hand",
+    "korean_raw": "Son"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Finger Tips",
+    "korean_raw": "Sonkeut"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Wrist",
+    "korean_raw": "Sonmoke"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Knife Hand",
+    "korean_raw": "Sonnal"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Ridge Hand",
+    "korean_raw": "Sonnal Deung"
+  },
+  {
+    "category": "ANATOMY",
+    "english": "Chin",
+    "korean_raw": "Teok"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "1",
+    "korean_raw": "Hanna"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "2",
+    "korean_raw": "Dool"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "3",
+    "korean_raw": "Set"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "4",
+    "korean_raw": "Net"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "5",
+    "korean_raw": "Dasut"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "6",
+    "korean_raw": "Yosut"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "7",
+    "korean_raw": "Ill Gop"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "8",
+    "korean_raw": "Yo Dol"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "9",
+    "korean_raw": "A-Hoop"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "10",
+    "korean_raw": "Yoal"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "11",
+    "korean_raw": "Yoal-Hana…Etc"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "20",
+    "korean_raw": "Soo Mool"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "21",
+    "korean_raw": "Soo Mool Hana…Etc"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "30",
+    "korean_raw": "Saroon"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "31",
+    "korean_raw": "Saroon Hana…Etc"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "40",
+    "korean_raw": "Mahoon"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "41",
+    "korean_raw": "Mahoon Hana…Etc"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "50",
+    "korean_raw": "Shioon"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "60",
+    "korean_raw": "Yesoon"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "70",
+    "korean_raw": "Ilheun"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "80",
+    "korean_raw": "Yudoon"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "90",
+    "korean_raw": "Aheun"
+  },
+  {
+    "category": "NUMBERS_NATIVE",
+    "english": "100",
+    "korean_raw": "Bak"
+  },
+  {
+    "category": "NUMBERS_SINO",
+    "english": "1rst",
+    "korean_raw": "Ill"
+  },
+  {
+    "category": "NUMBERS_SINO",
+    "english": "2nd",
+    "korean_raw": "Ee"
+  },
+  {
+    "category": "NUMBERS_SINO",
+    "english": "3rd",
+    "korean_raw": "Sam"
+  },
+  {
+    "category": "NUMBERS_SINO",
+    "english": "4th",
+    "korean_raw": "Sah"
+  },
+  {
+    "category": "NUMBERS_SINO",
+    "english": "5th",
+    "korean_raw": "Oh"
+  },
+  {
+    "category": "NUMBERS_SINO",
+    "english": "6th",
+    "korean_raw": "Yook"
+  },
+  {
+    "category": "NUMBERS_SINO",
+    "english": "7th",
+    "korean_raw": "Chil"
+  },
+  {
+    "category": "NUMBERS_SINO",
+    "english": "8th",
+    "korean_raw": "Pahl"
+  },
+  {
+    "category": "NUMBERS_SINO",
+    "english": "9th",
+    "korean_raw": "Koo"
+  },
+  {
+    "category": "NUMBERS_SINO",
+    "english": "10th",
+    "korean_raw": "Ship"
+  },
+  {
+    "category": "NUMBERS_SINO",
+    "english": "20th",
+    "korean_raw": "Eeship"
+  },
+  {
+    "category": "NUMBERS_SINO",
+    "english": "30th",
+    "korean_raw": "Samship"
+  },
+  {
+    "category": "NUMBERS_SINO",
+    "english": "40th",
+    "korean_raw": "Sahship"
+  },
+  {
+    "category": "NUMBERS_SINO",
+    "english": "50th",
+    "korean_raw": "Ohship"
+  }
+]

@@ -3,6 +3,7 @@ package com.sabeomnim.app
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -19,7 +20,7 @@ import com.sabeomnim.app.presentation.quiz.QuizScreen
 enum class AppTab(val title: String, val icon: ImageVector) {
     BELTS("Curriculum", Icons.Default.SportsMartialArts),
     POOMSAE("Taegeuks", Icons.Default.PlayCircle),
-    AUDIO_DICT("Korean Audio", Icons.Default.VolumeUp),
+    AUDIO_DICT("Glossary & Audio", Icons.AutoMirrored.Filled.VolumeUp),
     QUIZ("Belt Quiz", Icons.Default.Quiz)
 }
 

@@ -1,21 +1,20 @@
 package com.sabeomnim.app.presentation.dictionary
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -25,7 +24,6 @@ import com.sabeomnim.app.core.designsystem.TaegeukBlue
 import com.sabeomnim.app.core.designsystem.TaegeukRed
 import com.sabeomnim.app.data.models.BeltRank
 import com.sabeomnim.app.data.models.TermCategory
-import com.sabeomnim.app.data.models.TerminologyEntry
 import com.sabeomnim.app.data.repository.TerminologyRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,11 +37,13 @@ fun AudioDictionaryScreen() {
 
     val audioService = rememberAudioService()
 
+    val allTerms = remember { TerminologyRepository.getAllTerms() }
+
     val filteredTerms = remember(searchQuery, selectedCategory, selectedBeltFilter) {
         var list = if (searchQuery.isNotBlank()) {
             TerminologyRepository.searchTerms(searchQuery)
         } else {
-            TerminologyRepository.getAllTerms()
+            allTerms
         }
 
         selectedCategory?.let { cat ->
@@ -62,9 +62,9 @@ fun AudioDictionaryScreen() {
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("한국어 용어 사전", fontWeight = FontWeight.Bold, color = TaegeukRed)
+                        Text("태권도 용어 사전", fontWeight = FontWeight.Bold, color = TaegeukRed)
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Korean Audio", fontSize = 16.sp)
+                        Text("Glossary & Audio", fontSize = 16.sp)
                     }
                 },
                 actions = {
@@ -74,7 +74,7 @@ fun AudioDictionaryScreen() {
                         onClick = { isSlowMode = !isSlowMode },
                         label = {
                             Text(
-                                if (isSlowMode) "🐢 Slow Audio (0.65x)" else "🐰 Normal Speed",
+                                if (isSlowMode) "🐢 Slow (0.65x)" else "🐰 Normal Speed",
                                 fontSize = 12.sp,
                                 fontWeight = if (isSlowMode) FontWeight.Bold else FontWeight.Normal
                             )
@@ -97,7 +97,7 @@ fun AudioDictionaryScreen() {
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search term in English, Hangul, or Romanization...") },
+                placeholder = { Text("Search English, Hangul, or Romanization...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
@@ -113,7 +113,7 @@ fun AudioDictionaryScreen() {
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
-            // Category Chips Row
+            // Category Chips Row (10 Complete Blue Dragon Categories)
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -121,37 +121,39 @@ fun AudioDictionaryScreen() {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 item {
+                    val count = allTerms.size
                     FilterChip(
                         selected = selectedCategory == null,
                         onClick = { selectedCategory = null },
-                        label = { Text("All Categories (${TerminologyRepository.getAllTerms().size})") }
+                        label = { Text("All ($count)") }
                     )
                 }
                 items(TermCategory.entries) { cat ->
                     val isSelected = selectedCategory == cat
+                    val count = allTerms.count { it.category == cat }
                     FilterChip(
                         selected = isSelected,
                         onClick = { selectedCategory = if (isSelected) null else cat },
-                        label = { Text(cat.title) }
+                        label = { Text("${cat.title} ($count)") }
                     )
                 }
             }
 
-            // Results count
+            // Results count and pronunciation tip
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                .padding(horizontal = 16.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${filteredTerms.size} terms found",
+                    text = "${filteredTerms.size} of ${allTerms.size} terms",
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "Tap 🔊 to hear pronunciation",
+                    text = "Tap 🔊 to hear Korean",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     color = TaegeukBlue
@@ -188,20 +190,22 @@ fun AudioDictionaryScreen() {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
                                     Text(
                                         text = term.hangul,
                                         fontSize = 22.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = if (isPlaying) TaegeukBlue else MaterialTheme.colorScheme.onSurface
                                     )
-                                    Spacer(modifier = Modifier.width(8.dp))
                                     Surface(
                                         shape = RoundedCornerShape(4.dp),
                                         color = MaterialTheme.colorScheme.surfaceVariant
                                     ) {
                                         Text(
-                                            text = term.category.title.split(" ").first(),
+                                            text = term.category.title.substringBefore(" (").substringBefore(" &"),
                                             fontSize = 10.sp,
                                             fontWeight = FontWeight.Bold,
                                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
@@ -209,12 +213,26 @@ fun AudioDictionaryScreen() {
                                     }
                                 }
 
-                                Text(
-                                    text = term.romanized,
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Text(
+                                        text = term.romanized,
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    if (term.phoneticSpelling != null && term.phoneticSpelling != term.romanized) {
+                                        Text(
+                                            text = "• TKD: ${term.phoneticSpelling}",
+                                            fontSize = 13.sp,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
 
                                 Text(
                                     text = term.english,
@@ -246,7 +264,7 @@ fun AudioDictionaryScreen() {
                                 modifier = Modifier.size(46.dp)
                             ) {
                                 Icon(
-                                    Icons.Default.VolumeUp,
+                                    Icons.AutoMirrored.Filled.VolumeUp,
                                     contentDescription = "Pronounce",
                                     tint = Color.White,
                                     modifier = Modifier.size(24.dp)

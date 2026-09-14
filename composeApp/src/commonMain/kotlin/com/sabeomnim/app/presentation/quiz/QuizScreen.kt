@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -226,7 +228,7 @@ fun QuizScreen(
                                     IconButton(
                                         onClick = { audioService.speak(term) }
                                     ) {
-                                        Icon(Icons.Default.VolumeUp, contentDescription = "Hear Term", tint = TaegeukBlue)
+                                        Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = "Hear Term", tint = TaegeukBlue)
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(8.dp))
@@ -351,7 +353,7 @@ fun QuizScreen(
                         ) {
                             Text(if (currentQuestionIndex + 1 < questions.size) "Next Question" else "See Results")
                             Spacer(modifier = Modifier.width(8.dp))
-                            Icon(Icons.Default.ArrowForward, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
                         }
                     } else {
                         Button(
