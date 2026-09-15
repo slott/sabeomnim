@@ -16,9 +16,11 @@ data class PoomsaeStep(
     val korean: String,
     val romanized: String,
     val english: String,
+    val danish: String? = null,
     val stance: String,
     val technique: String,
     val coachingTip: String,
+    val coachingTipDanish: String? = null,
     val isKihap: Boolean = false
 )
 
@@ -29,12 +31,16 @@ data class Poomsae(
     val nameKorean: String,
     val nameRomanized: String,
     val nameEnglish: String,
+    val nameDanish: String? = null,
     val trigramSymbol: String,
     val trigramMeaning: String,
+    val trigramMeaningDanish: String? = null,
     val movementCount: Int,
     val beltRank: BeltRank,
     val description: String,
+    val descriptionDanish: String? = null,
     val frontVideoUrl: String,
     val sideVideoUrl: String,
     val steps: List<PoomsaeStep>
 )
+

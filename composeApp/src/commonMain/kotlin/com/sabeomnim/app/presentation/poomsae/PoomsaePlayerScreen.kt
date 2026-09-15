@@ -23,6 +23,9 @@ import androidx.compose.ui.unit.sp
 import com.sabeomnim.app.core.designsystem.KukkiwonGold
 import com.sabeomnim.app.core.designsystem.TaegeukBlue
 import com.sabeomnim.app.core.designsystem.TaegeukRed
+import com.sabeomnim.app.core.i18n.AppLanguage
+import com.sabeomnim.app.core.i18n.AppStrings
+import com.sabeomnim.app.core.i18n.LocalAppLanguage
 import com.sabeomnim.app.core.player.PlatformVideoPlayer
 import com.sabeomnim.app.data.models.Poomsae
 import com.sabeomnim.app.data.models.PoomsaeStep
@@ -39,6 +42,7 @@ enum class PoomsaeDisplayMode(val label: String, val icon: ImageVector) {
 fun PoomsaePlayerScreen(
     initialPoomsaeId: String = "taegeuk_1"
 ) {
+    val lang = LocalAppLanguage.current
     var selectedPoomsae by remember {
         mutableStateOf(PoomsaeRepository.getPoomsaeById(initialPoomsaeId) ?: PoomsaeRepository.poomsaeTaegeuk1)
     }
@@ -81,8 +85,13 @@ fun PoomsaePlayerScreen(
                             fontWeight = FontWeight.Bold,
                             fontSize = 17.sp
                         )
+                        val subText = if (lang == AppLanguage.DANISH && selectedPoomsae.nameDanish != null) {
+                            "${selectedPoomsae.nameDanish} • ${selectedPoomsae.trigramSymbol}"
+                        } else {
+                            "${selectedPoomsae.nameEnglish} • ${selectedPoomsae.trigramSymbol}"
+                        }
                         Text(
-                            text = "${selectedPoomsae.nameEnglish} • ${selectedPoomsae.trigramSymbol}",
+                            text = subText,
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -146,11 +155,16 @@ fun PoomsaePlayerScreen(
                                     tint = if (isSelected) TaegeukBlue else MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
+                                val tabTitle = if (mode == PoomsaeDisplayMode.VIDEO) {
+                                    AppStrings.modeVideo(lang)
+                                } else {
+                                    AppStrings.modeCheatSheet(lang)
+                                }
                                 Text(
-                                    text = mode.label,
+                                    text = tabTitle,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                    color = if (isSelected) TaegeukBlue else MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 13.sp
+                                    fontSize = 13.sp,
+                                    color = if (isSelected) TaegeukBlue else MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -158,57 +172,59 @@ fun PoomsaePlayerScreen(
                 }
             }
 
-            // Render Content based on selected mode
-            if (displayMode == PoomsaeDisplayMode.CHEAT_SHEET) {
-                TaegeukCheatSheetView(
-                    poomsae = selectedPoomsae,
-                    modifier = Modifier.weight(1f)
-                )
-            } else {
-                // Video Mode
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                ) {
-                    // Dual Angle Switcher Bar & Speed menu
-                    item {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 4.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Button(
-                                    onClick = { selectedAngle = VideoAngle.FRONT },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (selectedAngle == VideoAngle.FRONT) TaegeukBlue else MaterialTheme.colorScheme.surfaceVariant,
-                                        contentColor = if (selectedAngle == VideoAngle.FRONT) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
-                                    ),
-                                    shape = RoundedCornerShape(20.dp),
-                                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
-                                ) {
-                                    Icon(Icons.Default.Videocam, contentDescription = null, modifier = Modifier.size(16.dp))
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text("Angle 1: Front (0°)", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                                }
+            // Main Content Area
+            when (displayMode) {
+                PoomsaeDisplayMode.CHEAT_SHEET -> {
+                    TaegeukCheatSheetView(
+                        poomsae = selectedPoomsae,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
 
-                                Button(
-                                    onClick = { selectedAngle = VideoAngle.SIDE },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (selectedAngle == VideoAngle.SIDE) TaegeukRed else MaterialTheme.colorScheme.surfaceVariant,
-                                        contentColor = if (selectedAngle == VideoAngle.SIDE) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
-                                    ),
-                                    shape = RoundedCornerShape(20.dp),
-                                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
-                                ) {
-                                    Icon(Icons.Default.Videocam, contentDescription = null, modifier = Modifier.size(16.dp))
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text("Angle 2: Side (90°)", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                PoomsaeDisplayMode.VIDEO -> {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f)
+                    ) {
+                        // Angle Switcher Bar & Speed Controls
+                        item {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Button(
+                                        onClick = { selectedAngle = VideoAngle.FRONT },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = if (selectedAngle == VideoAngle.FRONT) TaegeukBlue else MaterialTheme.colorScheme.surfaceVariant,
+                                            contentColor = if (selectedAngle == VideoAngle.FRONT) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+                                        ),
+                                        shape = RoundedCornerShape(20.dp),
+                                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp)
+                                    ) {
+                                        Icon(Icons.Default.Videocam, contentDescription = null, modifier = Modifier.size(16.dp))
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text("Front", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                    }
+
+                                    Button(
+                                        onClick = { selectedAngle = VideoAngle.SIDE },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = if (selectedAngle == VideoAngle.SIDE) TaegeukRed else MaterialTheme.colorScheme.surfaceVariant,
+                                            contentColor = if (selectedAngle == VideoAngle.SIDE) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+                                        ),
+                                        shape = RoundedCornerShape(20.dp),
+                                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp)
+                                    ) {
+                                        Icon(Icons.Default.Videocam, contentDescription = null, modifier = Modifier.size(16.dp))
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text("Side", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                    }
                                 }
-                            }
 
                             // Speed rate toggle
                             Box {
@@ -272,7 +288,7 @@ fun PoomsaePlayerScreen(
                                 color = Color.Black.copy(alpha = 0.65f)
                             ) {
                                 Text(
-                                    text = if (selectedAngle == VideoAngle.FRONT) "📷 FRONT VIEW" else "📷 SIDE VIEW",
+                                    text = if (selectedAngle == VideoAngle.FRONT) "📷 FRONT" else "📷 SIDE",
                                     color = Color.White,
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
@@ -432,7 +448,7 @@ fun PoomsaePlayerScreen(
                                         color = TaegeukBlue
                                     ) {
                                         Text(
-                                            text = "STEP ${(currentStep?.stepIndex ?: 1).toString().padStart(2, '0')} / ${selectedPoomsae.movementCount}",
+                                            text = AppStrings.stepLabel(lang, currentStep?.stepIndex ?: 1, selectedPoomsae.movementCount),
                                             color = Color.White,
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.Bold,
@@ -442,7 +458,7 @@ fun PoomsaePlayerScreen(
 
                                     if (isStepLoopEnabled) {
                                         Text(
-                                            text = "⟲ Step Loop Active",
+                                            text = AppStrings.stepLoopActive(lang),
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = TaegeukBlue
@@ -456,29 +472,47 @@ fun PoomsaePlayerScreen(
                                      fontSize = 19.sp,
                                      fontWeight = FontWeight.Bold
                                  )
+                                val stepDescription = if (lang == AppLanguage.DANISH && currentStep?.danish != null) {
+                                    currentStep.danish!!
+                                } else {
+                                    currentStep?.english ?: "Assume natural ready position"
+                                }
                                 Text(
-                                     text = currentStep?.english ?: "Assume natural ready position",
+                                     text = stepDescription,
                                      fontSize = 13.5.sp,
                                      color = MaterialTheme.colorScheme.onSurfaceVariant
                                  )
+                                if (lang == AppLanguage.ENGLISH && currentStep?.danish != null) {
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = "🇩🇰 ${currentStep.danish}",
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f)
+                                    )
+                                }
 
                                 Spacer(modifier = Modifier.height(10.dp))
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     currentStep?.stance?.let {
                                         AssistChip(
                                             onClick = {},
-                                            label = { Text("Stance: $it", fontSize = 11.sp) }
+                                            label = { Text(AppStrings.stanceLabel(lang, it), fontSize = 11.sp) }
                                         )
                                     }
                                     currentStep?.technique?.let {
                                         AssistChip(
                                             onClick = {},
-                                            label = { Text("Move: $it", fontSize = 11.sp) }
+                                            label = { Text(AppStrings.moveLabel(lang, it), fontSize = 11.sp) }
                                         )
                                     }
                                 }
 
-                                currentStep?.coachingTip?.let { tip ->
+                                val coachingTip = if (lang == AppLanguage.DANISH && currentStep?.coachingTipDanish != null) {
+                                    currentStep.coachingTipDanish
+                                } else {
+                                    currentStep?.coachingTip
+                                }
+                                coachingTip?.let { tip ->
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Row(verticalAlignment = Alignment.Top) {
                                         Icon(
@@ -503,7 +537,7 @@ fun PoomsaePlayerScreen(
                     // Step List Directory Header
                     item {
                         Text(
-                            text = "Full Movement Checklist (${selectedPoomsae.steps.size} steps)",
+                            text = AppStrings.movementChecklist(lang, selectedPoomsae.steps.size),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -570,8 +604,13 @@ fun PoomsaePlayerScreen(
                                             }
                                         }
                                     }
+                                    val itemDescription = if (lang == AppLanguage.DANISH && step.danish != null) {
+                                        step.danish
+                                    } else {
+                                        step.english
+                                    }
                                     Text(
-                                        text = step.english,
+                                        text = itemDescription,
                                         fontSize = 12.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -593,6 +632,7 @@ fun PoomsaePlayerScreen(
             }
         }
     }
+}
 }
 
 @Composable

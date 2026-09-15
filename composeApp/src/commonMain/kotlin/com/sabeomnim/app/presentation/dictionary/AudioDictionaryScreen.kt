@@ -22,6 +22,9 @@ import androidx.compose.ui.unit.sp
 import com.sabeomnim.app.core.audio.rememberAudioService
 import com.sabeomnim.app.core.designsystem.TaegeukBlue
 import com.sabeomnim.app.core.designsystem.TaegeukRed
+import com.sabeomnim.app.core.i18n.AppLanguage
+import com.sabeomnim.app.core.i18n.AppStrings
+import com.sabeomnim.app.core.i18n.LocalAppLanguage
 import com.sabeomnim.app.data.models.BeltRank
 import com.sabeomnim.app.data.models.TermCategory
 import com.sabeomnim.app.data.repository.TerminologyRepository
@@ -29,6 +32,7 @@ import com.sabeomnim.app.data.repository.TerminologyRepository
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AudioDictionaryScreen() {
+    val lang = LocalAppLanguage.current
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<TermCategory?>(null) }
     var selectedBeltFilter by remember { mutableStateOf<BeltRank?>(null) }
@@ -61,7 +65,7 @@ fun AudioDictionaryScreen() {
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Glossary & Audio", fontWeight = FontWeight.Bold, color = TaegeukRed, fontSize = 20.sp)
+                    Text(AppStrings.tabGlossary(lang), fontWeight = FontWeight.Bold, color = TaegeukRed, fontSize = 20.sp)
                 },
                 actions = {
                     // Slow Audio Toggle
@@ -70,7 +74,7 @@ fun AudioDictionaryScreen() {
                         onClick = { isSlowMode = !isSlowMode },
                         label = {
                             Text(
-                                if (isSlowMode) "🐢 Slow (0.65x)" else "🐰 Normal Speed",
+                                if (isSlowMode) AppStrings.slowAudio(lang) else AppStrings.normalSpeed(lang),
                                 fontSize = 12.sp,
                                 fontWeight = if (isSlowMode) FontWeight.Bold else FontWeight.Normal
                             )
@@ -93,7 +97,7 @@ fun AudioDictionaryScreen() {
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search English or Romanization...") },
+                placeholder = { Text(AppStrings.searchPlaceholder(lang)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
@@ -121,16 +125,17 @@ fun AudioDictionaryScreen() {
                     FilterChip(
                         selected = selectedCategory == null,
                         onClick = { selectedCategory = null },
-                        label = { Text("All ($count)") }
+                        label = { Text("${AppStrings.allCategories(lang)} ($count)") }
                     )
                 }
                 items(TermCategory.entries) { cat ->
                     val isSelected = selectedCategory == cat
                     val count = allTerms.count { it.category == cat }
+                    val catTitle = if (lang == AppLanguage.DANISH) cat.titleDanish else cat.title
                     FilterChip(
                         selected = isSelected,
                         onClick = { selectedCategory = if (isSelected) null else cat },
-                        label = { Text("${cat.title} ($count)") }
+                        label = { Text("$catTitle ($count)") }
                     )
                 }
             }
@@ -139,17 +144,17 @@ fun AudioDictionaryScreen() {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 6.dp),
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${filteredTerms.size} of ${allTerms.size} terms",
+                    text = "${filteredTerms.size} ${AppStrings.termsCount(lang, allTerms.size)}",
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "Tap 🔊 to hear Korean",
+                    text = AppStrings.tapToHearAudio(lang),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     color = TaegeukBlue
@@ -196,12 +201,17 @@ fun AudioDictionaryScreen() {
                                         fontWeight = FontWeight.Bold,
                                         color = if (isPlaying) TaegeukBlue else MaterialTheme.colorScheme.onSurface
                                     )
+                                    val catBadge = if (lang == AppLanguage.DANISH) {
+                                        term.category.titleDanish.substringBefore(" (").substringBefore(" &")
+                                    } else {
+                                        term.category.title.substringBefore(" (").substringBefore(" &")
+                                    }
                                     Surface(
                                         shape = RoundedCornerShape(4.dp),
                                         color = MaterialTheme.colorScheme.surfaceVariant
                                     ) {
                                         Text(
-                                            text = term.category.title.substringBefore(" (").substringBefore(" &"),
+                                            text = catBadge,
                                             fontSize = 10.sp,
                                             fontWeight = FontWeight.Bold,
                                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
@@ -219,16 +229,44 @@ fun AudioDictionaryScreen() {
                                 }
 
                                 Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = term.english,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                                if (lang == AppLanguage.DANISH && term.danish != null) {
+                                    Text(
+                                        text = term.danish!!,
+                                        fontSize = 14.5.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = TaegeukBlue
+                                    )
+                                    Spacer(modifier = Modifier.height(1.dp))
+                                    Text(
+                                        text = "🇬🇧 ${term.english}",
+                                        fontSize = 12.5.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                } else {
+                                    Text(
+                                        text = term.english,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    if (term.danish != null) {
+                                        Spacer(modifier = Modifier.height(1.dp))
+                                        Text(
+                                            text = "🇩🇰 ${term.danish}",
+                                            fontSize = 12.5.sp,
+                                            color = TaegeukBlue
+                                        )
+                                    }
+                                }
 
                                 Spacer(modifier = Modifier.height(4.dp))
+                                val explanation = if (lang == AppLanguage.DANISH && term.danishExplanation != null) {
+                                    term.danishExplanation
+                                } else {
+                                    term.explanation
+                                }
                                 Text(
-                                    text = term.explanation,
+                                    text = explanation,
                                     fontSize = 12.sp,
                                     lineHeight = 16.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant

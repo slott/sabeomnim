@@ -33,6 +33,9 @@ import androidx.compose.ui.unit.sp
 import com.sabeomnim.app.core.designsystem.KukkiwonGold
 import com.sabeomnim.app.core.designsystem.TaegeukBlue
 import com.sabeomnim.app.core.designsystem.TaegeukRed
+import com.sabeomnim.app.core.i18n.AppLanguage
+import com.sabeomnim.app.core.i18n.AppStrings
+import com.sabeomnim.app.core.i18n.LocalAppLanguage
 import com.sabeomnim.app.data.models.BeltRank
 import com.sabeomnim.app.data.repository.BeltRepository
 import com.sabeomnim.app.data.repository.PoomsaeRepository
@@ -45,8 +48,10 @@ fun BeltDashboardScreen(
     onBeltSelected: (BeltRank) -> Unit,
     onOpenPoomsae: (String) -> Unit,
     onOpenQuiz: (BeltRank) -> Unit,
-    onOpenDictionary: () -> Unit
+    onOpenDictionary: () -> Unit,
+    onToggleLanguage: () -> Unit = {}
 ) {
+    val lang = LocalAppLanguage.current
     val curriculum = BeltRepository.getCurriculum(selectedBelt)
     val poomsae = PoomsaeRepository.getPoomsaeForBelt(selectedBelt)
     val quizCount = QuizRepository.getQuestionsForBelt(selectedBelt).size
@@ -62,11 +67,31 @@ fun BeltDashboardScreen(
     ) {
             item {
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Select Belt Grade",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = AppStrings.selectBeltGrade(lang),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    FilterChip(
+                        selected = true,
+                        onClick = onToggleLanguage,
+                        label = {
+                            Text(
+                                text = if (lang == AppLanguage.DANISH) "🇩🇰 Dansk" else "🇬🇧 English",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(Icons.Default.Language, contentDescription = "Language", modifier = Modifier.size(16.dp))
+                        }
+                    )
+                }
                 Spacer(modifier = Modifier.height(8.dp))
                 BeltSelectorRow(
                     selectedBelt = selectedBelt,
@@ -97,13 +122,13 @@ fun BeltDashboardScreen(
                                 .padding(end = 12.dp)
                         ) {
                             Text(
-                                text = selectedBelt.gradeText,
+                                text = selectedBelt.localizedGrade(lang),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color(selectedBelt.accentColorHex)
                             )
                             Text(
-                                text = selectedBelt.title,
+                                text = selectedBelt.localizedTitle(lang),
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -202,13 +227,14 @@ fun BeltDashboardScreen(
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 17.sp
                                     )
+                                    val poomsaeTitle = if (lang == AppLanguage.DANISH && poomsae.nameDanish != null) poomsae.nameDanish else poomsae.nameEnglish
                                     Text(
-                                        text = "${poomsae.nameEnglish} • ${poomsae.movementCount} Moves",
+                                        text = "$poomsaeTitle • ${poomsae.movementCount} ${AppStrings.moves(lang)}",
                                         fontSize = 13.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                     Text(
-                                        text = "Dual-Angle HD Video + Subtitles",
+                                        text = AppStrings.dualAngleVideoBadge(lang),
                                         fontSize = 12.sp,
                                         color = TaegeukBlue,
                                         fontWeight = FontWeight.Medium
@@ -257,12 +283,12 @@ fun BeltDashboardScreen(
                             Spacer(modifier = Modifier.width(14.dp))
                             Column {
                                 Text(
-                                    text = "Grading Theory Exam",
+                                    text = AppStrings.gradingExamTitle(lang),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 17.sp
                                 )
                                 Text(
-                                    text = "$quizCount Questions for ${selectedBelt.gradeText}",
+                                    text = "$quizCount ${AppStrings.questionsCount(lang, selectedBelt.localizedGrade(lang))}",
                                     fontSize = 13.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -276,7 +302,7 @@ fun BeltDashboardScreen(
             // Required Techniques Breakdown Header
             item {
                 Text(
-                    text = "Required Techniques for ${selectedBelt.gradeText}",
+                    text = "${AppStrings.requiredTechniques(lang)} (${selectedBelt.localizedGrade(lang)})",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -285,10 +311,11 @@ fun BeltDashboardScreen(
             items(curriculum.techniques) { tech ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surface
-                    )
+                    ),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                 ) {
                     Row(
                         modifier = Modifier
@@ -298,12 +325,8 @@ fun BeltDashboardScreen(
                     ) {
                         Surface(
                             shape = RoundedCornerShape(6.dp),
-                            color = when (tech.type) {
-                                "Kick" -> TaegeukRed.copy(alpha = 0.15f)
-                                "Block" -> TaegeukBlue.copy(alpha = 0.15f)
-                                "Strike" -> KukkiwonGold.copy(alpha = 0.2f)
-                                else -> MaterialTheme.colorScheme.secondaryContainer
-                            }
+                            color = TaegeukBlue.copy(alpha = 0.12f),
+                            contentColor = TaegeukBlue
                         ) {
                             Text(
                                 text = tech.type,
@@ -346,6 +369,7 @@ fun BeltSelectorRow(
     selectedBelt: BeltRank,
     onBeltSelected: (BeltRank) -> Unit
 ) {
+    val lang = LocalAppLanguage.current
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -356,7 +380,7 @@ fun BeltSelectorRow(
                 onClick = { onBeltSelected(belt) },
                 label = {
                     Text(
-                        text = belt.gradeText,
+                        text = belt.localizedGrade(lang),
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                     )
                 },

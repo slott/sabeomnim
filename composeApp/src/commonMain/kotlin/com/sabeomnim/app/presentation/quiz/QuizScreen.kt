@@ -26,6 +26,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sabeomnim.app.core.i18n.LocalAppLanguage
+import com.sabeomnim.app.core.i18n.AppStrings
 import com.sabeomnim.app.core.audio.rememberAudioService
 import com.sabeomnim.app.core.ui.belt.UnfoldingBeltView
 import com.sabeomnim.app.core.ui.confetti.ConfettiHost
@@ -42,6 +44,7 @@ import com.sabeomnim.app.data.repository.QuizRepository
 fun QuizScreen(
     initialBelt: BeltRank = BeltRank.WHITE
 ) {
+    val lang = LocalAppLanguage.current
     var selectedBelt by remember { mutableStateOf(initialBelt) }
     var currentQuestionIndex by remember { mutableStateOf(0) }
     var selectedOptionIndex by remember { mutableStateOf<Int?>(null) }
@@ -119,8 +122,8 @@ fun QuizScreen(
             TopAppBar(
                 title = {
                     Column {
-                        Text("Grading Theory Exam", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TaegeukRed)
-                        Text("${selectedBelt.title} (${selectedBelt.gradeText})", fontSize = 13.sp)
+                        Text(AppStrings.quizTitle(lang), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TaegeukRed)
+                        Text("${selectedBelt.localizedTitle(lang)} (${selectedBelt.localizedGrade(lang)})", fontSize = 13.sp)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -151,7 +154,7 @@ fun QuizScreen(
                                 selectedBelt = belt
                                 resetQuiz()
                             },
-                            label = { Text(belt.gradeText) },
+                            label = { Text(belt.localizedGrade(lang)) },
                             leadingIcon = {
                                 com.sabeomnim.app.core.ui.belt.BeltMiniIcon(belt = belt)
                             }
@@ -177,7 +180,7 @@ fun QuizScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = if (passed) "🎉 PROMOTION READY!" else "📚 NEEDS STUDY (Retake)",
+                                text = if (passed) AppStrings.passedPromotion(lang) else AppStrings.needsStudy(lang),
                                 fontSize = 21.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = if (passed) Color(0xFF2E7D32) else TaegeukRed
@@ -195,14 +198,18 @@ fun QuizScreen(
 
                             Spacer(modifier = Modifier.height(14.dp))
                             Text(
-                                text = "Your Score: $score / ${questions.size}",
+                                text = "${AppStrings.scoreLabel(lang, score, questions.size)}",
                                 fontSize = 28.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             val percent = if (questions.isNotEmpty()) (score * 100) / questions.size else 0
                             Text(
-                                text = "$percent% Mastery for ${selectedBelt.gradeText}" + if (!passed) " (70% required to pass)" else "",
+                                text = if (lang == com.sabeomnim.app.core.i18n.AppLanguage.DANISH) {
+                                    "$percent% mestring for ${selectedBelt.localizedGrade(lang)}" + if (!passed) " (70% krævet for at bestå)" else ""
+                                } else {
+                                    "$percent% Mastery for ${selectedBelt.gradeText}" + if (!passed) " (70% required to pass)" else ""
+                                },
                                 fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -222,7 +229,7 @@ fun QuizScreen(
                                 ) {
                                     Icon(Icons.Default.Refresh, contentDescription = null)
                                     Spacer(modifier = Modifier.width(6.dp))
-                                    Text("Retake", maxLines = 1)
+                                    Text(AppStrings.retakeQuiz(lang), maxLines = 1)
                                 }
 
                                 if (passed) {
@@ -247,13 +254,13 @@ fun QuizScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = "Question ${currentQuestionIndex + 1} of ${questions.size}",
+                                text = AppStrings.questionCounter(lang, currentQuestionIndex + 1, questions.size),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = TaegeukBlue
                             )
                             Text(
-                                text = "Score: $score",
+                                text = if (lang == com.sabeomnim.app.core.i18n.AppLanguage.DANISH) "Point: $score" else "Score: $score",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -397,7 +404,7 @@ fun QuizScreen(
                         ) {
                             Column(modifier = Modifier.padding(14.dp)) {
                                 Text(
-                                    text = "Explanation:",
+                                    text = if (lang == com.sabeomnim.app.core.i18n.AppLanguage.DANISH) "Forklaring:" else "Explanation:",
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 13.sp,
                                     color = TaegeukBlue
@@ -435,9 +442,9 @@ fun QuizScreen(
                             // 1. Shaded progress bar fill sweeping across the button
                             Box(
                                 modifier = Modifier
-                                    .fillMaxHeight()
-                                    .fillMaxWidth(autoNextProgress)
-                                    .background(Color.White.copy(alpha = 0.22f))
+                                .fillMaxHeight()
+                                .fillMaxWidth(autoNextProgress)
+                                .background(Color.White.copy(alpha = 0.22f))
                             )
 
                             // 2. High-contrast accent progress bar across the bottom
@@ -458,7 +465,7 @@ fun QuizScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = if (isLastQuestion) "See Results" else "Next Question",
+                                    text = if (isLastQuestion) AppStrings.finishQuiz(lang) else AppStrings.nextQuestion(lang),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 15.sp,
                                     color = MaterialTheme.colorScheme.onPrimary
@@ -499,7 +506,7 @@ fun QuizScreen(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(10.dp)
                         ) {
-                            Text("Submit Answer")
+                            Text(AppStrings.submitAnswer(lang))
                         }
                     }
                 }

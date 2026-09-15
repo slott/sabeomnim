@@ -6,27 +6,220 @@ import com.sabeomnim.app.data.models.TerminologyEntry
 
 object TerminologyRepository {
 
-    fun getAllTerms(): List<TerminologyEntry> = allTerms
+    fun getAllTerms(): List<TerminologyEntry> = terms
 
     fun getTermsByCategory(category: TermCategory): List<TerminologyEntry> =
-        allTerms.filter { it.category == category }
+        terms.filter { it.category == category }
 
     fun getTermsByBelt(rank: BeltRank): List<TerminologyEntry> =
-        allTerms.filter { it.beltRank == rank }
+        terms.filter { it.beltRank == rank }
 
     fun searchTerms(query: String): List<TerminologyEntry> {
         val q = query.trim().lowercase()
-        if (q.isEmpty()) return allTerms
-        return allTerms.filter {
+        if (q.isEmpty()) return terms
+        return terms.filter {
             it.hangul.contains(q) ||
             it.romanized.lowercase().contains(q) ||
             (it.phoneticSpelling?.lowercase()?.contains(q) == true) ||
             it.english.lowercase().contains(q) ||
+            (it.danish?.lowercase()?.contains(q) == true) ||
+            (it.danishExplanation?.lowercase()?.contains(q) == true) ||
             it.explanation.lowercase().contains(q)
         }
     }
 
-    private val allTerms = listOf(
+    private val danishDictionary = mapOf(
+        // General & Etiquette
+        "term_1_gen_taekwond" to "Taekwondo (Fodens og håndens vej)",
+        "term_2_gen_studio_o" to "Træningssal (Dojang)",
+        "term_3_gen_uniform" to "Taekwondo-dragt (Dobok)",
+        "term_4_gen_belt" to "Bælte (Dti)",
+        "term_5_gen_grade,ra" to "Elevgrad (Kup-grad)",
+        "term_6_gen_degree_" to "Mestergrad / Sort bælte (Dan-grad)",
+        "term_7_gen_flag" to "Nationalflag (Taegeukgi)",
+        "term_8_gen_master" to "Mester / Instruktør (Sabeomnim)",
+        "term_9_gen_grand_ma" to "Stormester (Kwanjangnim)",
+        "term_10_gen_chief_in" to "Chefindstruktør",
+        "term_11_gen_instruct" to "Instruktør (Gyosannim)",
+        "term_12_gen_senior_s" to "Senior-elev (Sunbaenim)",
+        "term_13_gen_junior_s" to "Junior-elev (Hubaenim)",
+        "term_14_gen_thank_yo" to "Mange tak! (Gamsahamnida)",
+        "term_15_gen_you're_w" to "Selv tak (Cheonmaneyo)",
+        "term_16_gen_how_are_" to "Goddag / Hvordan går det? (Annyeonghaseyo)",
+        "term_17_gen_goodbye" to "Farvel (Annyeonghi gyeseyo / gaseyo)",
+        "term_18_gen_attentio" to "Giv agt! (Charyeot)",
+        "term_19_gen_bow" to "Hils! / Buk! (Gyeongnye)",
+        "term_20_gen_ready" to "Indtag klarstand! (Junbi)",
+        "term_21_gen_start_or" to "Begynd! (Sijak)",
+        "term_22_gen_stop" to "Stop! (Geoman)",
+        "term_23_gen_return_t" to "Tilbage til klar! (Baro)",
+        "term_24_gen_at_ease" to "Slap af / Hvil! (Swieo)",
+        "term_25_gen_yell" to "Kampråb (Kihap)",
+        "term_26_gen_form" to "Mønster / Form (Poomsae)",
+        "term_27_gen_sparring" to "Fri kamp (Kyorugi)",
+        "term_28_gen_breaking" to "Gennembrydning (Gyeokpa)",
+        "term_29_gen_self_def" to "Selvforsvar (Hosinsul)",
+        "term_30_gen_meditati" to "Meditation / Mental ro (Muknyeom)",
+
+        // Stances
+        "term_31_sta_stance" to "Stand (Seogi)",
+        "term_32_sta_attentio" to "Opmærksomhedsstand (Charyeot-seogi)",
+        "term_33_sta_closed_s" to "Samlet stand (Moa-seogi)",
+        "term_34_sta_parallel" to "Parallelstand (Naranhi-seogi)",
+        "term_35_sta_ready_st" to "Klarstand (Junbi-seogi)",
+        "term_36_sta_walking_" to "Kort gå-stand (Ap-seogi)",
+        "term_37_sta_forward_" to "Lang stand / Fremadrettet stand (Ap-kubi)",
+        "term_38_sta_back_sta" to "Sidestand (Dwit-kubi - 70/30 vægt)",
+        "term_39_sta_horse-ri" to "Hestestand (Juchum-seogi)",
+        "term_40_sta_tiger_st" to "Tigerstand (Beom-seogi)",
+        "term_41_sta_cross_st" to "Krydsstand (Koa-seogi)",
+        "term_42_sta_crane_st" to "Trane-stand (Hakdari-seogi)",
+
+        // Blocks
+        "term_43_blo_block" to "Blokade (Makgi)",
+        "term_44_blo_low_bloc" to "Lav blokade (Arae-makgi)",
+        "term_45_blo_middle_b" to "Midter blokade (Momtong-makgi)",
+        "term_46_blo_inner_mi" to "Indadgående midter blokade (Momtong an-makgi)",
+        "term_47_blo_outer_mi" to "Udadgående midter blokade (Momtong bakkat-makgi)",
+        "term_48_blo_high_blo" to "Høj blokade (Olgul-makgi)",
+        "term_49_blo_knife_ha" to "Knivhåndsblokade (Sonnal-makgi)",
+        "term_50_blo_double_k" to "Dobbelt knivhåndsblokade (Sonnal momtong-makgi)",
+        "term_51_blo_single_k" to "Enkelt knivhåndsblokade (Hansonnal-makgi)",
+        "term_52_blo_palm_hee" to "Håndrodsblokade (Batangson-makgi)",
+        "term_53_blo_scissors" to "Sakseblokade (Gawi-makgi)",
+        "term_54_blo_mountain" to "Bjergblokade (Santeul-makgi)",
+        "term_55_blo_single_m" to "Enkelt bjergblokade (Oe-santeul-makgi)",
+        "term_56_blo_spreadin" to "Adskillelsesblokade (Hecheo-makgi)",
+
+        // Punches & Strikes
+        "term_57_pun_punch" to "Stød / Slag (Jireugi)",
+        "term_58_pun_middle_p" to "Midter stød / Stød i kropshøjde (Momtong-jireugi)",
+        "term_59_pun_high_pun" to "Højt stød / Stød mod ansigt (Olgul-jireugi)",
+        "term_60_pun_low_punc" to "Lavt stød (Arae-jireugi)",
+        "term_61_pun_reverse_" to "Modsat stød (Bandae-jireugi)",
+        "term_62_pun_regular_" to "Ligestillet stød (Baro-jireugi)",
+        "term_63_pun_double_p" to "Dobbelt stød (Dubeon-jireugi)",
+        "term_64_pun_triple_p" to "Tredobbelt stød (Sebeon-jireugi)",
+        "term_65_pun_side_pun" to "Sidelæns stød (Yeop-jireugi)",
+        "term_66_str_strike" to "Slag / Håndkantslag (Chigi)",
+        "term_67_str_knife_ha" to "Knivhåndsslag mod hals (Sonnal mok-chigi)",
+        "term_68_str_knife_ha" to "Udadgående knivhåndsslag (Sonnal bakkat-chigi)",
+        "term_69_str_hammerfi" to "Hammerknytnæveslag nedad (Me-jumeok)",
+        "term_70_str_backfist" to "Omvendt knytnæveslag mod ansigt (Deung-jumeok)",
+        "term_71_str_elbow_st" to "Albuestød / Albueslag (Palkup-chigi)",
+        "term_72_str_elbow_ta" to "Albuestød mod håndflademål (Palkup pyojeok-chigi)",
+        "term_73_str_knee_str" to "Knæstød (Mureup-chigi)",
+        "term_74_str_spear_fi" to "Spydhåndsstik (Pyeon-son-kkeut)",
+
+        // Kicks
+        "term_75_kic_kick" to "Spark (Chagi)",
+        "term_76_kic_front_ki" to "Fremadrettet spark / Frontspark (Ap-chagi)",
+        "term_77_kic_roundhou" to "Cirkelspark / Roundhouse-spark (Dollyo-chagi)",
+        "term_78_kic_side_kic" to "Sidespark (Yeop-chagi)",
+        "term_79_kic_back_kic" to "Bagudspark (Dwi-chagi)",
+        "term_80_kic_axe_kick" to "Øksespark / Nedadgående spark (Naeryeo-chagi)",
+        "term_81_kic_crescent" to "Halvmånespark (Bandal-chagi)",
+        "term_82_kic_hook_kic" to "Krogspark / Drejende krogspark (Dwi-hurigi)",
+        "term_83_kic_twisting" to "Vridspark (Biteureo-chagi)",
+        "term_84_kic_jumping_" to "Flyvende spark / Hopspark (Twieo-chagi)",
+        "term_85_kic_double_f" to "Flyvende dobbelt frontspark (Du-bal dangsang-chagi)",
+
+        // Directions & Anatomy
+        "term_86_dir_low" to "Lav sektion (Arae)",
+        "term_87_dir_middle" to "Midter sektion (Momtong)",
+        "term_88_dir_high" to "Høj sektion / Ansigt (Olgul)",
+        "term_89_dir_front" to "Fremad / Front (Ap)",
+        "term_90_dir_back" to "Bagud (Dwi)",
+        "term_91_dir_side" to "Side (Yeop)",
+        "term_92_dir_inward" to "Indad (An)",
+        "term_93_dir_outward" to "Udad (Bakkat)",
+        "term_94_dir_left" to "Venstre (Oen)",
+        "term_95_dir_right" to "Højre (Oreun)",
+        "term_96_ana_fist" to "Knytnæve (Jumeok)",
+        "term_97_ana_hand" to "Hånd (Son)",
+        "term_98_ana_foot" to "Fod (Bal)",
+        "term_99_ana_ball_of_" to "Fodbalde (Ap-chuk)",
+        "term_100_ana_blade_o" to "Fodkniv / Fodens yderkant (Balnal)",
+        "term_101_ana_instep" to "Fodryg (Baldeung)",
+        "term_102_ana_heel" to "Hæl (Dwi-chuk)",
+        "term_103_ana_knee" to "Knæ (Mureup)",
+        "term_104_ana_elbow" to "Albue (Palkup)"
+    )
+
+    private fun enrichWithDanish(entry: TerminologyEntry): TerminologyEntry {
+        val da = danishDictionary[entry.id] ?: generateDanishTranslation(entry)
+        return entry.copy(danish = da)
+    }
+
+    private fun generateDanishTranslation(entry: TerminologyEntry): String {
+        return when (entry.category) {
+            TermCategory.NUMBERS_NATIVE -> {
+                when {
+                    entry.english.contains("100") -> "Hundrede (100)"
+                    entry.english.contains("90") -> "Halvfems (90)"
+                    entry.english.contains("80") -> "Firs (80)"
+                    entry.english.contains("70") -> "Halvfjerds (70)"
+                    entry.english.contains("60") -> "Tres (60)"
+                    entry.english.contains("50") -> "Halvtreds (50)"
+                    entry.english.contains("40") -> "Fyrre (40)"
+                    entry.english.contains("30") -> "Tredive (30)"
+                    entry.english.contains("20") -> "Tyve (20)"
+                    entry.english.contains("10") -> "Ti (10)"
+                    entry.english.contains("9") -> "Ni (9)"
+                    entry.english.contains("8") -> "Otte (8)"
+                    entry.english.contains("7") -> "Syv (7)"
+                    entry.english.contains("6") -> "Seks (6)"
+                    entry.english.contains("5") -> "Fem (5)"
+                    entry.english.contains("4") -> "Fire (4)"
+                    entry.english.contains("3") -> "Tre (3)"
+                    entry.english.contains("2") -> "To (2)"
+                    entry.english.contains("1") -> "En (1)"
+                    else -> entry.english
+                }
+            }
+            TermCategory.NUMBERS_SINO -> {
+                when {
+                    entry.english.contains("50th") -> "Halvtredsindstyvende (50.)"
+                    entry.english.contains("40th") -> "Fyrretyvende (40.)"
+                    entry.english.contains("30th") -> "Tredivte (30.)"
+                    entry.english.contains("20th") -> "Tyvende (20.)"
+                    entry.english.contains("10th") -> "Tiende (10.)"
+                    entry.english.contains("9th") -> "Niende (9.)"
+                    entry.english.contains("8th") -> "Ottende (8.)"
+                    entry.english.contains("7th") -> "Syvende (7.)"
+                    entry.english.contains("6th") -> "Sjette (6.)"
+                    entry.english.contains("5th") -> "Femte (5.)"
+                    entry.english.contains("4th") -> "Fjerde (4.)"
+                    entry.english.contains("3rd") -> "Tredje (3.)"
+                    entry.english.contains("2nd") -> "Anden (2.)"
+                    entry.english.contains("1st") -> "Første (1.)"
+                    else -> entry.english
+                }
+            }
+            TermCategory.KICKS -> {
+                if (entry.english.contains("kick", ignoreCase = true)) {
+                    entry.english.replace("kick", "spark", ignoreCase = true)
+                } else entry.english
+            }
+            TermCategory.BLOCKS -> {
+                if (entry.english.contains("block", ignoreCase = true)) {
+                    entry.english.replace("block", "blokade", ignoreCase = true)
+                } else entry.english
+            }
+            TermCategory.STANCES -> {
+                if (entry.english.contains("stance", ignoreCase = true)) {
+                    entry.english.replace("stance", "stand", ignoreCase = true)
+                } else entry.english
+            }
+            else -> entry.english
+        }
+    }
+
+    private val terms: List<TerminologyEntry> by lazy {
+        rawTerms.map { enrichWithDanish(it) }
+    }
+
+    private val rawTerms = listOf(
         TerminologyEntry(
             id = "term_1_gen_taekwond",
             category = TermCategory.GENERAL,
