@@ -98,6 +98,7 @@ fun App() {
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxHeight()
+                                .statusBarsPadding()
                         ) {
                             AppScreenContent(
                                 currentTab = currentTab,

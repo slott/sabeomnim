@@ -31,7 +31,9 @@ import com.sabeomnim.app.data.repository.TerminologyRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AudioDictionaryScreen() {
+fun AudioDictionaryScreen(
+    modifier: Modifier = Modifier
+) {
     val lang = LocalAppLanguage.current
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<TermCategory?>(null) }
@@ -61,39 +63,44 @@ fun AudioDictionaryScreen() {
         list
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(AppStrings.tabGlossary(lang), fontWeight = FontWeight.Bold, color = TaegeukRed, fontSize = 20.sp)
-                },
-                actions = {
-                    // Slow Audio Toggle
-                    FilterChip(
-                        selected = isSlowMode,
-                        onClick = { isSlowMode = !isSlowMode },
-                        label = {
-                            Text(
-                                if (isSlowMode) AppStrings.slowAudio(lang) else AppStrings.normalSpeed(lang),
-                                fontSize = 12.sp,
-                                fontWeight = if (isSlowMode) FontWeight.Bold else FontWeight.Normal
-                            )
-                        },
-                        modifier = Modifier.padding(end = 8.dp)
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        // 1. Header with title and slow audio toggle
+        item(key = "glossary_header") {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp, bottom = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = AppStrings.tabGlossary(lang),
+                    fontWeight = FontWeight.Bold,
+                    color = TaegeukRed,
+                    fontSize = 22.sp
                 )
-            )
+                // Slow Audio Toggle
+                FilterChip(
+                    selected = isSlowMode,
+                    onClick = { isSlowMode = !isSlowMode },
+                    label = {
+                        Text(
+                            text = if (isSlowMode) AppStrings.slowAudio(lang) else AppStrings.normalSpeed(lang),
+                            fontSize = 12.sp,
+                            fontWeight = if (isSlowMode) FontWeight.Bold else FontWeight.Normal
+                        )
+                    }
+                )
+            }
         }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            // Search Input Field
+
+        // 2. Search Input Field
+        item(key = "glossary_search") {
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
@@ -108,16 +115,14 @@ fun AudioDictionaryScreen() {
                 },
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                modifier = Modifier.fillMaxWidth()
             )
+        }
 
-            // Category Chips Row (10 Complete Blue Dragon Categories)
+        // 3. Category Chips Row (10 Complete Blue Dragon Categories)
+        item(key = "glossary_categories") {
             LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 item {
@@ -139,12 +144,12 @@ fun AudioDictionaryScreen() {
                     )
                 }
             }
+        }
 
-            // Results count and pronunciation tip
+        // 4. Results count and pronunciation tip
+        item(key = "glossary_count") {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -160,16 +165,11 @@ fun AudioDictionaryScreen() {
                     color = TaegeukBlue
                 )
             }
+        }
 
-            // Terminology List
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                items(filteredTerms, key = { it.id }) { term ->
-                    val isPlaying = currentlyPlayingId == term.id
+        // 5. Terminology List
+        items(filteredTerms, key = { it.id }) { term ->
+            val isPlaying = currentlyPlayingId == term.id
 
                     Card(
                         modifier = Modifier
@@ -301,6 +301,4 @@ fun AudioDictionaryScreen() {
                     Spacer(modifier = Modifier.height(32.dp))
                 }
             }
-        }
-    }
 }

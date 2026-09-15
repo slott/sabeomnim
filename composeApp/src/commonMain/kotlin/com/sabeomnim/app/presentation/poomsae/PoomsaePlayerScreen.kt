@@ -40,7 +40,8 @@ enum class PoomsaeDisplayMode(val label: String, val icon: ImageVector) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PoomsaePlayerScreen(
-    initialPoomsaeId: String = "taegeuk_1"
+    initialPoomsaeId: String = "taegeuk_1",
+    modifier: Modifier = Modifier
 ) {
     val lang = LocalAppLanguage.current
     var selectedPoomsae by remember {
@@ -75,124 +76,54 @@ fun PoomsaePlayerScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            text = selectedPoomsae.nameRomanized,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 17.sp
-                        )
-                        val subText = if (lang == AppLanguage.DANISH && selectedPoomsae.nameDanish != null) {
-                            "${selectedPoomsae.nameDanish} • ${selectedPoomsae.trigramSymbol}"
-                        } else {
-                            "${selectedPoomsae.nameEnglish} • ${selectedPoomsae.trigramSymbol}"
-                        }
-                        Text(
-                            text = subText,
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            // Taegeuk Form Selector Carousel
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(PoomsaeRepository.getAllPoomsae()) { poomsae ->
-                    val isSelected = poomsae.id == selectedPoomsae.id
-                    FilterChip(
-                        selected = isSelected,
-                        onClick = {
-                            selectedPoomsae = poomsae
+    when (displayMode) {
+        PoomsaeDisplayMode.CHEAT_SHEET -> {
+            TaegeukCheatSheetView(
+                poomsae = selectedPoomsae,
+                headerContent = {
+                    PoomsaeHeader(
+                        selectedPoomsae = selectedPoomsae,
+                        lang = lang,
+                        onSelectPoomsae = {
+                            selectedPoomsae = it
                             currentPositionMs = 0L
                             seekTargetMs = 0L
                         },
-                        label = { Text("Taegeuk ${poomsae.number}") },
-                        leadingIcon = {
-                            Text(poomsae.trigramSymbol, fontSize = 14.sp)
-                        }
-                    )
-                }
-            }
-
-            // View Mode Tab Bar: Video vs Cheat Sheet
-            TabRow(
-                selectedTabIndex = displayMode.ordinal,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp),
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                indicator = {}
-            ) {
-                PoomsaeDisplayMode.entries.forEach { mode ->
-                    val isSelected = displayMode == mode
-                    Tab(
-                        selected = isSelected,
-                        onClick = { displayMode = mode },
-                        text = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = mode.icon,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp),
-                                    tint = if (isSelected) TaegeukBlue else MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                val tabTitle = if (mode == PoomsaeDisplayMode.VIDEO) {
-                                    AppStrings.modeVideo(lang)
-                                } else {
-                                    AppStrings.modeCheatSheet(lang)
-                                }
-                                Text(
-                                    text = tabTitle,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                    fontSize = 13.sp,
-                                    color = if (isSelected) TaegeukBlue else MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    )
-                }
-            }
-
-            // Main Content Area
-            when (displayMode) {
-                PoomsaeDisplayMode.CHEAT_SHEET -> {
-                    TaegeukCheatSheetView(
-                        poomsae = selectedPoomsae,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-
-                PoomsaeDisplayMode.VIDEO -> {
-                    LazyColumn(
+                        displayMode = displayMode,
+                        onDisplayModeChange = { displayMode = it },
                         modifier = Modifier
-                            .fillMaxSize()
-                            .weight(1f)
-                    ) {
-                        // Angle Switcher Bar & Speed Controls
-                        item {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                    )
+                },
+                modifier = modifier.fillMaxSize()
+            )
+        }
+
+        PoomsaeDisplayMode.VIDEO -> {
+            LazyColumn(
+                modifier = modifier.fillMaxSize(),
+                contentPadding = PaddingValues(top = 12.dp, bottom = 32.dp)
+            ) {
+                item(key = "poomsae_header") {
+                    PoomsaeHeader(
+                        selectedPoomsae = selectedPoomsae,
+                        lang = lang,
+                        onSelectPoomsae = {
+                            selectedPoomsae = it
+                            currentPositionMs = 0L
+                            seekTargetMs = 0L
+                        },
+                        displayMode = displayMode,
+                        onDisplayModeChange = { displayMode = it },
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
+
+                // Angle Switcher Bar & Speed Controls
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 6.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -631,8 +562,103 @@ fun PoomsaePlayerScreen(
                 }
             }
         }
-    }
 }
+
+@Composable
+private fun PoomsaeHeader(
+    selectedPoomsae: Poomsae,
+    lang: AppLanguage,
+    onSelectPoomsae: (Poomsae) -> Unit,
+    displayMode: PoomsaeDisplayMode,
+    onDisplayModeChange: (PoomsaeDisplayMode) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        // Title & Trigram Subtitle
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp, bottom = 4.dp)
+        ) {
+            Text(
+                text = selectedPoomsae.nameRomanized,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+            val subText = if (lang == AppLanguage.DANISH && selectedPoomsae.nameDanish != null) {
+                "${selectedPoomsae.nameDanish} • ${selectedPoomsae.trigramSymbol}"
+            } else {
+                "${selectedPoomsae.nameEnglish} • ${selectedPoomsae.trigramSymbol}"
+            }
+            Text(
+                text = subText,
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        // Taegeuk Form Selector Carousel
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(PoomsaeRepository.getAllPoomsae()) { poomsae ->
+                val isSelected = poomsae.id == selectedPoomsae.id
+                FilterChip(
+                    selected = isSelected,
+                    onClick = { onSelectPoomsae(poomsae) },
+                    label = { Text("Taegeuk ${poomsae.number}") },
+                    leadingIcon = {
+                        Text(poomsae.trigramSymbol, fontSize = 14.sp)
+                    }
+                )
+            }
+        }
+
+        // View Mode Tab Bar: Video vs Cheat Sheet
+        TabRow(
+            selectedTabIndex = displayMode.ordinal,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            indicator = {}
+        ) {
+            PoomsaeDisplayMode.entries.forEach { mode ->
+                val isSelected = displayMode == mode
+                Tab(
+                    selected = isSelected,
+                    onClick = { onDisplayModeChange(mode) },
+                    text = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = mode.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = if (isSelected) TaegeukBlue else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            val tabTitle = if (mode == PoomsaeDisplayMode.VIDEO) {
+                                AppStrings.modeVideo(lang)
+                            } else {
+                                AppStrings.modeCheatSheet(lang)
+                            }
+                            Text(
+                                text = tabTitle,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                fontSize = 13.sp,
+                                color = if (isSelected) TaegeukBlue else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -644,3 +670,4 @@ private fun formatTime(ms: Long): String {
     val seconds = totalSeconds % 60
     return "${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}"
 }
+

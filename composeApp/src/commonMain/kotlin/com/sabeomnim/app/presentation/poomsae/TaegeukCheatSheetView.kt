@@ -40,7 +40,8 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun TaegeukCheatSheetView(
     poomsae: Poomsae,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    headerContent: (@Composable () -> Unit)? = null
 ) {
     var scale by remember(poomsae.id) { mutableStateOf(1f) }
     var offset by remember(poomsae.id) { mutableStateOf(Offset.Zero) }
@@ -64,8 +65,15 @@ fun TaegeukCheatSheetView(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp),
+        contentPadding = PaddingValues(top = 12.dp, bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
+        if (headerContent != null) {
+            item(key = "header_content") {
+                headerContent()
+            }
+        }
+
         // Form Overview & Trigram Philosophy Card
         item {
             Card(
