@@ -583,38 +583,27 @@ private fun PoomsaeHeader(
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
-        // Title & Trigram Subtitle + Settings
-        Row(
+        // Title & Trigram Subtitle
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 10.dp, bottom = 4.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(top = 4.dp, bottom = 4.dp)
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = selectedPoomsae.nameRomanized,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp
-                )
-                val subText = if (lang == AppLanguage.DANISH && selectedPoomsae.nameDanish != null) {
-                    "${selectedPoomsae.nameDanish} • ${selectedPoomsae.trigramSymbol}"
-                } else {
-                    "${selectedPoomsae.nameEnglish} • ${selectedPoomsae.trigramSymbol}"
-                }
-                Text(
-                    text = subText,
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            Text(
+                text = selectedPoomsae.nameRomanized,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+            val subText = if (lang == AppLanguage.DANISH && selectedPoomsae.nameDanish != null) {
+                "${selectedPoomsae.nameDanish} • ${selectedPoomsae.trigramSymbol}"
+            } else {
+                "${selectedPoomsae.nameEnglish} • ${selectedPoomsae.trigramSymbol}"
             }
-            IconButton(onClick = onOpenSettings) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = AppStrings.settingsTitle(lang),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+            Text(
+                text = subText,
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
 
         // Taegeuk Form Selector Carousel

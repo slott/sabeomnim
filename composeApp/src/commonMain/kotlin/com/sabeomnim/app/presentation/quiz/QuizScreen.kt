@@ -118,56 +118,45 @@ fun QuizScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(AppStrings.quizTitle(lang), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TaegeukRed)
-                        Text("${selectedBelt.localizedTitle(lang)} (${selectedBelt.localizedGrade(lang)})", fontSize = 13.sp)
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onOpenSettings) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = AppStrings.settingsTitle(lang)
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            )
-        }
-    ) { paddingValues ->
         LazyColumn(
             state = listState,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Belt Selection Row
+            // Belt Selection Row & Title
             item {
-                LazyRow(
-                    modifier = Modifier.padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(BeltRank.entries) { belt ->
-                        val isSelected = belt == selectedBelt
-                        FilterChip(
-                            selected = isSelected,
-                            onClick = {
-                                selectedBelt = belt
-                                resetQuiz()
-                            },
-                            label = { Text(belt.localizedGrade(lang)) },
-                            leadingIcon = {
-                                com.sabeomnim.app.core.ui.belt.BeltMiniIcon(belt = belt)
-                            }
-                        )
+                    Text(
+                        text = "${selectedBelt.localizedTitle(lang)} (${selectedBelt.localizedGrade(lang)})",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(BeltRank.entries) { belt ->
+                            val isSelected = belt == selectedBelt
+                            FilterChip(
+                                selected = isSelected,
+                                onClick = {
+                                    selectedBelt = belt
+                                    resetQuiz()
+                                },
+                                label = { Text(belt.localizedGrade(lang)) },
+                                leadingIcon = {
+                                    com.sabeomnim.app.core.ui.belt.BeltMiniIcon(belt = belt)
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -525,12 +514,11 @@ fun QuizScreen(
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
-    }
 
-    // Celebratory Confetti Particle System overlay
-    ConfettiHost(
-        state = confettiState,
-        modifier = Modifier.fillMaxSize()
-    )
-}
+        // Celebratory Confetti Particle System overlay
+        ConfettiHost(
+            state = confettiState,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
 }

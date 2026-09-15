@@ -23,6 +23,7 @@ import com.sabeomnim.app.presentation.dictionary.AudioDictionaryScreen
 import com.sabeomnim.app.presentation.poomsae.PoomsaePlayerScreen
 import com.sabeomnim.app.presentation.quiz.QuizScreen
 
+import androidx.compose.ui.text.font.FontWeight
 import com.sabeomnim.app.core.designsystem.ThemeMode
 import com.sabeomnim.app.presentation.settings.SettingsScreen
 
@@ -38,6 +39,36 @@ enum class AppTab(val title: String, val icon: ImageVector) {
         AUDIO_DICT -> AppStrings.tabGlossary(lang)
         QUIZ -> AppStrings.tabQuiz(lang)
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SabeomnimTopBar(
+    currentTab: AppTab,
+    lang: AppLanguage,
+    onOpenSettings: () -> Unit
+) {
+    TopAppBar(
+        title = {
+            Text(
+                text = currentTab.localizedTitle(lang),
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+        },
+        actions = {
+            IconButton(onClick = onOpenSettings) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = AppStrings.settingsTitle(lang),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    )
 }
 
 @Composable
@@ -69,20 +100,7 @@ fun App() {
                                 modifier = Modifier.fillMaxHeight(),
                                 containerColor = MaterialTheme.colorScheme.surface
                             ) {
-                                Spacer(modifier = Modifier.height(12.dp))
-                                // Settings icon button in rail
-                                IconButton(
-                                    onClick = { isShowingSettings = true },
-                                    modifier = Modifier.padding(horizontal = 6.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Settings,
-                                        contentDescription = AppStrings.settingsTitle(currentLanguage),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(8.dp))
-
+                                Spacer(modifier = Modifier.height(16.dp))
                                 AppTab.entries.forEach { tab ->
                                     val isSelected = currentTab == tab
                                     NavigationRailItem(
@@ -104,36 +122,55 @@ fun App() {
                                 }
                             }
 
-                            Surface(
+                            Scaffold(
                                 modifier = Modifier
                                     .weight(1f)
-                                    .fillMaxHeight()
-                                    .statusBarsPadding()
-                            ) {
-                                AppScreenContent(
-                                    currentTab = currentTab,
-                                    currentSelectedBelt = currentSelectedBelt,
-                                    activePoomsaeId = activePoomsaeId,
-                                    onBeltSelected = { currentSelectedBelt = it },
-                                    onOpenPoomsae = { id ->
-                                        activePoomsaeId = id
-                                        currentTab = AppTab.POOMSAE
-                                    },
-                                    onOpenQuiz = { belt ->
-                                        currentSelectedBelt = belt
-                                        currentTab = AppTab.QUIZ
-                                    },
-                                    onOpenDictionary = {
-                                        currentTab = AppTab.AUDIO_DICT
-                                    },
-                                    onOpenSettings = {
-                                        isShowingSettings = true
-                                    }
-                                )
+                                    .fillMaxHeight(),
+                                topBar = {
+                                    SabeomnimTopBar(
+                                        currentTab = currentTab,
+                                        lang = currentLanguage,
+                                        onOpenSettings = { isShowingSettings = true }
+                                    )
+                                }
+                            ) { innerPadding ->
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(innerPadding)
+                                ) {
+                                    AppScreenContent(
+                                        currentTab = currentTab,
+                                        currentSelectedBelt = currentSelectedBelt,
+                                        activePoomsaeId = activePoomsaeId,
+                                        onBeltSelected = { currentSelectedBelt = it },
+                                        onOpenPoomsae = { id ->
+                                            activePoomsaeId = id
+                                            currentTab = AppTab.POOMSAE
+                                        },
+                                        onOpenQuiz = { belt ->
+                                            currentSelectedBelt = belt
+                                            currentTab = AppTab.QUIZ
+                                        },
+                                        onOpenDictionary = {
+                                            currentTab = AppTab.AUDIO_DICT
+                                        },
+                                        onOpenSettings = {
+                                            isShowingSettings = true
+                                        }
+                                    )
+                                }
                             }
                         }
                     } else {
                         Scaffold(
+                            topBar = {
+                                SabeomnimTopBar(
+                                    currentTab = currentTab,
+                                    lang = currentLanguage,
+                                    onOpenSettings = { isShowingSettings = true }
+                                )
+                            },
                             bottomBar = {
                                 NavigationBar {
                                     AppTab.entries.forEach { tab ->

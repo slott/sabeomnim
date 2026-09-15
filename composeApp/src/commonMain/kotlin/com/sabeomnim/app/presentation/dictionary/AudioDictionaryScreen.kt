@@ -71,52 +71,7 @@ fun AudioDictionaryScreen(
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        // 1. Header with title and slow audio toggle
-        item(key = "glossary_header") {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 10.dp, bottom = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = AppStrings.tabGlossary(lang),
-                    fontWeight = FontWeight.Bold,
-                    color = TaegeukRed,
-                    fontSize = 22.sp
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    // Slow Audio Toggle
-                    FilterChip(
-                        selected = isSlowMode,
-                        onClick = { isSlowMode = !isSlowMode },
-                        label = {
-                            Text(
-                                text = if (isSlowMode) AppStrings.slowAudio(lang) else AppStrings.normalSpeed(lang),
-                                fontSize = 12.sp,
-                                fontWeight = if (isSlowMode) FontWeight.Bold else FontWeight.Normal
-                            )
-                        }
-                    )
-                    IconButton(
-                        onClick = onOpenSettings,
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = AppStrings.settingsTitle(lang),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-        }
-
-        // 2. Search Input Field
+        // 1. Search Input Field
         item(key = "glossary_search") {
             OutlinedTextField(
                 value = searchQuery,
@@ -132,11 +87,13 @@ fun AudioDictionaryScreen(
                 },
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp)
             )
         }
 
-        // 3. Category Chips Row (10 Complete Blue Dragon Categories)
+        // 2. Category Chips Row (10 Complete Blue Dragon Categories)
         item(key = "glossary_categories") {
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
@@ -163,7 +120,7 @@ fun AudioDictionaryScreen(
             }
         }
 
-        // 4. Results count and pronunciation tip
+        // 3. Results count and audio controls
         item(key = "glossary_count") {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -175,11 +132,16 @@ fun AudioDictionaryScreen(
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Text(
-                    text = AppStrings.tapToHearAudio(lang),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = TaegeukBlue
+                FilterChip(
+                    selected = isSlowMode,
+                    onClick = { isSlowMode = !isSlowMode },
+                    label = {
+                        Text(
+                            text = if (isSlowMode) AppStrings.slowAudio(lang) else AppStrings.normalSpeed(lang),
+                            fontSize = 12.sp,
+                            fontWeight = if (isSlowMode) FontWeight.Bold else FontWeight.Normal
+                        )
+                    }
                 )
             }
         }
