@@ -80,6 +80,7 @@ fun PoomsaePlayerScreen(
         PoomsaeDisplayMode.CHEAT_SHEET -> {
             TaegeukCheatSheetView(
                 poomsae = selectedPoomsae,
+                lang = lang,
                 headerContent = {
                     PoomsaeHeader(
                         selectedPoomsae = selectedPoomsae,
@@ -399,12 +400,14 @@ fun PoomsaePlayerScreen(
 
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
-                                     text = currentStep?.romanized ?: "Junbi (Ready)",
+                                     text = currentStep?.romanized ?: (if (lang == AppLanguage.DANISH) "Junbi (Klarstilling)" else "Junbi (Ready)"),
                                      fontSize = 19.sp,
                                      fontWeight = FontWeight.Bold
                                  )
                                 val stepDescription = if (lang == AppLanguage.DANISH && currentStep?.danish != null) {
                                     currentStep.danish!!
+                                } else if (lang == AppLanguage.DANISH && currentStep == null) {
+                                    "Indtag naturlig klarstilling"
                                 } else {
                                     currentStep?.english ?: "Assume natural ready position"
                                 }

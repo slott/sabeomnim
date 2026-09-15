@@ -141,7 +141,7 @@ fun BeltDashboardScreen(
 
                             Spacer(modifier = Modifier.height(12.dp))
                             Text(
-                                text = curriculum.meaning,
+                                text = curriculum.localizedMeaning(lang),
                                 fontSize = 13.5.sp,
                                 lineHeight = 19.sp,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -152,8 +152,8 @@ fun BeltDashboardScreen(
                                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                BadgeInfo(label = "Training", value = "${curriculum.minimumTrainingMonths} Mos")
-                                BadgeInfo(label = "Techniques", value = "${curriculum.techniques.size} Req")
+                                BadgeInfo(label = AppStrings.trainingLabel(lang), value = AppStrings.monthsSuffix(lang, curriculum.minimumTrainingMonths))
+                                BadgeInfo(label = AppStrings.techniquesLabel(lang), value = AppStrings.requiredSuffix(lang, curriculum.techniques.size))
                             }
                         }
 
@@ -174,7 +174,7 @@ fun BeltDashboardScreen(
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
-                                        text = "Drag tails to swing",
+                                        text = AppStrings.dragTailsHint(lang),
                                         fontSize = 10.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.65f),
                                         fontWeight = FontWeight.Medium
@@ -329,7 +329,7 @@ fun BeltDashboardScreen(
                             contentColor = TaegeukBlue
                         ) {
                             Text(
-                                text = tech.type,
+                                text = tech.localizedType(lang),
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
@@ -343,13 +343,13 @@ fun BeltDashboardScreen(
                                 fontSize = 15.sp
                             )
                             Text(
-                                text = tech.nameEnglish,
+                                text = tech.localizedName(lang),
                                 fontSize = 13.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = tech.description,
+                                text = tech.localizedDescription(lang),
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
                             )

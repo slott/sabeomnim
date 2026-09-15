@@ -32,6 +32,9 @@ import com.sabeomnim.app.core.audio.rememberAudioService
 import com.sabeomnim.app.core.designsystem.KukkiwonGold
 import com.sabeomnim.app.core.designsystem.TaegeukBlue
 import com.sabeomnim.app.core.designsystem.TaegeukRed
+import com.sabeomnim.app.core.i18n.AppLanguage
+import com.sabeomnim.app.core.i18n.AppStrings
+import com.sabeomnim.app.core.i18n.LocalAppLanguage
 import com.sabeomnim.app.data.models.Poomsae
 import com.sabeomnim.app.data.models.PoomsaeStep
 import org.jetbrains.compose.resources.painterResource
@@ -41,6 +44,7 @@ import org.jetbrains.compose.resources.painterResource
 fun TaegeukCheatSheetView(
     poomsae: Poomsae,
     modifier: Modifier = Modifier,
+    lang: AppLanguage = LocalAppLanguage.current,
     headerContent: (@Composable () -> Unit)? = null
 ) {
     var scale by remember(poomsae.id) { mutableStateOf(1f) }
@@ -92,13 +96,14 @@ fun TaegeukCheatSheetView(
                     ) {
                         Column {
                             Text(
-                                text = "Taegeuk ${poomsae.number} Jang Cheat Sheet",
+                                text = AppStrings.cheatSheetTitle(lang, poomsae.number),
                                 fontSize = 19.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = TaegeukBlue
                             )
+                            val subTitle = if (lang == AppLanguage.DANISH && poomsae.nameDanish != null) poomsae.nameDanish else poomsae.nameEnglish
                             Text(
-                                text = "${poomsae.nameRomanized} • ${poomsae.nameEnglish}",
+                                text = "${poomsae.nameRomanized} • $subTitle",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -123,8 +128,9 @@ fun TaegeukCheatSheetView(
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))
+                    val desc = if (lang == AppLanguage.DANISH && poomsae.descriptionDanish != null) poomsae.descriptionDanish else poomsae.description
                     Text(
-                        text = poomsae.description,
+                        text = desc,
                         fontSize = 12.sp,
                         lineHeight = 17.sp,
                         color = MaterialTheme.colorScheme.onSurface
@@ -140,7 +146,7 @@ fun TaegeukCheatSheetView(
                             color = MaterialTheme.colorScheme.surfaceVariant
                         ) {
                             Text(
-                                text = "🥋 ${poomsae.beltRank.gradeText} (${poomsae.beltRank.title})",
+                                text = "🥋 ${poomsae.beltRank.localizedGrade(lang)} (${poomsae.beltRank.localizedTitle(lang)})",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -151,7 +157,7 @@ fun TaegeukCheatSheetView(
                             color = MaterialTheme.colorScheme.surfaceVariant
                         ) {
                             Text(
-                                text = "👣 ${poomsae.movementCount} Movements",
+                                text = "👣 ${AppStrings.movementsCount(lang, poomsae.movementCount)}",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -161,8 +167,9 @@ fun TaegeukCheatSheetView(
                             shape = RoundedCornerShape(6.dp),
                             color = TaegeukRed.copy(alpha = 0.15f)
                         ) {
+                            val kihapStepIdx = poomsae.steps.lastOrNull { it.isKihap }?.stepIndex ?: poomsae.movementCount
                             Text(
-                                text = "⚡ Kihap: Step ${poomsae.steps.lastOrNull { it.isKihap }?.stepIndex ?: poomsae.movementCount}",
+                                text = AppStrings.kihapStep(lang, kihapStepIdx),
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = TaegeukRed,
@@ -198,7 +205,7 @@ fun TaegeukCheatSheetView(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "Official Movement Diagram",
+                                text = AppStrings.diagramTitle(lang),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -268,7 +275,7 @@ fun TaegeukCheatSheetView(
 
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "💡 Pinch to zoom • Drag to pan • Tap ⛶ for full-screen view",
+                        text = AppStrings.diagramTip(lang),
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -287,12 +294,12 @@ fun TaegeukCheatSheetView(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Choreography Step Directory",
+                    text = AppStrings.stepDirectoryTitle(lang),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Tap 🔊 for Korean audio",
+                    text = AppStrings.tapToHearAudio(lang),
                     fontSize = 11.sp,
                     color = TaegeukBlue,
                     fontWeight = FontWeight.SemiBold
@@ -320,12 +327,12 @@ fun TaegeukCheatSheetView(
                             .background(TaegeukBlue),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("READY", color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                        Text(AppStrings.readyBadge(lang), color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.width(10.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Kibon Junbi-seogi (Ready Stance)", fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                        Text("Basic Ready Stance • Facing front line A, parallel stance, fists at solar plexus level", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(AppStrings.readyTitle(lang), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text(AppStrings.readyDescription(lang), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     IconButton(onClick = { audioService.speak("준비서기") }) {
                         Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = "Hear Junbi", tint = TaegeukBlue, modifier = Modifier.size(20.dp))
@@ -336,7 +343,7 @@ fun TaegeukCheatSheetView(
 
         // Step by Step Cards
         items(poomsae.steps, key = { it.stepIndex }) { step ->
-            CheatSheetStepCard(step = step, onAudioPlay = { audioService.speak(step.korean) })
+            CheatSheetStepCard(step = step, lang = lang, onAudioPlay = { audioService.speak(step.korean) })
         }
 
         // Return to Ready (Baro) Card
@@ -359,12 +366,12 @@ fun TaegeukCheatSheetView(
                             .background(TaegeukRed),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("BARO", color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                        Text(AppStrings.baroBadge(lang), color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.width(10.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Baro / Shwieo (Return & Rest)", fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                        Text("Return to ready stance by drawing left foot back to original position. Bow and rest.", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(AppStrings.baroTitle(lang), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text(AppStrings.baroDescription(lang), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     IconButton(onClick = { audioService.speak("바로") }) {
                         Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = "Hear Baro", tint = TaegeukRed, modifier = Modifier.size(20.dp))
@@ -449,6 +456,7 @@ fun TaegeukCheatSheetView(
 @Composable
 fun CheatSheetStepCard(
     step: PoomsaeStep,
+    lang: AppLanguage,
     onAudioPlay: () -> Unit
 ) {
     Card(
@@ -503,8 +511,9 @@ fun CheatSheetStepCard(
                             }
                         }
                     }
+                    val stepDesc = if (lang == AppLanguage.DANISH && step.danish != null) step.danish else step.english
                     Text(
-                        text = step.english,
+                        text = stepDesc,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Normal,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -530,7 +539,7 @@ fun CheatSheetStepCard(
                     color = MaterialTheme.colorScheme.surfaceVariant
                 ) {
                     Text(
-                        text = "Stance: ${step.stance}",
+                        text = AppStrings.stanceLabel(lang, step.stance),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
@@ -541,7 +550,7 @@ fun CheatSheetStepCard(
                     color = MaterialTheme.colorScheme.surfaceVariant
                 ) {
                     Text(
-                        text = "Action: ${step.technique}",
+                        text = AppStrings.moveLabel(lang, step.technique),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
@@ -550,7 +559,8 @@ fun CheatSheetStepCard(
             }
 
             // Coaching deduction tips
-            step.coachingTip?.let { tip ->
+            val tip = if (lang == AppLanguage.DANISH && step.coachingTipDanish != null) step.coachingTipDanish else step.coachingTip
+            tip?.let {
                 Spacer(modifier = Modifier.height(6.dp))
                 Row(verticalAlignment = Alignment.Top) {
                     Icon(
@@ -561,7 +571,7 @@ fun CheatSheetStepCard(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = tip,
+                        text = it,
                         fontSize = 11.sp,
                         lineHeight = 15.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant

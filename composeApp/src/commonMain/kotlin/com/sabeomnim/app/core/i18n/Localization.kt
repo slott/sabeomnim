@@ -36,8 +36,32 @@ object AppStrings {
     fun movementChecklist(lang: AppLanguage, count: Int) =
         if (lang == AppLanguage.DANISH) "Komplet teknikliste ($count trin)" else "Full Movement Checklist ($count steps)"
     fun moves(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "trin" else "Moves"
+    fun movementsCount(lang: AppLanguage, count: Int) = if (lang == AppLanguage.DANISH) "$count bevægelser" else "$count Movements"
     fun dualAngleVideoBadge(lang: AppLanguage) =
         if (lang == AppLanguage.DANISH) "Dobbeltvinkel HD Video + Tekster" else "Dual-Angle HD Video + Subtitles"
+    fun cheatSheetTitle(lang: AppLanguage, number: Int) =
+        if (lang == AppLanguage.DANISH) "Taegeuk $number Jang oversigt" else "Taegeuk $number Jang Cheat Sheet"
+    fun kihapStep(lang: AppLanguage, step: Int) =
+        if (lang == AppLanguage.DANISH) "⚡ Kihap: Trin $step" else "⚡ Kihap: Step $step"
+    fun diagramTitle(lang: AppLanguage) =
+        if (lang == AppLanguage.DANISH) "Officielt bevægelsesdiagram" else "Official Movement Diagram"
+    fun diagramTip(lang: AppLanguage) =
+        if (lang == AppLanguage.DANISH) "💡 Knib for at zoome • Træk for at panorere • Tryk ⛶ for fuld skærm"
+        else "💡 Pinch to zoom • Drag to pan • Tap ⛶ for full-screen view"
+    fun stepDirectoryTitle(lang: AppLanguage) =
+        if (lang == AppLanguage.DANISH) "Trinvis bevægelsesliste" else "Choreography Step Directory"
+    fun readyBadge(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "KLAR" else "READY"
+    fun readyTitle(lang: AppLanguage) =
+        if (lang == AppLanguage.DANISH) "Kibon Junbi-seogi (Klarstand)" else "Kibon Junbi-seogi (Ready Stance)"
+    fun readyDescription(lang: AppLanguage) =
+        if (lang == AppLanguage.DANISH) "Grundlæggende klarstand • Vendt mod frontlinje A, parallelstand, knytnæver ved solar plexus"
+        else "Basic Ready Stance • Facing front line A, parallel stance, fists at solar plexus level"
+    fun baroBadge(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "AFSLUT" else "BARO"
+    fun baroTitle(lang: AppLanguage) =
+        if (lang == AppLanguage.DANISH) "Baro / Shwieo (Afslut & Hvil)" else "Baro / Shwieo (Return & Rest)"
+    fun baroDescription(lang: AppLanguage) =
+        if (lang == AppLanguage.DANISH) "Vend tilbage til klarstand ved at føre venstre fod tilbage til udgangspositionen. Hils og hvil."
+        else "Return to ready stance by drawing left foot back to original position. Bow and rest."
 
     // Belt Dashboard
     fun selectBeltGrade(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Vælg bæltegrad" else "Select Belt Grade"
