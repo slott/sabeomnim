@@ -16,6 +16,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -373,7 +374,8 @@ fun UnfoldingBeltView(
 
     val baseBeltColor = Color(belt.colorHex)
     val accentBeltColor = Color(belt.accentColorHex)
-    val isStripeBelt = belt.name.contains("STRIPE")
+    val stripeColor = Color(belt.stripeColorHex ?: belt.accentColorHex)
+    val stripeCount = belt.stripeCount
     val isBlackBelt = belt == BeltRank.BLACK
 
     Box(
@@ -421,10 +423,10 @@ fun UnfoldingBeltView(
                 tail = physics.leftTail,
                 tailWidthPx = tailWidthPx,
                 baseColor = baseBeltColor,
-                accentColor = accentBeltColor,
+                stripeColor = stripeColor,
                 stitchColor = getStitchColor(belt),
                 hasRankTab = false,
-                isStripeBelt = false,
+                stripeCount = 0,
                 isBlackBelt = false
             )
 
@@ -433,10 +435,10 @@ fun UnfoldingBeltView(
                 tail = physics.rightTail,
                 tailWidthPx = tailWidthPx,
                 baseColor = baseBeltColor,
-                accentColor = accentBeltColor,
+                stripeColor = stripeColor,
                 stitchColor = getStitchColor(belt),
                 hasRankTab = true,
-                isStripeBelt = isStripeBelt,
+                stripeCount = stripeCount,
                 isBlackBelt = isBlackBelt
             )
 
@@ -445,9 +447,7 @@ fun UnfoldingBeltView(
                 knotLeft = knotLeftPx,
                 knotWidth = knotWidthPx,
                 knotHeight = knotHeightPx,
-                baseColor = baseBeltColor,
-                accentColor = accentBeltColor,
-                isStripeBelt = isStripeBelt
+                baseColor = baseBeltColor
             )
         }
     }
@@ -461,10 +461,10 @@ private fun DrawScope.drawBeltTail(
     tail: BeltTail,
     tailWidthPx: Float,
     baseColor: Color,
-    accentColor: Color,
+    stripeColor: Color,
     stitchColor: Color,
     hasRankTab: Boolean,
-    isStripeBelt: Boolean,
+    stripeCount: Int,
     isBlackBelt: Boolean
 ) {
     val particles = tail.particles
@@ -554,39 +554,33 @@ private fun DrawScope.drawBeltTail(
         )
     )
 
-    // 4 Longitudinal stitch lines along the ribbon length
-    val stitchFactors = listOf(-0.55f, -0.18f, 0.18f, 0.55f)
-    for (factor in stitchFactors) {
-        val stitchPath = Path().apply {
-            val startP = particles[0]
-            val startNorm = normals[0]
-            moveTo(startP.x + (startNorm.x * halfWidth * factor), startP.y + (startNorm.y * halfWidth * factor))
-            for (i in 0 until numNodes - 1) {
-                val pCurr = particles[i]
-                val normCurr = normals[i]
-                val pNext = particles[i + 1]
-                val normNext = normals[i + 1]
-                val ptCurr = Offset(pCurr.x + (normCurr.x * halfWidth * factor), pCurr.y + (normCurr.y * halfWidth * factor))
-                val ptNext = Offset(pNext.x + (normNext.x * halfWidth * factor), pNext.y + (normNext.y * halfWidth * factor))
-                val midX = (ptCurr.x + ptNext.x) / 2f
-                val midY = (ptCurr.y + ptNext.y) / 2f
-                quadraticTo(ptCurr.x, ptCurr.y, midX, midY)
-            }
-            val lastP = particles.last()
-            val lastNorm = normals.last()
-            lineTo(lastP.x + (lastNorm.x * halfWidth * factor), lastP.y + (lastNorm.y * halfWidth * factor))
+    // Authentic martial arts belt longitudinal seam stitches (3 parallel running rows)
+    val seamOffsets = listOf(-0.55f, 0f, 0.55f)
+    for (frac in seamOffsets) {
+        val stitchPath = Path()
+        for (i in 0 until numNodes) {
+            val p = particles[i]
+            val norm = normals[i]
+            val sx = p.x + (norm.x * halfWidth * frac)
+            val sy = p.y + (norm.y * halfWidth * frac)
+            if (i == 0) stitchPath.moveTo(sx, sy) else stitchPath.lineTo(sx, sy)
         }
         drawPath(
             path = stitchPath,
             color = stitchColor,
-            style = Stroke(width = 1.0.dp.toPx(), cap = StrokeCap.Round)
+            style = Stroke(
+                width = 1.0.dp.toPx(),
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(5.5.dp.toPx(), 3.5.dp.toPx()), 0f)
+            )
         )
     }
 
-    // Flat bottom hem stitch line (parallel to straight bottom edge, 3.5dp above)
-    val tipParticle = particles.last()
-    val tipTangent = tangents.last()
-    val tipNorm = normals.last()
+    // Authentic hem border stitch across the rectangular bottom end
+    val tipIdx = numNodes - 1
+    val tipParticle = particles[tipIdx]
+    val tipNorm = normals[tipIdx]
+    val tipTangent = tangents[tipIdx]
+
     val hemOffsetPx = 3.5.dp.toPx()
     val hemCenterX = tipParticle.x - (tipTangent.x * hemOffsetPx)
     val hemCenterY = tipParticle.y - (tipTangent.y * hemOffsetPx)
@@ -599,8 +593,6 @@ private fun DrawScope.drawBeltTail(
 
     // Single-Tail Rank Tab (Only drawn on the right tail, like real Taekwondo belts)
     if (hasRankTab) {
-        val tipIdx = numNodes - 1
-        val tipParticle = particles[tipIdx]
         val prevParticle = particles[tipIdx - 1]
 
         // Tangent vector pointing from prev particle to tip
@@ -613,44 +605,57 @@ private fun DrawScope.drawBeltTail(
         // Normal vector at the lower tail segment
         val norm = normals[tipIdx - 1]
 
-        // Position stripe ~28dp above the tip hem
-        val distanceFromTip = 28.dp.toPx()
-        val stripeCenterX = tipParticle.x - (unitTanX * distanceFromTip)
-        val stripeCenterY = tipParticle.y - (unitTanY * distanceFromTip)
+        if (stripeCount > 0) {
+            // Rank color tab stripe tape (e.g. Red on Blue, Black on Red, etc.)
+            // Thin tape like real life: ~5.6dp thick along the belt length
+            val stripeHalfThick = 2.8.dp.toPx()
 
-        if (isStripeBelt) {
-            // Rank color tab stripe tape (e.g. Yellow on White, Green on Yellow, etc.)
-            // Thin tape like real life: ~6.5dp thick along the belt length
-            val stripeHalfThick = 3.2.dp.toPx()
-            val pTopX = stripeCenterX - (unitTanX * stripeHalfThick)
-            val pTopY = stripeCenterY - (unitTanY * stripeHalfThick)
-            val pBotX = stripeCenterX + (unitTanX * stripeHalfThick)
-            val pBotY = stripeCenterY + (unitTanY * stripeHalfThick)
-
-            val stripePath = Path().apply {
-                moveTo(pTopX + (norm.x * halfWidth), pTopY + (norm.y * halfWidth))
-                lineTo(pBotX + (norm.x * halfWidth), pBotY + (norm.y * halfWidth))
-                lineTo(pBotX - (norm.x * halfWidth), pBotY - (norm.y * halfWidth))
-                lineTo(pTopX - (norm.x * halfWidth), pTopY - (norm.y * halfWidth))
-                close()
+            // Calculate stripe positions based on stripeCount (1, 2, or 3 stripes)
+            val stripeOffsets = when (stripeCount) {
+                1 -> listOf(28.dp.toPx())
+                2 -> listOf(23.dp.toPx(), 34.dp.toPx())
+                3 -> listOf(18.dp.toPx(), 28.dp.toPx(), 38.dp.toPx())
+                else -> (0 until stripeCount).map { i -> (18 + i * 10).dp.toPx() }
             }
-            drawPath(path = stripePath, color = accentColor)
 
-            // Subtle tape edge seams
-            drawLine(
-                color = Color.Black.copy(alpha = 0.28f),
-                start = Offset(pTopX + (norm.x * halfWidth), pTopY + (norm.y * halfWidth)),
-                end = Offset(pTopX - (norm.x * halfWidth), pTopY - (norm.y * halfWidth)),
-                strokeWidth = 0.9.dp.toPx()
-            )
-            drawLine(
-                color = Color.Black.copy(alpha = 0.28f),
-                start = Offset(pBotX + (norm.x * halfWidth), pBotY + (norm.y * halfWidth)),
-                end = Offset(pBotX - (norm.x * halfWidth), pBotY - (norm.y * halfWidth)),
-                strokeWidth = 0.9.dp.toPx()
-            )
+            for (distanceFromTip in stripeOffsets) {
+                val stripeCenterX = tipParticle.x - (unitTanX * distanceFromTip)
+                val stripeCenterY = tipParticle.y - (unitTanY * distanceFromTip)
+
+                val pTopX = stripeCenterX - (unitTanX * stripeHalfThick)
+                val pTopY = stripeCenterY - (unitTanY * stripeHalfThick)
+                val pBotX = stripeCenterX + (unitTanX * stripeHalfThick)
+                val pBotY = stripeCenterY + (unitTanY * stripeHalfThick)
+
+                val stripePath = Path().apply {
+                    moveTo(pTopX + (norm.x * halfWidth), pTopY + (norm.y * halfWidth))
+                    lineTo(pBotX + (norm.x * halfWidth), pBotY + (norm.y * halfWidth))
+                    lineTo(pBotX - (norm.x * halfWidth), pBotY - (norm.y * halfWidth))
+                    lineTo(pTopX - (norm.x * halfWidth), pTopY - (norm.y * halfWidth))
+                    close()
+                }
+                drawPath(path = stripePath, color = stripeColor)
+
+                // Subtle tape edge seams
+                drawLine(
+                    color = Color.Black.copy(alpha = 0.28f),
+                    start = Offset(pTopX + (norm.x * halfWidth), pTopY + (norm.y * halfWidth)),
+                    end = Offset(pTopX - (norm.x * halfWidth), pTopY - (norm.y * halfWidth)),
+                    strokeWidth = 0.8.dp.toPx()
+                )
+                drawLine(
+                    color = Color.Black.copy(alpha = 0.28f),
+                    start = Offset(pBotX + (norm.x * halfWidth), pBotY + (norm.y * halfWidth)),
+                    end = Offset(pBotX - (norm.x * halfWidth), pBotY - (norm.y * halfWidth)),
+                    strokeWidth = 0.8.dp.toPx()
+                )
+            }
         } else if (isBlackBelt) {
             // 1st Dan Gold Embroidered Bar (1단) - thin, elegant 5dp gold bar
+            val distanceFromTip = 28.dp.toPx()
+            val stripeCenterX = tipParticle.x - (unitTanX * distanceFromTip)
+            val stripeCenterY = tipParticle.y - (unitTanY * distanceFromTip)
+
             val goldColor = Color(0xFFFFD700)
             val barHalfThick = 2.5.dp.toPx()
             val pTopX = stripeCenterX - (unitTanX * barHalfThick)
@@ -667,24 +672,9 @@ private fun DrawScope.drawBeltTail(
                 close()
             }
             drawPath(path = barPath, color = goldColor)
-        } else {
-            // Authentic woven Kukkiwon rank/federation tag on solid belts
-            val patchHalfThick = 7.dp.toPx()
-            val pTopX = stripeCenterX - (unitTanX * patchHalfThick)
-            val pTopY = stripeCenterY - (unitTanY * patchHalfThick)
-            val pBotX = stripeCenterX + (unitTanX * patchHalfThick)
-            val pBotY = stripeCenterY + (unitTanY * patchHalfThick)
-            val pad = halfWidth * 0.20f
-
-            val patchPath = Path().apply {
-                moveTo(pTopX + (norm.x * (halfWidth - pad)), pTopY + (norm.y * (halfWidth - pad)))
-                lineTo(pBotX + (norm.x * (halfWidth - pad)), pBotY + (norm.y * (halfWidth - pad)))
-                lineTo(pBotX - (norm.x * (halfWidth - pad)), pBotY - (norm.y * (halfWidth - pad)))
-                lineTo(pTopX - (norm.x * (halfWidth - pad)), pTopY - (norm.y * (halfWidth - pad)))
-                close()
-            }
-            drawPath(path = patchPath, color = Color.Black.copy(alpha = 0.24f))
         }
+        // NOTE: For solid belts without stripes (stripeCount == 0 && !isBlackBelt),
+        // we deliberately do NOT draw any patch or rectangle! Pure, solid belt cloth!
     }
 }
 
@@ -695,9 +685,7 @@ private fun DrawScope.drawBeltKnot(
     knotLeft: Float,
     knotWidth: Float,
     knotHeight: Float,
-    baseColor: Color,
-    accentColor: Color,
-    isStripeBelt: Boolean
+    baseColor: Color
 ) {
     // Knot drop shadow
     drawRoundRect(

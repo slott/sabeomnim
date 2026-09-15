@@ -153,13 +153,7 @@ fun QuizScreen(
                             },
                             label = { Text(belt.gradeText) },
                             leadingIcon = {
-                                Box(
-                                    modifier = Modifier
-                                        .size(12.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(belt.colorHex))
-                                        .border(1.dp, Color(belt.accentColorHex), CircleShape)
-                                )
+                                com.sabeomnim.app.core.ui.belt.BeltMiniIcon(belt = belt)
                             }
                         )
                     }

@@ -525,7 +525,7 @@ object TerminologyRepository {
             phoneticSpelling = "Dwitkoobi Seogi",
             english = "Back Stance",
             explanation = "L-stance with heels aligned at 90 degrees; 70% weight on rear leg.",
-            beltRank = BeltRank.GREEN_STRIPE
+            beltRank = BeltRank.ORANGE
         ),
         TerminologyEntry(
             id = "term_51_sta_horse_ri",
@@ -535,7 +535,7 @@ object TerminologyRepository {
             phoneticSpelling = "Joochoom Seogi",
             english = "Horse Ridding Stance",
             explanation = "Sitting stance twice shoulder-width, knees pushed out, back erect.",
-            beltRank = BeltRank.YELLOW_STRIPE
+            beltRank = BeltRank.YELLOW
         ),
         TerminologyEntry(
             id = "term_52_sta_cross_st",
@@ -615,7 +615,7 @@ object TerminologyRepository {
             phoneticSpelling = "Eulgool Makki",
             english = "High Block",
             explanation = "Forearm angled upwards 45 degrees over forehead to deflect head strikes.",
-            beltRank = BeltRank.GREEN_STRIPE
+            beltRank = BeltRank.ORANGE
         ),
         TerminologyEntry(
             id = "term_60_blo_inward_b",
@@ -675,7 +675,7 @@ object TerminologyRepository {
             phoneticSpelling = "Batangson Makki",
             english = "Palm Hell Block",
             explanation = "Pressing or deflecting with palm heel to cushion incoming strikes.",
-            beltRank = BeltRank.RED_STRIPE
+            beltRank = BeltRank.RED_BLACK_STRIPE_1
         ),
         TerminologyEntry(
             id = "term_66_blo_scissors",
@@ -775,7 +775,7 @@ object TerminologyRepository {
             phoneticSpelling = "Batangson Teok-Chigi",
             english = "Palm Heel Strike",
             explanation = "Palm heel thrust driving upward into opponent's jaw or chin.",
-            beltRank = BeltRank.RED_STRIPE
+            beltRank = BeltRank.RED_BLACK_STRIPE_1
         ),
         TerminologyEntry(
             id = "term_76_str_elbow_st",
@@ -925,7 +925,7 @@ object TerminologyRepository {
             phoneticSpelling = "Ap Dollyo Chagi",
             english = "Roundhouse Kick",
             explanation = "Rotational kick pivoting on ball of support foot, striking with instep or ball of foot.",
-            beltRank = BeltRank.YELLOW_STRIPE
+            beltRank = BeltRank.YELLOW
         ),
         TerminologyEntry(
             id = "term_91_kic_side_kic",
@@ -975,7 +975,7 @@ object TerminologyRepository {
             phoneticSpelling = "Dwi Chagi",
             english = "Back Kick",
             explanation = "Straight linear mule kick driven directly backwards with heel into opponent's ribs.",
-            beltRank = BeltRank.RED_STRIPE
+            beltRank = BeltRank.RED_BLACK_STRIPE_1
         ),
         TerminologyEntry(
             id = "term_96_kic_hook_kic",
@@ -985,7 +985,7 @@ object TerminologyRepository {
             phoneticSpelling = "Nakka Chagi",
             english = "Hook Kick",
             explanation = "Whip-like hook kick bending knee across opponent's temple with heel or sole.",
-            beltRank = BeltRank.BLACK_STRIPE
+            beltRank = BeltRank.RED_BLACK_STRIPE_3
         ),
         TerminologyEntry(
             id = "term_97_kic_thrashin",
@@ -1115,7 +1115,7 @@ object TerminologyRepository {
             phoneticSpelling = "Batang Son",
             english = "Palm",
             explanation = "Heel/base of palm utilized for gentle deflection or bone-jarring strikes.",
-            beltRank = BeltRank.RED_STRIPE
+            beltRank = BeltRank.RED_BLACK_STRIPE_1
         ),
         TerminologyEntry(
             id = "term_110_ana_leg",
@@ -1545,7 +1545,7 @@ object TerminologyRepository {
             phoneticSpelling = "Ee",
             english = "2nd",
             explanation = "Sino-Korean 2nd; used in Taegeuk Ee Jang and 2nd Dan (Ee Dan).",
-            beltRank = BeltRank.GREEN_STRIPE
+            beltRank = BeltRank.ORANGE
         ),
         TerminologyEntry(
             id = "term_153_num_3rd",
@@ -1565,7 +1565,7 @@ object TerminologyRepository {
             phoneticSpelling = "Sah",
             english = "4th",
             explanation = "Sino-Korean 4th; used in Taegeuk Sa Jang and 4th Dan (Sa Dan).",
-            beltRank = BeltRank.BLUE_STRIPE
+            beltRank = BeltRank.BLUE_RED_STRIPE
         ),
         TerminologyEntry(
             id = "term_155_num_5th",
@@ -1585,7 +1585,7 @@ object TerminologyRepository {
             phoneticSpelling = "Yook",
             english = "6th",
             explanation = "Sino-Korean 6th; used in Taegeuk Yuk Jang and 6th Dan (Yuk Dan).",
-            beltRank = BeltRank.RED_STRIPE
+            beltRank = BeltRank.RED_BLACK_STRIPE_1
         ),
         TerminologyEntry(
             id = "term_157_num_7th",
@@ -1605,7 +1605,7 @@ object TerminologyRepository {
             phoneticSpelling = "Pahl",
             english = "8th",
             explanation = "Sino-Korean 8th; used in Taegeuk Pal Jang and 8th Dan (Pal Dan).",
-            beltRank = BeltRank.BLACK_STRIPE
+            beltRank = BeltRank.RED_BLACK_STRIPE_3
         ),
         TerminologyEntry(
             id = "term_159_num_9th",
@@ -1635,7 +1635,7 @@ object TerminologyRepository {
             phoneticSpelling = "Eeship",
             english = "20th",
             explanation = "Sino-Korean 20th.",
-            beltRank = BeltRank.GREEN_STRIPE
+            beltRank = BeltRank.ORANGE
         ),
         TerminologyEntry(
             id = "term_162_num_30th",
@@ -1655,7 +1655,7 @@ object TerminologyRepository {
             phoneticSpelling = "Sahship",
             english = "40th",
             explanation = "Sino-Korean 40th.",
-            beltRank = BeltRank.BLUE_STRIPE
+            beltRank = BeltRank.BLUE_RED_STRIPE
         ),
         TerminologyEntry(
             id = "term_164_num_50th",

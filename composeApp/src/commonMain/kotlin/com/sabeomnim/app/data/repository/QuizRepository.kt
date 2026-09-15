@@ -59,7 +59,7 @@ object QuizRepository {
             explanation = "Ap-chagi primarily strikes using the ball of the foot (Ap-chuk) with toes pulled back."
         ),
 
-        // YELLOW STRIPE & YELLOW BELT (9th & 8th Geup)
+        // YELLOW BELT (9th Geup)
         QuizQuestion(
             id = "y1",
             beltRank = BeltRank.YELLOW,
@@ -98,7 +98,41 @@ object QuizRepository {
             explanation = "Baro-jireugi punches with the same side hand as the forward foot in walking stance; Bandae-jireugi punches with the opposite side hand (reverse punch)."
         ),
 
-        // GREEN STRIPE & GREEN BELT (7th & 6th Geup)
+        // ORANGE BELT (8th Geup)
+        QuizQuestion(
+            id = "o1",
+            beltRank = BeltRank.ORANGE,
+            question = "What does Taegeuk 2 Jang (Ee Jang) represent?",
+            koreanTerm = "Taegeuk 2 Jang (Tae)",
+            options = listOf(
+                "Tae (Lake / Joy) - inner firmness with external calmness",
+                "Ri (Fire / Sun) - passion and brightness",
+                "Jin (Thunder) - sudden shocking power",
+                "Keon (Heaven) - creation"
+            ),
+            correctIndex = 0,
+            explanation = "Taegeuk 2 Jang represents Tae (Lake), symbolizing internal firmness expressed through calm, joyful movement."
+        ),
+        QuizQuestion(
+            id = "o2",
+            beltRank = BeltRank.ORANGE,
+            question = "What stance is introduced in the orange belt curriculum?",
+            koreanTerm = "Dwit-kubi (Back Stance)",
+            options = listOf("Dwit-kubi (Back Stance)", "Beom-seogi (Tiger Stance)", "Koa-seogi (Cross Stance)", "Hakdari-seogi (Crane Stance)"),
+            correctIndex = 0,
+            explanation = "Dwit-kubi (Back Stance) is introduced, placing 70% of the body weight on the bent rear leg."
+        ),
+        QuizQuestion(
+            id = "o3",
+            beltRank = BeltRank.ORANGE,
+            question = "Where is the target for an Olgul-jireugi (High Punch)?",
+            koreanTerm = "Olgul-jireugi",
+            options = listOf("The philtrum / nose area", "The solar plexus", "The lower abdomen", "The collarbone"),
+            correctIndex = 0,
+            explanation = "Olgul attacks target between the philtrum and the bridge of the nose."
+        ),
+
+        // GREEN BELT (7th Geup)
         QuizQuestion(
             id = "g1",
             beltRank = BeltRank.GREEN,
@@ -132,32 +166,47 @@ object QuizRepository {
             explanation = "Sonnal refers to the knife-hand blade, striking the opponent's neck."
         ),
 
-        // BLUE STRIPE & BLUE BELT (5th & 4th Geup)
+        // BLUE BELT (6th Geup)
         QuizQuestion(
             id = "b1",
             beltRank = BeltRank.BLUE,
-            question = "What does the Blue Belt symbolize?",
-            koreanTerm = "Cheong-tti (Blue Belt)",
-            options = listOf(
-                "The blue sky towards which the plant grows into a tall tree",
-                "The ocean of peace and serenity",
-                "The fire of destruction",
-                "The earth from which roots grow"
-            ),
+            question = "What does Taegeuk 4 Jang symbolize?",
+            koreanTerm = "Taegeuk 4 Jang (Jin)",
+            options = listOf("Jin (Thunder) - great dignity and explosive power", "Son (Wind)", "Gam (Water)", "Keon (Heaven)"),
             correctIndex = 0,
-            explanation = "Blue represents the sky towards which the plant matures as Taekwondo technique ripens."
+            explanation = "Taegeuk 4 Jang symbolizes 'Jin' (Thunder), demonstrating calm poise that erupts into sudden, decisive power."
         ),
         QuizQuestion(
             id = "b2",
             beltRank = BeltRank.BLUE,
-            question = "What does Taegeuk 5 Jang symbolize?",
-            koreanTerm = "Taegeuk 5 Jang (Son)",
-            options = listOf("Son (Wind)", "Jin (Thunder)", "Gam (Water)", "Keon (Heaven)"),
+            question = "What technique is Pyeon-son-kkeut Jjireugi?",
+            koreanTerm = "Pyeon-son-kkeut Jjireugi",
+            options = listOf("Spear-hand thrust", "Hammerfist downward strike", "Elbow turning strike", "Scissors block"),
             correctIndex = 0,
-            explanation = "Taegeuk 5 Jang symbolizes 'Son' (Wind), combining flexible gentle transitions with destructive sudden gusts."
+            explanation = "Pyeon-son-kkeut Jjireugi is a spear-hand thrust targeting the solar plexus, supported with an underlying palm."
         ),
 
-        // RED STRIPE & RED BELT (3rd & 2nd Geup)
+        // BLUE BELT W. RED STRIPE (5th Geup)
+        QuizQuestion(
+            id = "br1",
+            beltRank = BeltRank.BLUE_RED_STRIPE,
+            question = "What does Taegeuk 5 Jang symbolize?",
+            koreanTerm = "Taegeuk 5 Jang (Son)",
+            options = listOf("Son (Wind) - combining gentle breeze with devastating hurricane", "Jin (Thunder)", "Gam (Water)", "Gon (Earth)"),
+            correctIndex = 0,
+            explanation = "Taegeuk 5 Jang represents Son (Wind), transitioning smoothly between calm movements and stormy, powerful strikes."
+        ),
+        QuizQuestion(
+            id = "br2",
+            beltRank = BeltRank.BLUE_RED_STRIPE,
+            question = "Which stance is introduced in Taegeuk 5 Jang?",
+            koreanTerm = "Koa-seogi (Cross Stance)",
+            options = listOf("Koa-seogi (Cross Stance)", "Moa-seogi (Close Stance)", "Beom-seogi (Tiger Stance)", "Hakdari-seogi (Crane Stance)"),
+            correctIndex = 0,
+            explanation = "Taegeuk 5 Jang introduces Koa-seogi (Cross Stance) before stepping into the final elbow target strike."
+        ),
+
+        // RED BELT (4th Geup)
         QuizQuestion(
             id = "r1",
             beltRank = BeltRank.RED,
@@ -175,6 +224,26 @@ object QuizRepository {
         QuizQuestion(
             id = "r2",
             beltRank = BeltRank.RED,
+            question = "What trigram represents Taegeuk 6 Jang (Yuk Jang)?",
+            koreanTerm = "Taegeuk 6 Jang (Gam)",
+            options = listOf("Gam (Water) - flowing continuously around obstacles", "Ri (Fire)", "Gan (Mountain)", "Son (Wind)"),
+            correctIndex = 0,
+            explanation = "Taegeuk 6 Jang symbolizes Gam (Water), teaching that continuous persistence erodes all barriers."
+        ),
+
+        // RED BELT W. 1 BLACK STRIPE (3rd Geup)
+        QuizQuestion(
+            id = "r1b1",
+            beltRank = BeltRank.RED_BLACK_STRIPE_1,
+            question = "What does Taegeuk 7 Jang (Chil Jang) represent?",
+            koreanTerm = "Taegeuk 7 Jang (Gan)",
+            options = listOf("Gan (Mountain) - immovable stability and majestic poise", "Gon (Earth)", "Keon (Heaven)", "Tae (Lake)"),
+            correctIndex = 0,
+            explanation = "Taegeuk 7 Jang represents Gan (Mountain), demanding steadfast balance and rock-solid stances."
+        ),
+        QuizQuestion(
+            id = "r1b2",
+            beltRank = BeltRank.RED_BLACK_STRIPE_1,
             question = "Describe the stance 'Beom-seogi' (Tiger Stance).",
             koreanTerm = "Beom-seogi (Tiger Stance)",
             options = listOf(
@@ -187,18 +256,59 @@ object QuizRepository {
             explanation = "Beom-seogi places 90-100% of weight on the bent back leg, allowing the front leg to kick instantly without transferring weight."
         ),
 
-        // BLACK STRIPE & 1ST DAN (1st Geup & Il Dan)
+        // RED BELT W. 2 BLACK STRIPES (2nd Geup)
         QuizQuestion(
-            id = "d1",
-            beltRank = BeltRank.BLACK_STRIPE,
+            id = "r2b1",
+            beltRank = BeltRank.RED_BLACK_STRIPE_2,
             question = "How many movements are in Taegeuk 8 Jang (Pal Jang)?",
-            koreanTerm = "Taegeuk 8 Jang",
+            koreanTerm = "Taegeuk 8 Jang (Gon)",
             options = listOf("27", "20", "25", "18"),
             correctIndex = 0,
-            explanation = "Taegeuk 8 Jang is the longest Taegeuk form with 27 movements, culminating in Dan-level readiness."
+            explanation = "Taegeuk 8 Jang is the longest Taegeuk form with 27 movements, synthesizing all Geup techniques."
         ),
         QuizQuestion(
-            id = "d2",
+            id = "r2b2",
+            beltRank = BeltRank.RED_BLACK_STRIPE_2,
+            question = "What is the jumping kick executed in Taegeuk 8 Jang?",
+            koreanTerm = "Du-bal Dangsang Ap-chagi",
+            options = listOf("Du-bal Dangsang Ap-chagi (Jumping Double Front Kick)", "Dwi-hurigi (Spin Hook Kick)", "Dolgae-chagi (Tornado Kick)", "Mondollyo-chagi"),
+            correctIndex = 0,
+            explanation = "Move 3 is Du-bal Dangsang Ap-chagi, a rapid two-tempo jumping double front kick with Kihap."
+        ),
+
+        // RED BELT W. 3 BLACK STRIPES (1st Geup)
+        QuizQuestion(
+            id = "r3b1",
+            beltRank = BeltRank.RED_BLACK_STRIPE_3,
+            question = "What is the primary requirement for the 1st Geup (Cho Dan Bo) promotion exam?",
+            koreanTerm = "Cho Dan Bo Promotion",
+            options = listOf(
+                "Comprehensive demonstration of all 8 Taegeuk forms and sparring readiness",
+                "Only learning Taegeuk 1 Jang",
+                "Sparring with an Olympic referee",
+                "A 10-mile marathon"
+            ),
+            correctIndex = 0,
+            explanation = "Cho Dan Bo (pre-Dan) candidates must demonstrate flawless execution of any randomly drawn Taegeuk form from 1 to 8, alongside sparring tactics, breaking, and theory."
+        ),
+        QuizQuestion(
+            id = "r3b2",
+            beltRank = BeltRank.RED_BLACK_STRIPE_3,
+            question = "What does the 3rd black stripe on the red belt represent?",
+            koreanTerm = "3rd Black Stripe",
+            options = listOf(
+                "The threshold of Black Belt, representing the final polishing of mind, body, and technique",
+                "Permission to stop training",
+                "A junior instructor license",
+                "Exemption from promotion exams"
+            ),
+            correctIndex = 0,
+            explanation = "The 3rd black stripe marks the final pre-black belt candidate, embodying rigorous discipline and readiness for 1st Dan."
+        ),
+
+        // 1ST DAN (Black Belt / Il Dan)
+        QuizQuestion(
+            id = "d1",
             beltRank = BeltRank.BLACK,
             question = "In what year was the Kukkiwon (World Taekwondo Headquarters) founded?",
             koreanTerm = "Kukkiwon",
@@ -207,7 +317,7 @@ object QuizRepository {
             explanation = "The Kukkiwon was founded in November 1972 in Gangnam, Seoul, South Korea."
         ),
         QuizQuestion(
-            id = "d3",
+            id = "d2",
             beltRank = BeltRank.BLACK,
             question = "What is the meaning of Black Belt (Il Dan)?",
             koreanTerm = "Heuk-tti (1st Dan)",
