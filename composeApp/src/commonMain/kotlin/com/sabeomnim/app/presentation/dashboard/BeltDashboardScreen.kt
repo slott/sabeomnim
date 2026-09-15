@@ -150,7 +150,7 @@ fun BeltDashboardScreen(
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "Tap to unfold",
+                                text = "Drag tails to swing",
                                 fontSize = 10.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.65f),
                                 fontWeight = FontWeight.Medium
