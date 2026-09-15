@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class TermCategory(val title: String, val titleDanish: String, val hangul: String) {
-    GENERAL("General & Etiquette", "Kommandoer & Etikette", "기본 용어 및 도장 예절"),
+    GENERAL("Commands & Etiquette", "Kommandoer & Etikette", "기본 용어 및 도장 예절"),
     DIRECTIONS("Directions & Zones", "Retninger & Zoner", "방향 및 신체 구역"),
     STANCES("Stances (Seogi)", "Stande (Seogi)", "서기"),
     BLOCKS("Blocks (Makgi)", "Blokader (Makgi)", "막기"),

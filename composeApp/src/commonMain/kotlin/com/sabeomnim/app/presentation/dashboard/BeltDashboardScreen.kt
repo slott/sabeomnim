@@ -49,7 +49,7 @@ fun BeltDashboardScreen(
     onOpenPoomsae: (String) -> Unit,
     onOpenQuiz: (BeltRank) -> Unit,
     onOpenDictionary: () -> Unit,
-    onToggleLanguage: () -> Unit = {}
+    onOpenSettings: () -> Unit = {}
 ) {
     val lang = LocalAppLanguage.current
     val curriculum = BeltRepository.getCurriculum(selectedBelt)
@@ -77,20 +77,15 @@ fun BeltDashboardScreen(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
-                    FilterChip(
-                        selected = true,
-                        onClick = onToggleLanguage,
-                        label = {
-                            Text(
-                                text = if (lang == AppLanguage.DANISH) "🇩🇰 Dansk" else "🇬🇧 English",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        },
-                        leadingIcon = {
-                            Icon(Icons.Default.Language, contentDescription = "Language", modifier = Modifier.size(16.dp))
-                        }
-                    )
+                    IconButton(
+                        onClick = onOpenSettings
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = AppStrings.settingsTitle(lang),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 BeltSelectorRow(

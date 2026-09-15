@@ -82,8 +82,8 @@ object AppStrings {
     fun searchPlaceholder(lang: AppLanguage) =
         if (lang == AppLanguage.DANISH) "Søg på dansk, engelsk eller romanisering..."
         else "Search English, Danish, or Romanization..."
-    fun slowAudio(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "🐢 Langsom (0.65x)" else "🐢 Slow (0.65x)"
-    fun normalSpeed(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "🐰 Normal hastighed" else "🐰 Normal Speed"
+    fun slowAudio(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "🐢 Langsom" else "🐢 Slow"
+    fun normalSpeed(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "🐰 Normal" else "🐰 Normal"
     fun allCategory(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Alle" else "All"
     fun allCategories(lang: AppLanguage) = allCategory(lang)
     fun termsCount(lang: AppLanguage, total: Int) =
@@ -105,4 +105,15 @@ object AppStrings {
     fun needsStudy(lang: AppLanguage) =
         if (lang == AppLanguage.DANISH) "📚 KRÆVER MERE TRÆNING (Prøv igen)" else "📚 NEEDS STUDY (Retake)"
     fun retakeQuiz(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Tag prøve igen" else "Retake Exam"
+
+    // Settings
+    fun settingsTitle(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Indstillinger" else "Settings"
+    fun settingsLanguage(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Sprog / Language" else "Language"
+    fun settingsTheme(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Udseende & Mørk tilstand" else "Appearance & Dark Mode"
+    fun themeSystem(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Systemstandard" else "System default"
+    fun themeLight(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Lys tilstand" else "Light mode"
+    fun themeDark(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Mørk tilstand" else "Dark mode"
+    fun settingsAbout(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Om Sabeomnim" else "About Sabeomnim"
+    fun settingsAboutDesc(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Taekwondo pensum fra 10. Kup til 1. Dan (Kukkiwon / WT)" else "Taekwondo Curriculum from 10th Geup to 1st Dan (Kukkiwon / WT)"
+    fun settingsClose(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Luk" else "Close"
 }

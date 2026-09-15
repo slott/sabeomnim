@@ -37,12 +37,21 @@ private val LightColorScheme = lightColorScheme(
     onSurface = Color(0xFF1A1A1A)
 )
 
+enum class ThemeMode {
+    SYSTEM, DARK, LIGHT
+}
+
 @Composable
 fun SabeomnimTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    themeMode: ThemeMode = ThemeMode.DARK,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val isDark = when (themeMode) {
+        ThemeMode.SYSTEM -> isSystemInDarkTheme()
+        ThemeMode.DARK -> true
+        ThemeMode.LIGHT -> false
+    }
+    val colorScheme = if (isDark) DarkColorScheme else LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,

@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,6 +33,7 @@ import com.sabeomnim.app.data.repository.TerminologyRepository
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AudioDictionaryScreen(
+    onOpenSettings: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val lang = LocalAppLanguage.current
@@ -84,18 +86,33 @@ fun AudioDictionaryScreen(
                     color = TaegeukRed,
                     fontSize = 22.sp
                 )
-                // Slow Audio Toggle
-                FilterChip(
-                    selected = isSlowMode,
-                    onClick = { isSlowMode = !isSlowMode },
-                    label = {
-                        Text(
-                            text = if (isSlowMode) AppStrings.slowAudio(lang) else AppStrings.normalSpeed(lang),
-                            fontSize = 12.sp,
-                            fontWeight = if (isSlowMode) FontWeight.Bold else FontWeight.Normal
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    // Slow Audio Toggle
+                    FilterChip(
+                        selected = isSlowMode,
+                        onClick = { isSlowMode = !isSlowMode },
+                        label = {
+                            Text(
+                                text = if (isSlowMode) AppStrings.slowAudio(lang) else AppStrings.normalSpeed(lang),
+                                fontSize = 12.sp,
+                                fontWeight = if (isSlowMode) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                    )
+                    IconButton(
+                        onClick = onOpenSettings,
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = AppStrings.settingsTitle(lang),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                )
+                }
             }
         }
 
@@ -206,16 +223,18 @@ fun AudioDictionaryScreen(
                                     } else {
                                         term.category.title.substringBefore(" (").substringBefore(" &")
                                     }
-                                    Surface(
-                                        shape = RoundedCornerShape(4.dp),
-                                        color = MaterialTheme.colorScheme.surfaceVariant
-                                    ) {
-                                        Text(
-                                            text = catBadge,
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                        )
+                                    if (term.category != TermCategory.GENERAL && !catBadge.equals("General", ignoreCase = true) && !catBadge.equals("Generelt", ignoreCase = true)) {
+                                        Surface(
+                                            shape = RoundedCornerShape(4.dp),
+                                            color = MaterialTheme.colorScheme.surfaceVariant
+                                        ) {
+                                            Text(
+                                                text = catBadge,
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                            )
+                                        }
                                     }
                                 }
 

@@ -41,6 +41,7 @@ enum class PoomsaeDisplayMode(val label: String, val icon: ImageVector) {
 @Composable
 fun PoomsaePlayerScreen(
     initialPoomsaeId: String = "taegeuk_1",
+    onOpenSettings: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val lang = LocalAppLanguage.current
@@ -92,6 +93,7 @@ fun PoomsaePlayerScreen(
                         },
                         displayMode = displayMode,
                         onDisplayModeChange = { displayMode = it },
+                        onOpenSettings = onOpenSettings,
                         modifier = Modifier
                     )
                 },
@@ -115,6 +117,7 @@ fun PoomsaePlayerScreen(
                         },
                         displayMode = displayMode,
                         onDisplayModeChange = { displayMode = it },
+                        onOpenSettings = onOpenSettings,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
@@ -574,32 +577,44 @@ private fun PoomsaeHeader(
     onSelectPoomsae: (Poomsae) -> Unit,
     displayMode: PoomsaeDisplayMode,
     onDisplayModeChange: (PoomsaeDisplayMode) -> Unit,
+    onOpenSettings: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
-        // Title & Trigram Subtitle
-        Column(
+        // Title & Trigram Subtitle + Settings
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 10.dp, bottom = 4.dp)
+                .padding(top = 10.dp, bottom = 4.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = selectedPoomsae.nameRomanized,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-            val subText = if (lang == AppLanguage.DANISH && selectedPoomsae.nameDanish != null) {
-                "${selectedPoomsae.nameDanish} • ${selectedPoomsae.trigramSymbol}"
-            } else {
-                "${selectedPoomsae.nameEnglish} • ${selectedPoomsae.trigramSymbol}"
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = selectedPoomsae.nameRomanized,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+                val subText = if (lang == AppLanguage.DANISH && selectedPoomsae.nameDanish != null) {
+                    "${selectedPoomsae.nameDanish} • ${selectedPoomsae.trigramSymbol}"
+                } else {
+                    "${selectedPoomsae.nameEnglish} • ${selectedPoomsae.trigramSymbol}"
+                }
+                Text(
+                    text = subText,
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
-            Text(
-                text = subText,
-                fontSize = 13.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            IconButton(onClick = onOpenSettings) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = AppStrings.settingsTitle(lang),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
 
         // Taegeuk Form Selector Carousel

@@ -42,7 +42,8 @@ import com.sabeomnim.app.data.repository.QuizRepository
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuizScreen(
-    initialBelt: BeltRank = BeltRank.WHITE
+    initialBelt: BeltRank = BeltRank.WHITE,
+    onOpenSettings: () -> Unit = {}
 ) {
     val lang = LocalAppLanguage.current
     var selectedBelt by remember { mutableStateOf(initialBelt) }
@@ -124,6 +125,14 @@ fun QuizScreen(
                     Column {
                         Text(AppStrings.quizTitle(lang), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TaegeukRed)
                         Text("${selectedBelt.localizedTitle(lang)} (${selectedBelt.localizedGrade(lang)})", fontSize = 13.sp)
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onOpenSettings) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = AppStrings.settingsTitle(lang)
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

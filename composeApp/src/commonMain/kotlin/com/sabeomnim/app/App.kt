@@ -23,6 +23,9 @@ import com.sabeomnim.app.presentation.dictionary.AudioDictionaryScreen
 import com.sabeomnim.app.presentation.poomsae.PoomsaePlayerScreen
 import com.sabeomnim.app.presentation.quiz.QuizScreen
 
+import com.sabeomnim.app.core.designsystem.ThemeMode
+import com.sabeomnim.app.presentation.settings.SettingsScreen
+
 enum class AppTab(val title: String, val icon: ImageVector) {
     BELTS("Curriculum", Icons.Default.SportsMartialArts),
     POOMSAE("Taegeuks", Icons.Default.PlayCircle),
@@ -40,95 +43,49 @@ enum class AppTab(val title: String, val icon: ImageVector) {
 @Composable
 fun App() {
     var currentLanguage by rememberSaveable { mutableStateOf(AppLanguage.DANISH) }
+    var currentThemeMode by rememberSaveable { mutableStateOf(ThemeMode.DARK) }
+    var isShowingSettings by rememberSaveable { mutableStateOf(false) }
 
     CompositionLocalProvider(LocalAppLanguage provides currentLanguage) {
-        SabeomnimTheme {
-            var currentTab by remember { mutableStateOf(AppTab.BELTS) }
-            var currentSelectedBelt by remember { mutableStateOf(BeltRank.WHITE) }
-            var activePoomsaeId by remember { mutableStateOf("taegeuk_1") }
+        SabeomnimTheme(themeMode = currentThemeMode) {
+            if (isShowingSettings) {
+                SettingsScreen(
+                    currentThemeMode = currentThemeMode,
+                    onThemeModeChange = { currentThemeMode = it },
+                    onLanguageChange = { currentLanguage = it },
+                    onClose = { isShowingSettings = false }
+                )
+            } else {
+                var currentTab by remember { mutableStateOf(AppTab.BELTS) }
+                var currentSelectedBelt by remember { mutableStateOf(BeltRank.WHITE) }
+                var activePoomsaeId by remember { mutableStateOf("taegeuk_1") }
 
-            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                val isLandscape = maxWidth > maxHeight
+                BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                    val isLandscape = maxWidth > maxHeight
 
-                if (isLandscape) {
-                    Row(modifier = Modifier.fillMaxSize()) {
-                        NavigationRail(
-                            modifier = Modifier.fillMaxHeight(),
-                            containerColor = MaterialTheme.colorScheme.surface
-                        ) {
-                            Spacer(modifier = Modifier.height(12.dp))
-                            // Language switcher chip in rail
-                            FilterChip(
-                                selected = true,
-                                onClick = {
-                                    currentLanguage = if (currentLanguage == AppLanguage.DANISH) AppLanguage.ENGLISH else AppLanguage.DANISH
-                                },
-                                label = {
-                                    Text(
-                                        text = currentLanguage.flag,
-                                        fontSize = 16.sp
+                    if (isLandscape) {
+                        Row(modifier = Modifier.fillMaxSize()) {
+                            NavigationRail(
+                                modifier = Modifier.fillMaxHeight(),
+                                containerColor = MaterialTheme.colorScheme.surface
+                            ) {
+                                Spacer(modifier = Modifier.height(12.dp))
+                                // Settings icon button in rail
+                                IconButton(
+                                    onClick = { isShowingSettings = true },
+                                    modifier = Modifier.padding(horizontal = 6.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Settings,
+                                        contentDescription = AppStrings.settingsTitle(currentLanguage),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
-                                },
-                                modifier = Modifier.padding(horizontal = 6.dp)
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            AppTab.entries.forEach { tab ->
-                                val isSelected = currentTab == tab
-                                NavigationRailItem(
-                                    selected = isSelected,
-                                    onClick = { currentTab = tab },
-                                    icon = {
-                                        Icon(
-                                            imageVector = tab.icon,
-                                            contentDescription = tab.localizedTitle(currentLanguage)
-                                        )
-                                    },
-                                    label = { Text(tab.localizedTitle(currentLanguage)) },
-                                    colors = NavigationRailItemDefaults.colors(
-                                        indicatorColor = TaegeukBlue.copy(alpha = 0.15f),
-                                        selectedIconColor = TaegeukBlue,
-                                        selectedTextColor = TaegeukBlue
-                                    )
-                                )
-                            }
-                        }
-
-                        Surface(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .statusBarsPadding()
-                        ) {
-                            AppScreenContent(
-                                currentTab = currentTab,
-                                currentSelectedBelt = currentSelectedBelt,
-                                activePoomsaeId = activePoomsaeId,
-                                onBeltSelected = { currentSelectedBelt = it },
-                                onOpenPoomsae = { id ->
-                                    activePoomsaeId = id
-                                    currentTab = AppTab.POOMSAE
-                                },
-                                onOpenQuiz = { belt ->
-                                    currentSelectedBelt = belt
-                                    currentTab = AppTab.QUIZ
-                                },
-                                onOpenDictionary = {
-                                    currentTab = AppTab.AUDIO_DICT
-                                },
-                                onToggleLanguage = {
-                                    currentLanguage = if (currentLanguage == AppLanguage.DANISH) AppLanguage.ENGLISH else AppLanguage.DANISH
                                 }
-                            )
-                        }
-                    }
-                } else {
-                    Scaffold(
-                        bottomBar = {
-                            NavigationBar {
+                                Spacer(modifier = Modifier.height(8.dp))
+
                                 AppTab.entries.forEach { tab ->
                                     val isSelected = currentTab == tab
-                                    NavigationBarItem(
+                                    NavigationRailItem(
                                         selected = isSelected,
                                         onClick = { currentTab = tab },
                                         icon = {
@@ -138,7 +95,7 @@ fun App() {
                                             )
                                         },
                                         label = { Text(tab.localizedTitle(currentLanguage)) },
-                                        colors = NavigationBarItemDefaults.colors(
+                                        colors = NavigationRailItemDefaults.colors(
                                             indicatorColor = TaegeukBlue.copy(alpha = 0.15f),
                                             selectedIconColor = TaegeukBlue,
                                             selectedTextColor = TaegeukBlue
@@ -146,33 +103,87 @@ fun App() {
                                     )
                                 }
                             }
+
+                            Surface(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .statusBarsPadding()
+                            ) {
+                                AppScreenContent(
+                                    currentTab = currentTab,
+                                    currentSelectedBelt = currentSelectedBelt,
+                                    activePoomsaeId = activePoomsaeId,
+                                    onBeltSelected = { currentSelectedBelt = it },
+                                    onOpenPoomsae = { id ->
+                                        activePoomsaeId = id
+                                        currentTab = AppTab.POOMSAE
+                                    },
+                                    onOpenQuiz = { belt ->
+                                        currentSelectedBelt = belt
+                                        currentTab = AppTab.QUIZ
+                                    },
+                                    onOpenDictionary = {
+                                        currentTab = AppTab.AUDIO_DICT
+                                    },
+                                    onOpenSettings = {
+                                        isShowingSettings = true
+                                    }
+                                )
+                            }
                         }
-                    ) { innerPadding ->
-                        Surface(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding)
-                        ) {
-                            AppScreenContent(
-                                currentTab = currentTab,
-                                currentSelectedBelt = currentSelectedBelt,
-                                activePoomsaeId = activePoomsaeId,
-                                onBeltSelected = { currentSelectedBelt = it },
-                                onOpenPoomsae = { id ->
-                                    activePoomsaeId = id
-                                    currentTab = AppTab.POOMSAE
-                                },
-                                onOpenQuiz = { belt ->
-                                    currentSelectedBelt = belt
-                                    currentTab = AppTab.QUIZ
-                                },
-                                onOpenDictionary = {
-                                    currentTab = AppTab.AUDIO_DICT
-                                },
-                                onToggleLanguage = {
-                                    currentLanguage = if (currentLanguage == AppLanguage.DANISH) AppLanguage.ENGLISH else AppLanguage.DANISH
+                    } else {
+                        Scaffold(
+                            bottomBar = {
+                                NavigationBar {
+                                    AppTab.entries.forEach { tab ->
+                                        val isSelected = currentTab == tab
+                                        NavigationBarItem(
+                                            selected = isSelected,
+                                            onClick = { currentTab = tab },
+                                            icon = {
+                                                Icon(
+                                                    imageVector = tab.icon,
+                                                    contentDescription = tab.localizedTitle(currentLanguage)
+                                                )
+                                            },
+                                            label = { Text(tab.localizedTitle(currentLanguage)) },
+                                            colors = NavigationBarItemDefaults.colors(
+                                                indicatorColor = TaegeukBlue.copy(alpha = 0.15f),
+                                                selectedIconColor = TaegeukBlue,
+                                                selectedTextColor = TaegeukBlue
+                                            )
+                                        )
+                                    }
                                 }
-                            )
+                            }
+                        ) { innerPadding ->
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(innerPadding)
+                            ) {
+                                AppScreenContent(
+                                    currentTab = currentTab,
+                                    currentSelectedBelt = currentSelectedBelt,
+                                    activePoomsaeId = activePoomsaeId,
+                                    onBeltSelected = { currentSelectedBelt = it },
+                                    onOpenPoomsae = { id ->
+                                        activePoomsaeId = id
+                                        currentTab = AppTab.POOMSAE
+                                    },
+                                    onOpenQuiz = { belt ->
+                                        currentSelectedBelt = belt
+                                        currentTab = AppTab.QUIZ
+                                    },
+                                    onOpenDictionary = {
+                                        currentTab = AppTab.AUDIO_DICT
+                                    },
+                                    onOpenSettings = {
+                                        isShowingSettings = true
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -190,7 +201,7 @@ private fun AppScreenContent(
     onOpenPoomsae: (String) -> Unit,
     onOpenQuiz: (BeltRank) -> Unit,
     onOpenDictionary: () -> Unit,
-    onToggleLanguage: () -> Unit
+    onOpenSettings: () -> Unit
 ) {
     when (currentTab) {
         AppTab.BELTS -> BeltDashboardScreen(
@@ -199,14 +210,18 @@ private fun AppScreenContent(
             onOpenPoomsae = onOpenPoomsae,
             onOpenQuiz = onOpenQuiz,
             onOpenDictionary = onOpenDictionary,
-            onToggleLanguage = onToggleLanguage
+            onOpenSettings = onOpenSettings
         )
         AppTab.POOMSAE -> PoomsaePlayerScreen(
-            initialPoomsaeId = activePoomsaeId
+            initialPoomsaeId = activePoomsaeId,
+            onOpenSettings = onOpenSettings
         )
-        AppTab.AUDIO_DICT -> AudioDictionaryScreen()
+        AppTab.AUDIO_DICT -> AudioDictionaryScreen(
+            onOpenSettings = onOpenSettings
+        )
         AppTab.QUIZ -> QuizScreen(
-            initialBelt = currentSelectedBelt
+            initialBelt = currentSelectedBelt,
+            onOpenSettings = onOpenSettings
         )
     }
 }
