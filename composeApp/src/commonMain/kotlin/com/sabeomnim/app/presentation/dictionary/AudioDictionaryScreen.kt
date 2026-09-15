@@ -61,11 +61,7 @@ fun AudioDictionaryScreen() {
         topBar = {
             TopAppBar(
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("태권도 용어 사전", fontWeight = FontWeight.Bold, color = TaegeukRed)
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text("Glossary & Audio", fontSize = 16.sp)
-                    }
+                    Text("Glossary & Audio", fontWeight = FontWeight.Bold, color = TaegeukRed, fontSize = 20.sp)
                 },
                 actions = {
                     // Slow Audio Toggle
@@ -97,7 +93,7 @@ fun AudioDictionaryScreen() {
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search English, Hangul, or Romanization...") },
+                placeholder = { Text("Search English or Romanization...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
@@ -195,8 +191,8 @@ fun AudioDictionaryScreen() {
                                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
                                     Text(
-                                        text = term.hangul,
-                                        fontSize = 22.sp,
+                                        text = term.romanized,
+                                        fontSize = 18.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = if (isPlaying) TaegeukBlue else MaterialTheme.colorScheme.onSurface
                                     )
@@ -213,32 +209,21 @@ fun AudioDictionaryScreen() {
                                     }
                                 }
 
-                                Spacer(modifier = Modifier.height(2.dp))
-
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                ) {
+                                if (term.phoneticSpelling != null && term.phoneticSpelling != term.romanized) {
+                                    Spacer(modifier = Modifier.height(2.dp))
                                     Text(
-                                        text = term.romanized,
-                                        fontSize = 15.sp,
-                                        fontWeight = FontWeight.SemiBold,
+                                        text = "Alt: ${term.phoneticSpelling}",
+                                        fontSize = 12.sp,
                                         color = MaterialTheme.colorScheme.primary
                                     )
-                                    if (term.phoneticSpelling != null && term.phoneticSpelling != term.romanized) {
-                                        Text(
-                                            text = "• TKD: ${term.phoneticSpelling}",
-                                            fontSize = 13.sp,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
                                 }
 
+                                Spacer(modifier = Modifier.height(2.dp))
                                 Text(
                                     text = term.english,
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
 
                                 Spacer(modifier = Modifier.height(4.dp))

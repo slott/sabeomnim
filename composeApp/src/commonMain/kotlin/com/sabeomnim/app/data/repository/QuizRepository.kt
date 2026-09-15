@@ -16,7 +16,7 @@ object QuizRepository {
             id = "w1",
             beltRank = BeltRank.WHITE,
             question = "What is the literal translation of the word 'Taekwondo'?",
-            koreanTerm = "태권도 (Taekwondo)",
+            koreanTerm = "Taekwondo",
             options = listOf(
                 "The way of the foot and the hand",
                 "The art of internal peace",
@@ -30,7 +30,7 @@ object QuizRepository {
             id = "w2",
             beltRank = BeltRank.WHITE,
             question = "What does the White Belt symbolize?",
-            koreanTerm = "백띠 (Baek-tti)",
+            koreanTerm = "Baek-tti (White Belt)",
             options = listOf(
                 "Innocence and having no prior knowledge; a blank canvas",
                 "The danger of the journey ahead",
@@ -44,16 +44,16 @@ object QuizRepository {
             id = "w3",
             beltRank = BeltRank.WHITE,
             question = "Which Korean command means 'Bow'?",
-            koreanTerm = "경례 (Gyeong-nye)",
+            koreanTerm = "Gyeong-nye (Bow)",
             options = listOf("Charyeot", "Gyeong-nye", "Junbi", "Sijak"),
             correctIndex = 1,
-            explanation = "Gyeong-nye (경례) is the command to bow to show respect."
+            explanation = "Gyeong-nye is the command to bow to show respect."
         ),
         QuizQuestion(
             id = "w4",
             beltRank = BeltRank.WHITE,
             question = "Which striking surface is used in an Ap-chagi (Front Snap Kick)?",
-            koreanTerm = "앞축 (Ap-chuk)",
+            koreanTerm = "Ap-chuk (Ball of Foot)",
             options = listOf("The ball of the foot (Ap-chuk)", "The heel (Dwichuk)", "The blade of the foot (Bal-nal)", "The knee (Mureup)"),
             correctIndex = 0,
             explanation = "Ap-chagi primarily strikes using the ball of the foot (Ap-chuk) with toes pulled back."
@@ -64,7 +64,7 @@ object QuizRepository {
             id = "y1",
             beltRank = BeltRank.YELLOW,
             question = "What does Taegeuk 1 Jang symbolize?",
-            koreanTerm = "태극 1장 - 건 (Keon)",
+            koreanTerm = "Taegeuk 1 Jang (Keon)",
             options = listOf(
                 "Keon (Heaven/Sky) - the origin of all creation",
                 "Gam (Water) - flow and continuous motion",
@@ -78,7 +78,7 @@ object QuizRepository {
             id = "y2",
             beltRank = BeltRank.YELLOW,
             question = "How many movements are in Taegeuk 1 Jang?",
-            koreanTerm = "18개 동작",
+            koreanTerm = "18 Movements",
             options = listOf("16", "18", "20", "22"),
             correctIndex = 1,
             explanation = "Taegeuk 1 Jang has exactly 18 movements ending in a right forward stance middle punch with Kihap."
@@ -87,7 +87,7 @@ object QuizRepository {
             id = "y3",
             beltRank = BeltRank.YELLOW,
             question = "What is the difference between Baro-jireugi and Bandae-jireugi?",
-            koreanTerm = "바로지르기 vs 반대지르기",
+            koreanTerm = "Baro vs Bandae-jireugi",
             options = listOf(
                 "Baro uses the hand matching the front leg in walking stance; Bandae uses the opposite hand",
                 "Baro is high punch; Bandae is low punch",
@@ -103,7 +103,7 @@ object QuizRepository {
             id = "g1",
             beltRank = BeltRank.GREEN,
             question = "What does Taegeuk 3 Jang represent in the Eight Trigrams?",
-            koreanTerm = "태극 3장 - 리 (Ri)",
+            koreanTerm = "Taegeuk 3 Jang (Ri)",
             options = listOf("Ri (Fire and Sun)", "Tae (Lake)", "Son (Wind)", "Gan (Mountain)"),
             correctIndex = 0,
             explanation = "Taegeuk 3 Jang symbolizes 'Ri' (Fire), representing enthusiasm, warmth, and focused intensity."
@@ -112,7 +112,7 @@ object QuizRepository {
             id = "g2",
             beltRank = BeltRank.GREEN,
             question = "In Dwit-kubi (Back Stance), what is the weight distribution between rear and front legs?",
-            koreanTerm = "뒷굽이 (Dwit-kubi)",
+            koreanTerm = "Dwit-kubi (Back Stance)",
             options = listOf("70% rear leg, 30% front leg", "50% rear, 50% front", "90% rear, 10% front", "60% front, 40% rear"),
             correctIndex = 0,
             explanation = "Dwit-kubi places approximately 70% of the body weight on the rear leg and 30% on the front leg."
@@ -121,7 +121,7 @@ object QuizRepository {
             id = "g3",
             beltRank = BeltRank.GREEN,
             question = "What part of the hand is used in Sonnal Mok-chigi?",
-            koreanTerm = "손날 (Sonnal)",
+            koreanTerm = "Sonnal (Knife-hand)",
             options = listOf(
                 "The knife-edge (outer blade) of the open hand",
                 "The palm heel (Batangson)",
@@ -137,7 +137,7 @@ object QuizRepository {
             id = "b1",
             beltRank = BeltRank.BLUE,
             question = "What does the Blue Belt symbolize?",
-            koreanTerm = "파란띠 (Cheong-tti)",
+            koreanTerm = "Cheong-tti (Blue Belt)",
             options = listOf(
                 "The blue sky towards which the plant grows into a tall tree",
                 "The ocean of peace and serenity",
@@ -151,7 +151,7 @@ object QuizRepository {
             id = "b2",
             beltRank = BeltRank.BLUE,
             question = "What does Taegeuk 5 Jang symbolize?",
-            koreanTerm = "태극 5장 - 손 (Son)",
+            koreanTerm = "Taegeuk 5 Jang (Son)",
             options = listOf("Son (Wind)", "Jin (Thunder)", "Gam (Water)", "Keon (Heaven)"),
             correctIndex = 0,
             explanation = "Taegeuk 5 Jang symbolizes 'Son' (Wind), combining flexible gentle transitions with destructive sudden gusts."
@@ -162,7 +162,7 @@ object QuizRepository {
             id = "r1",
             beltRank = BeltRank.RED,
             question = "Why does Red Belt symbolize 'Danger'?",
-            koreanTerm = "빨간띠 (Hong-tti)",
+            koreanTerm = "Hong-tti (Red Belt)",
             options = listOf(
                 "The student has high technical skill and power, requiring utmost self-control and caution",
                 "The student is likely to injure themselves",
@@ -176,7 +176,7 @@ object QuizRepository {
             id = "r2",
             beltRank = BeltRank.RED,
             question = "Describe the stance 'Beom-seogi' (Tiger Stance).",
-            koreanTerm = "범서기 (Beom-seogi)",
+            koreanTerm = "Beom-seogi (Tiger Stance)",
             options = listOf(
                 "90% weight on bent rear leg, front heel raised with only ball touching floor lightly",
                 "Feet shoulder-width apart with toes turned outward",
@@ -192,7 +192,7 @@ object QuizRepository {
             id = "d1",
             beltRank = BeltRank.BLACK_STRIPE,
             question = "How many movements are in Taegeuk 8 Jang (Pal Jang)?",
-            koreanTerm = "태극 8장",
+            koreanTerm = "Taegeuk 8 Jang",
             options = listOf("27", "20", "25", "18"),
             correctIndex = 0,
             explanation = "Taegeuk 8 Jang is the longest Taegeuk form with 27 movements, culminating in Dan-level readiness."
@@ -201,7 +201,7 @@ object QuizRepository {
             id = "d2",
             beltRank = BeltRank.BLACK,
             question = "In what year was the Kukkiwon (World Taekwondo Headquarters) founded?",
-            koreanTerm = "국기원 (Kukkiwon)",
+            koreanTerm = "Kukkiwon",
             options = listOf("1972", "1988", "1965", "2000"),
             correctIndex = 0,
             explanation = "The Kukkiwon was founded in November 1972 in Gangnam, Seoul, South Korea."
@@ -210,7 +210,7 @@ object QuizRepository {
             id = "d3",
             beltRank = BeltRank.BLACK,
             question = "What is the meaning of Black Belt (Il Dan)?",
-            koreanTerm = "검은띠 / 1단",
+            koreanTerm = "Heuk-tti (1st Dan)",
             options = listOf(
                 "The opposite of white: mastery of the basics, imperviousness to fear, and the beginning of true study",
                 "The final completion of all martial learning",

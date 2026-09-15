@@ -84,7 +84,7 @@ fun TaegeukCheatSheetView(
                     ) {
                         Column {
                             Text(
-                                text = "태극 ${poomsae.number}장 Cheat Sheet",
+                                text = "Taegeuk ${poomsae.number} Jang Cheat Sheet",
                                 fontSize = 19.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = TaegeukBlue
@@ -307,16 +307,16 @@ fun TaegeukCheatSheetView(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(30.dp)
+                            .size(34.dp)
                             .clip(CircleShape)
                             .background(TaegeukBlue),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("준비", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        Text("READY", color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.width(10.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("기본 준비서기 (Kibon Junbi-seogi)", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text("Kibon Junbi-seogi (Ready Stance)", fontWeight = FontWeight.Bold, fontSize = 13.sp)
                         Text("Basic Ready Stance • Facing front line A, parallel stance, fists at solar plexus level", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     IconButton(onClick = { audioService.speak("준비서기") }) {
@@ -346,16 +346,16 @@ fun TaegeukCheatSheetView(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(30.dp)
+                            .size(34.dp)
                             .clip(CircleShape)
                             .background(TaegeukRed),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("바로", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        Text("BARO", color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.width(10.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("바로 / 쉬어 (Baro / Shwieo)", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text("Baro / Shwieo (Return & Rest)", fontWeight = FontWeight.Bold, fontSize = 13.sp)
                         Text("Return to ready stance by drawing left foot back to original position. Bow and rest.", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     IconButton(onClick = { audioService.speak("바로") }) {
@@ -475,7 +475,7 @@ fun CheatSheetStepCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = step.korean,
+                            text = step.romanized,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -496,10 +496,10 @@ fun CheatSheetStepCard(
                         }
                     }
                     Text(
-                        text = step.romanized,
+                        text = step.english,
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary
+                        fontWeight = FontWeight.Normal,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
@@ -513,16 +513,6 @@ fun CheatSheetStepCard(
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // Action translation
-            Text(
-                text = step.english,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
 
             // Stance & Technique chips
             Spacer(modifier = Modifier.height(6.dp))

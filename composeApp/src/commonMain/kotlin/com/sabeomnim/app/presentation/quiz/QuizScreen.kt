@@ -24,6 +24,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sabeomnim.app.core.audio.rememberAudioService
+import com.sabeomnim.app.core.ui.belt.UnfoldingBeltView
+import com.sabeomnim.app.core.ui.confetti.ConfettiHost
+import com.sabeomnim.app.core.ui.confetti.rememberConfettiState
 import com.sabeomnim.app.core.designsystem.KukkiwonGold
 import com.sabeomnim.app.core.designsystem.TaegeukBlue
 import com.sabeomnim.app.core.designsystem.TaegeukRed
@@ -60,12 +63,23 @@ fun QuizScreen(
         isQuizCompleted = false
     }
 
-    Scaffold(
+    val confettiState = rememberConfettiState()
+    val passScore = remember(questions) { (questions.size * 0.70).toInt().coerceAtLeast(1) }
+    val passed = score >= passScore
+
+    LaunchedEffect(isQuizCompleted, passed) {
+        if (isQuizCompleted && passed) {
+            confettiState.spawnCelebration(180)
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Column {
-                        Text("승급 심사 이론 시험", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TaegeukRed)
+                        Text("Grading Theory Exam", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TaegeukRed)
                         Text("${selectedBelt.title} (${selectedBelt.gradeText})", fontSize = 13.sp)
                     }
                 },
@@ -114,9 +128,6 @@ fun QuizScreen(
             if (isQuizCompleted) {
                 // Completed Summary Card
                 item {
-                    val passScore = (questions.size * 0.70).toInt().coerceAtLeast(1)
-                    val passed = score >= passScore
-
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
@@ -131,12 +142,23 @@ fun QuizScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = if (passed) "🎉 PROMOTION READY! (합격)" else "📚 NEEDS STUDY (재시험)",
-                                fontSize = 20.sp,
+                                text = if (passed) "🎉 PROMOTION READY!" else "📚 NEEDS STUDY (Retake)",
+                                fontSize = 21.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = if (passed) Color(0xFF2E7D32) else TaegeukRed
                             )
-                            Spacer(modifier = Modifier.height(12.dp))
+
+                            if (passed) {
+                                Spacer(modifier = Modifier.height(14.dp))
+                                // Celebration Unfolding Belt for the earned rank
+                                UnfoldingBeltView(
+                                    belt = selectedBelt,
+                                    beltWidth = 44.dp,
+                                    maxBeltLength = 150.dp
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(14.dp))
                             Text(
                                 text = "Your Score: $score / ${questions.size}",
                                 fontSize = 28.sp,
@@ -145,22 +167,36 @@ fun QuizScreen(
                             )
                             val percent = if (questions.isNotEmpty()) (score * 100) / questions.size else 0
                             Text(
-                                text = "$percent% Mastery for ${selectedBelt.gradeText}",
+                                text = "$percent% Mastery for ${selectedBelt.gradeText}" + if (!passed) " (70% required to pass)" else "",
                                 fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
 
                             Spacer(modifier = Modifier.height(20.dp))
-                            Button(
-                                onClick = { resetQuiz() },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (passed) Color(0xFF2E7D32) else TaegeukRed
-                                ),
-                                shape = RoundedCornerShape(12.dp)
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(Icons.Default.Refresh, contentDescription = null)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Retake Exam")
+                                Button(
+                                    onClick = { resetQuiz() },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (passed) Color(0xFF2E7D32) else TaegeukRed
+                                    ),
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
+                                    Icon(Icons.Default.Refresh, contentDescription = null)
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("Retake Exam")
+                                }
+
+                                if (passed) {
+                                    FilledTonalButton(
+                                        onClick = { confettiState.spawnCelebration(180) },
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) {
+                                        Text("🎊 Confetti!")
+                                    }
+                                }
                             }
                         }
                     }
@@ -380,4 +416,11 @@ fun QuizScreen(
             }
         }
     }
+
+    // Celebratory Confetti Particle System overlay
+    ConfettiHost(
+        state = confettiState,
+        modifier = Modifier.fillMaxSize()
+    )
+}
 }

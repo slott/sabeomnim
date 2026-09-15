@@ -1,8 +1,10 @@
 package com.sabeomnim.app.presentation.dashboard
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import com.sabeomnim.app.core.ui.belt.UnfoldingBeltView
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -45,11 +47,12 @@ fun BeltDashboardScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("사범님", fontWeight = FontWeight.Bold, color = TaegeukRed)
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text("Sabeomnim", fontWeight = FontWeight.SemiBold)
-                    }
+                    Text(
+                        text = "Sabeomnim",
+                        fontWeight = FontWeight.Bold,
+                        color = TaegeukRed,
+                        fontSize = 20.sp
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface
@@ -78,66 +81,80 @@ fun BeltDashboardScreen(
                 )
             }
 
-            // Current Belt Hero Card
+            // Current Belt Hero Card with Unfolding Belt in the side
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = Color(selectedBelt.colorHex).copy(alpha = 0.25f)
-                    )
+                        containerColor = Color(selectedBelt.colorHex).copy(alpha = 0.22f)
+                    ),
+                    border = BorderStroke(1.5.dp, Color(selectedBelt.accentColorHex).copy(alpha = 0.35f))
                 ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 12.dp)
                         ) {
-                            Column {
-                                Text(
-                                    text = selectedBelt.gradeText,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color(selectedBelt.accentColorHex)
-                                )
-                                Text(
-                                    text = selectedBelt.title,
-                                    fontSize = 26.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = "${selectedBelt.hangul} (${selectedBelt.romanized})",
-                                    fontSize = 15.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .size(54.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(selectedBelt.colorHex))
-                                    .border(2.dp, Color(selectedBelt.accentColorHex), CircleShape),
-                                contentAlignment = Alignment.Center
+                            Text(
+                                text = selectedBelt.gradeText,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color(selectedBelt.accentColorHex)
+                            )
+                            Text(
+                                text = selectedBelt.title,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = selectedBelt.romanized,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = curriculum.meaning,
+                                fontSize = 13.5.sp,
+                                lineHeight = 19.sp,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+
+                            Spacer(modifier = Modifier.height(14.dp))
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("🥋", fontSize = 24.sp)
+                                BadgeInfo(label = "Training", value = "${curriculum.minimumTrainingMonths} Mos")
+                                BadgeInfo(label = "Techniques", value = "${curriculum.techniques.size} Req")
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(14.dp))
-                        Text(
-                            text = curriculum.meaning,
-                            fontSize = 14.sp,
-                            lineHeight = 20.sp,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                        // Authentic Unfolding Taekwondo Belt in the side
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            BadgeInfo(label = "Minimum Training", value = "${curriculum.minimumTrainingMonths} Months")
-                            BadgeInfo(label = "Techniques", value = "${curriculum.techniques.size} Required")
+                            UnfoldingBeltView(
+                                belt = selectedBelt,
+                                beltWidth = 40.dp,
+                                maxBeltLength = 175.dp
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Tap to unfold",
+                                fontSize = 10.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.65f),
+                                fontWeight = FontWeight.Medium
+                            )
                         }
                     }
                 }
@@ -180,7 +197,7 @@ fun BeltDashboardScreen(
                                 Spacer(modifier = Modifier.width(14.dp))
                                 Column {
                                     Text(
-                                        text = "${poomsae.nameKorean} (${poomsae.trigramSymbol})",
+                                        text = "${poomsae.nameRomanized} (${poomsae.trigramSymbol})",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 17.sp
                                     )
@@ -297,12 +314,12 @@ fun BeltDashboardScreen(
                         Spacer(modifier = Modifier.width(12.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = tech.nameHangul,
+                                text = tech.nameRomanized,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 15.sp
                             )
                             Text(
-                                text = "${tech.nameRomanized} • ${tech.nameEnglish}",
+                                text = tech.nameEnglish,
                                 fontSize = 13.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )

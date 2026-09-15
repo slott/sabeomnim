@@ -77,7 +77,7 @@ fun PoomsaePlayerScreen(
                 title = {
                     Column {
                         Text(
-                            text = "${selectedPoomsae.nameKorean} (${selectedPoomsae.nameRomanized})",
+                            text = selectedPoomsae.nameRomanized,
                             fontWeight = FontWeight.Bold,
                             fontSize = 17.sp
                         )
@@ -290,7 +290,7 @@ fun PoomsaePlayerScreen(
                                     color = TaegeukRed
                                 ) {
                                     Text(
-                                        text = "⚡ KIHAP! (기합)",
+                                        text = "⚡ KIHAP!",
                                         color = Color.White,
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.ExtraBold,
@@ -452,21 +452,15 @@ fun PoomsaePlayerScreen(
 
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
-                                    text = currentStep?.korean ?: "준비 (Junbi)",
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
+                                     text = currentStep?.romanized ?: "Junbi (Ready)",
+                                     fontSize = 19.sp,
+                                     fontWeight = FontWeight.Bold
+                                 )
                                 Text(
-                                    text = currentStep?.romanized ?: "Ready Stance",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    text = currentStep?.english ?: "Assume natural ready position",
-                                    fontSize = 13.sp,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
+                                     text = currentStep?.english ?: "Assume natural ready position",
+                                     fontSize = 13.5.sp,
+                                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                                 )
 
                                 Spacer(modifier = Modifier.height(10.dp))
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -556,7 +550,7 @@ fun PoomsaePlayerScreen(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(
-                                            text = step.korean,
+                                            text = step.romanized,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 14.sp
                                         )
@@ -577,7 +571,7 @@ fun PoomsaePlayerScreen(
                                         }
                                     }
                                     Text(
-                                        text = "${step.romanized} • ${step.english}",
+                                        text = step.english,
                                         fontSize = 12.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )

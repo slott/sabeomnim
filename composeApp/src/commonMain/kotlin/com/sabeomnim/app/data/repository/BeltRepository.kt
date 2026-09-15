@@ -43,7 +43,7 @@ object BeltRepository {
         BeltCurriculum(
             rank = BeltRank.YELLOW,
             meaning = "Signifies the earth from which a plant sprouts and takes root as Taekwondo foundation is laid.",
-            poomsaeTitle = "Taegeuk 1 Jang (태극 1장)",
+            poomsaeTitle = "Taegeuk 1 Jang (Il Jang)",
             poomsaeId = "taegeuk_1",
             minimumTrainingMonths = 3,
             techniques = listOf(
@@ -55,7 +55,7 @@ object BeltRepository {
         BeltCurriculum(
             rank = BeltRank.GREEN_STRIPE,
             meaning = "The seedling grows taller and branches out with increasing coordination and endurance.",
-            poomsaeTitle = "Taegeuk 2 Jang (태극 2장)",
+            poomsaeTitle = "Taegeuk 2 Jang (Ee Jang)",
             poomsaeId = "taegeuk_2",
             minimumTrainingMonths = 3,
             techniques = listOf(
@@ -67,7 +67,7 @@ object BeltRepository {
         BeltCurriculum(
             rank = BeltRank.GREEN,
             meaning = "Represents the green plant growing vigorously as skills strengthen.",
-            poomsaeTitle = "Taegeuk 3 Jang (태극 3장)",
+            poomsaeTitle = "Taegeuk 3 Jang (Sam Jang)",
             poomsaeId = "taegeuk_3",
             minimumTrainingMonths = 3,
             techniques = listOf(
@@ -80,7 +80,7 @@ object BeltRepository {
         BeltCurriculum(
             rank = BeltRank.BLUE_STRIPE,
             meaning = "The plant develops thick stems and reaches upward towards the sky.",
-            poomsaeTitle = "Taegeuk 4 Jang (태극 4장)",
+            poomsaeTitle = "Taegeuk 4 Jang (Sa Jang)",
             poomsaeId = "taegeuk_4",
             minimumTrainingMonths = 3,
             techniques = listOf(
@@ -93,7 +93,7 @@ object BeltRepository {
         BeltCurriculum(
             rank = BeltRank.BLUE,
             meaning = "Represents the blue sky towards which the plant matures into a towering tree.",
-            poomsaeTitle = "Taegeuk 5 Jang (태극 5장)",
+            poomsaeTitle = "Taegeuk 5 Jang (O Jang)",
             poomsaeId = "taegeuk_5",
             minimumTrainingMonths = 3,
             techniques = listOf(
@@ -107,7 +107,7 @@ object BeltRepository {
         BeltCurriculum(
             rank = BeltRank.RED_STRIPE,
             meaning = "The ripening fruit; techniques carry serious impact and must be harnessed with discipline.",
-            poomsaeTitle = "Taegeuk 6 Jang (태극 6장)",
+            poomsaeTitle = "Taegeuk 6 Jang (Yuk Jang)",
             poomsaeId = "taegeuk_6",
             minimumTrainingMonths = 4,
             techniques = listOf(
@@ -120,7 +120,7 @@ object BeltRepository {
         BeltCurriculum(
             rank = BeltRank.RED,
             meaning = "Signifies danger. The practitioner possesses high physical ability; caution and strong self-control are vital.",
-            poomsaeTitle = "Taegeuk 7 Jang (태극 7장)",
+            poomsaeTitle = "Taegeuk 7 Jang (Chil Jang)",
             poomsaeId = "taegeuk_7",
             minimumTrainingMonths = 4,
             techniques = listOf(
@@ -134,7 +134,7 @@ object BeltRepository {
         BeltCurriculum(
             rank = BeltRank.BLACK_STRIPE,
             meaning = "The transition from student to master; the darkness before the dawn of the black belt.",
-            poomsaeTitle = "Taegeuk 8 Jang (태극 8장)",
+            poomsaeTitle = "Taegeuk 8 Jang (Pal Jang)",
             poomsaeId = "taegeuk_8",
             minimumTrainingMonths = 6,
             techniques = listOf(
@@ -147,7 +147,7 @@ object BeltRepository {
         BeltCurriculum(
             rank = BeltRank.BLACK,
             meaning = "Opposite of white: signifies mastery of basics, imperviousness to fear, and the true beginning of the martial journey.",
-            poomsaeTitle = "Mastery of Taegeuks 1-8 + Koryo (고려)",
+            poomsaeTitle = "Mastery of Taegeuks 1-8 + Koryo",
             poomsaeId = null,
             minimumTrainingMonths = 12,
             techniques = listOf(
