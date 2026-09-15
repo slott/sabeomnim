@@ -599,58 +599,91 @@ private fun DrawScope.drawBeltTail(
 
     // Single-Tail Rank Tab (Only drawn on the right tail, like real Taekwondo belts)
     if (hasRankTab) {
-        val stripeNodeIdx = 4.coerceIn(1, numNodes - 2)
-        val pA = particles[stripeNodeIdx]
-        val pB = particles[stripeNodeIdx + 1]
-        val normA = normals[stripeNodeIdx]
-        val normB = normals[stripeNodeIdx + 1]
+        val tipIdx = numNodes - 1
+        val tipParticle = particles[tipIdx]
+        val prevParticle = particles[tipIdx - 1]
+
+        // Tangent vector pointing from prev particle to tip
+        val tanX = tipParticle.x - prevParticle.x
+        val tanY = tipParticle.y - prevParticle.y
+        val tanLen = kotlin.math.hypot(tanX, tanY).coerceAtLeast(0.001f)
+        val unitTanX = tanX / tanLen
+        val unitTanY = tanY / tanLen
+
+        // Normal vector at the lower tail segment
+        val norm = normals[tipIdx - 1]
+
+        // Position stripe ~28dp above the tip hem
+        val distanceFromTip = 28.dp.toPx()
+        val stripeCenterX = tipParticle.x - (unitTanX * distanceFromTip)
+        val stripeCenterY = tipParticle.y - (unitTanY * distanceFromTip)
 
         if (isStripeBelt) {
             // Rank color tab stripe tape (e.g. Yellow on White, Green on Yellow, etc.)
+            // Thin tape like real life: ~6.5dp thick along the belt length
+            val stripeHalfThick = 3.2.dp.toPx()
+            val pTopX = stripeCenterX - (unitTanX * stripeHalfThick)
+            val pTopY = stripeCenterY - (unitTanY * stripeHalfThick)
+            val pBotX = stripeCenterX + (unitTanX * stripeHalfThick)
+            val pBotY = stripeCenterY + (unitTanY * stripeHalfThick)
+
             val stripePath = Path().apply {
-                moveTo(pA.x + (normA.x * halfWidth), pA.y + (normA.y * halfWidth))
-                lineTo(pB.x + (normB.x * halfWidth), pB.y + (normB.y * halfWidth))
-                lineTo(pB.x - (normB.x * halfWidth), pB.y - (normB.y * halfWidth))
-                lineTo(pA.x - (normA.x * halfWidth), pA.y - (normA.y * halfWidth))
+                moveTo(pTopX + (norm.x * halfWidth), pTopY + (norm.y * halfWidth))
+                lineTo(pBotX + (norm.x * halfWidth), pBotY + (norm.y * halfWidth))
+                lineTo(pBotX - (norm.x * halfWidth), pBotY - (norm.y * halfWidth))
+                lineTo(pTopX - (norm.x * halfWidth), pTopY - (norm.y * halfWidth))
                 close()
             }
             drawPath(path = stripePath, color = accentColor)
-            // Stripe border seams
+
+            // Subtle tape edge seams
             drawLine(
-                color = Color.Black.copy(alpha = 0.22f),
-                start = Offset(pA.x + (normA.x * halfWidth), pA.y + (normA.y * halfWidth)),
-                end = Offset(pA.x - (normA.x * halfWidth), pA.y - (normA.y * halfWidth)),
-                strokeWidth = 1.1.dp.toPx()
+                color = Color.Black.copy(alpha = 0.28f),
+                start = Offset(pTopX + (norm.x * halfWidth), pTopY + (norm.y * halfWidth)),
+                end = Offset(pTopX - (norm.x * halfWidth), pTopY - (norm.y * halfWidth)),
+                strokeWidth = 0.9.dp.toPx()
             )
             drawLine(
-                color = Color.Black.copy(alpha = 0.22f),
-                start = Offset(pB.x + (normB.x * halfWidth), pB.y + (normB.y * halfWidth)),
-                end = Offset(pB.x - (normB.x * halfWidth), pB.y - (normB.y * halfWidth)),
-                strokeWidth = 1.1.dp.toPx()
+                color = Color.Black.copy(alpha = 0.28f),
+                start = Offset(pBotX + (norm.x * halfWidth), pBotY + (norm.y * halfWidth)),
+                end = Offset(pBotX - (norm.x * halfWidth), pBotY - (norm.y * halfWidth)),
+                strokeWidth = 0.9.dp.toPx()
             )
         } else if (isBlackBelt) {
-            // 1st Dan Gold Embroidered Bar (1단)
+            // 1st Dan Gold Embroidered Bar (1단) - thin, elegant 5dp gold bar
             val goldColor = Color(0xFFFFD700)
+            val barHalfThick = 2.5.dp.toPx()
+            val pTopX = stripeCenterX - (unitTanX * barHalfThick)
+            val pTopY = stripeCenterY - (unitTanY * barHalfThick)
+            val pBotX = stripeCenterX + (unitTanX * barHalfThick)
+            val pBotY = stripeCenterY + (unitTanY * barHalfThick)
+            val pad = halfWidth * 0.18f
+
             val barPath = Path().apply {
-                val pad = halfWidth * 0.15f
-                moveTo(pA.x + (normA.x * (halfWidth - pad)), pA.y + (normA.y * (halfWidth - pad)))
-                lineTo(pB.x + (normB.x * (halfWidth - pad)), pB.y + (normB.y * (halfWidth - pad)))
-                lineTo(pB.x - (normB.x * (halfWidth - pad)), pB.y - (normB.y * (halfWidth - pad)))
-                lineTo(pA.x - (normA.x * (halfWidth - pad)), pA.y - (normA.y * (halfWidth - pad)))
+                moveTo(pTopX + (norm.x * (halfWidth - pad)), pTopY + (norm.y * (halfWidth - pad)))
+                lineTo(pBotX + (norm.x * (halfWidth - pad)), pBotY + (norm.y * (halfWidth - pad)))
+                lineTo(pBotX - (norm.x * (halfWidth - pad)), pBotY - (norm.y * (halfWidth - pad)))
+                lineTo(pTopX - (norm.x * (halfWidth - pad)), pTopY - (norm.y * (halfWidth - pad)))
                 close()
             }
             drawPath(path = barPath, color = goldColor)
         } else {
             // Authentic woven Kukkiwon rank/federation tag on solid belts
+            val patchHalfThick = 7.dp.toPx()
+            val pTopX = stripeCenterX - (unitTanX * patchHalfThick)
+            val pTopY = stripeCenterY - (unitTanY * patchHalfThick)
+            val pBotX = stripeCenterX + (unitTanX * patchHalfThick)
+            val pBotY = stripeCenterY + (unitTanY * patchHalfThick)
+            val pad = halfWidth * 0.20f
+
             val patchPath = Path().apply {
-                val pad = halfWidth * 0.18f
-                moveTo(pA.x + (normA.x * (halfWidth - pad)), pA.y + (normA.y * (halfWidth - pad)))
-                lineTo(pB.x + (normB.x * (halfWidth - pad)), pB.y + (normB.y * (halfWidth - pad)))
-                lineTo(pB.x - (normB.x * (halfWidth - pad)), pB.y - (normB.y * (halfWidth - pad)))
-                lineTo(pA.x - (normA.x * (halfWidth - pad)), pA.y - (normA.y * (halfWidth - pad)))
+                moveTo(pTopX + (norm.x * (halfWidth - pad)), pTopY + (norm.y * (halfWidth - pad)))
+                lineTo(pBotX + (norm.x * (halfWidth - pad)), pBotY + (norm.y * (halfWidth - pad)))
+                lineTo(pBotX - (norm.x * (halfWidth - pad)), pBotY - (norm.y * (halfWidth - pad)))
+                lineTo(pTopX - (norm.x * (halfWidth - pad)), pTopY - (norm.y * (halfWidth - pad)))
                 close()
             }
-            drawPath(path = patchPath, color = Color.Black.copy(alpha = 0.26f))
+            drawPath(path = patchPath, color = Color.Black.copy(alpha = 0.24f))
         }
     }
 }
@@ -702,7 +735,7 @@ private fun DrawScope.drawBeltKnot(
     val tieWidth = knotWidth * 0.30f
     val tieLeft = knotLeft + (knotWidth - tieWidth) / 2f
     drawRoundRect(
-        color = if (isStripeBelt) accentColor else baseColor,
+        color = baseColor,
         topLeft = Offset(tieLeft, 0.dp.toPx()),
         size = Size(tieWidth, knotHeight + 3.dp.toPx()),
         cornerRadius = CornerRadius(4.dp.toPx())

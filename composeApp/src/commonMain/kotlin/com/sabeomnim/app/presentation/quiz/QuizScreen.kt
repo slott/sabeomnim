@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -15,6 +16,8 @@ import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.withFrameNanos
+import kotlin.math.ceil
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +48,9 @@ fun QuizScreen(
     var score by remember { mutableStateOf(0) }
     var isAnswerSubmitted by remember { mutableStateOf(false) }
     var isQuizCompleted by remember { mutableStateOf(false) }
+    var autoNextProgress by remember { mutableStateOf(0f) }
+    val autoNextDurationMs = 2800L
+    val listState = rememberLazyListState()
 
     val audioService = rememberAudioService()
 
@@ -61,6 +67,7 @@ fun QuizScreen(
         score = 0
         isAnswerSubmitted = false
         isQuizCompleted = false
+        autoNextProgress = 0f
     }
 
     val confettiState = rememberConfettiState()
@@ -70,6 +77,39 @@ fun QuizScreen(
     LaunchedEffect(isQuizCompleted, passed) {
         if (isQuizCompleted && passed) {
             confettiState.spawnCelebration(180)
+        }
+    }
+
+    // Auto-advance progress timer when an answer is submitted
+    LaunchedEffect(isAnswerSubmitted, currentQuestionIndex) {
+        if (isAnswerSubmitted && !isQuizCompleted) {
+            val startNanos = withFrameNanos { it }
+            val durationNanos = autoNextDurationMs * 1_000_000L
+            while (true) {
+                val nowNanos = withFrameNanos { it }
+                val elapsed = nowNanos - startNanos
+                val fraction = (elapsed.toFloat() / durationNanos).coerceIn(0f, 1f)
+                autoNextProgress = fraction
+                if (fraction >= 1f) {
+                    if (currentQuestionIndex + 1 < questions.size) {
+                        currentQuestionIndex++
+                        selectedOptionIndex = null
+                        isAnswerSubmitted = false
+                    } else {
+                        isQuizCompleted = true
+                    }
+                    break
+                }
+            }
+        } else {
+            autoNextProgress = 0f
+        }
+    }
+
+    // Smoothly scroll down so explanation and auto-advancing Next button are revealed
+    LaunchedEffect(isAnswerSubmitted) {
+        if (isAnswerSubmitted) {
+            listState.animateScrollToItem(index = (currentQuestion?.options?.size ?: 4) + 2)
         }
     }
 
@@ -90,6 +130,7 @@ fun QuizScreen(
         }
     ) { paddingValues ->
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -132,7 +173,7 @@ fun QuizScreen(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = if (passed) Color(0xFFE8F5E9) else Color(0xFFFFEBEE)
+                            containerColor = if (passed) Color(0xFF2E7D32).copy(alpha = 0.20f) else TaegeukRed.copy(alpha = 0.20f)
                         )
                     ) {
                         Column(
@@ -289,9 +330,9 @@ fun QuizScreen(
                     val isCorrectOption = index == currentQuestion.correctIndex
 
                     val cardColor = when {
-                        !isAnswerSubmitted && isSelected -> TaegeukBlue.copy(alpha = 0.12f)
-                        isAnswerSubmitted && isCorrectOption -> Color(0xFFE8F5E9)
-                        isAnswerSubmitted && isSelected && !isCorrectOption -> Color(0xFFFFEBEE)
+                        !isAnswerSubmitted && isSelected -> TaegeukBlue.copy(alpha = 0.16f)
+                        isAnswerSubmitted && isCorrectOption -> Color(0xFF2E7D32).copy(alpha = 0.25f)
+                        isAnswerSubmitted && isSelected && !isCorrectOption -> TaegeukRed.copy(alpha = 0.25f)
                         else -> MaterialTheme.colorScheme.surface
                     }
 
@@ -376,22 +417,79 @@ fun QuizScreen(
                             }
                         }
                         Spacer(modifier = Modifier.height(10.dp))
-                        Button(
-                            onClick = {
-                                if (currentQuestionIndex + 1 < questions.size) {
-                                    currentQuestionIndex++
-                                    selectedOptionIndex = null
-                                    isAnswerSubmitted = false
-                                } else {
-                                    isQuizCompleted = true
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(10.dp)
+                        val isLastQuestion = currentQuestionIndex + 1 >= questions.size
+                        val secondsLeft = ceil((1f - autoNextProgress) * (autoNextDurationMs / 1000f)).toInt().coerceAtLeast(1)
+
+                        // Next button with animated progress bar indicating auto-advance
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(52.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(MaterialTheme.colorScheme.primary)
+                                .clickable {
+                                    if (currentQuestionIndex + 1 < questions.size) {
+                                        currentQuestionIndex++
+                                        selectedOptionIndex = null
+                                        isAnswerSubmitted = false
+                                    } else {
+                                        isQuizCompleted = true
+                                    }
+                                },
+                            contentAlignment = Alignment.CenterStart
                         ) {
-                            Text(if (currentQuestionIndex + 1 < questions.size) "Next Question" else "See Results")
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+                            // 1. Shaded progress bar fill sweeping across the button
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .fillMaxWidth(autoNextProgress)
+                                    .background(Color.White.copy(alpha = 0.22f))
+                            )
+
+                            // 2. High-contrast accent progress bar across the bottom
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.BottomStart)
+                                    .fillMaxWidth(autoNextProgress)
+                                    .height(4.dp)
+                                    .background(Color.White.copy(alpha = 0.95f))
+                            )
+
+                            // 3. Button content: Label + Auto-next countdown indicator + Arrow
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 16.dp),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = if (isLastQuestion) "See Results" else "Next Question",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 15.sp,
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Surface(
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = Color.Black.copy(alpha = 0.25f)
+                                ) {
+                                    Text(
+                                        text = "${secondsLeft}s",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
                         }
                     } else {
                         Button(
