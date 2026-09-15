@@ -188,7 +188,7 @@ fun QuizScreen(
                                 // Celebration Unfolding Belt for the earned rank
                                 UnfoldingBeltView(
                                     belt = selectedBelt,
-                                    beltWidth = 44.dp,
+                                    boxWidth = 96.dp,
                                     maxBeltLength = 150.dp
                                 )
                             }

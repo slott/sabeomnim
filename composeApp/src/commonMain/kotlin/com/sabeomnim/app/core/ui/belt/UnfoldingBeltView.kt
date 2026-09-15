@@ -298,22 +298,21 @@ class BeltPhysicsSystem(
 fun UnfoldingBeltView(
     belt: BeltRank,
     modifier: Modifier = Modifier,
-    beltWidth: Dp = 48.dp,
+    boxWidth: Dp = 96.dp,
     maxBeltLength: Dp = 175.dp,
-    autoPlay: Boolean = true
+    autoPlay: Boolean = true,
+    onInteraction: () -> Unit = {}
 ) {
     val density = LocalDensity.current.density
     val unfoldProgress = remember { Animatable(0f) }
 
-    val boxWidth = 74.dp
-    val boxHeight = maxBeltLength + 28.dp
+    val boxHeight = maxBeltLength + 32.dp
 
     val boxWidthPx = boxWidth.value * density
     val totalHeightPx = boxHeight.value * density
     val tailWidthPx = 18.5f * density
     val knotCenterXPx = boxWidthPx / 2f
-    val knotHeightPx = 21.dp.value * density
-    val knotAnchorY = knotHeightPx * 0.70f
+    val knotAnchorY = 17.dp.value * density
     val fullTailLenPx = maxBeltLength.value * density
 
     // Create and remember the 2D physics system
@@ -384,6 +383,7 @@ fun UnfoldingBeltView(
             .height(boxHeight)
             .pointerInput(belt) {
                 detectTapGestures { offset ->
+                    onInteraction()
                     physics.onTap(offset.x, offset.y)
                     isSimulating = true
                 }
@@ -391,6 +391,7 @@ fun UnfoldingBeltView(
             .pointerInput(belt) {
                 detectDragGestures(
                     onDragStart = { offset ->
+                        onInteraction()
                         if (physics.onDragStart(offset.x, offset.y)) {
                             isSimulating = true
                         }
@@ -414,9 +415,6 @@ fun UnfoldingBeltView(
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             if (frameTick == -1L) return@Canvas
-
-            val knotWidthPx = 52.dp.toPx()
-            val knotLeftPx = (size.width - knotWidthPx) / 2f
 
             // 1. Draw Left Tail (Plain cotton tail, no rank tab)
             drawBeltTail(
@@ -442,12 +440,17 @@ fun UnfoldingBeltView(
                 isBlackBelt = isBlackBelt
             )
 
-            // 3. Draw Belt Knot at top (Square knot anchoring both tails)
-            drawBeltKnot(
-                knotLeft = knotLeftPx,
-                knotWidth = knotWidthPx,
-                knotHeight = knotHeightPx,
-                baseColor = baseBeltColor
+            // 3. Draw Belt Knot & Waist Band at top (Wide martial arts waist wrap anchoring both tails)
+            drawBeltWaistAndKnot(
+                centerX = size.width / 2f,
+                waistWidth = 88.dp.toPx(),
+                waistHeight = 17.5.dp.toPx(),
+                waistTop = 5.dp.toPx(),
+                knotWrapWidth = 26.dp.toPx(),
+                knotWrapHeight = 23.5.dp.toPx(),
+                knotWrapTop = 2.dp.toPx(),
+                baseColor = baseBeltColor,
+                stitchColor = getStitchColor(belt)
             )
         }
     }
@@ -679,62 +682,111 @@ private fun DrawScope.drawBeltTail(
 }
 
 /**
- * Draws the traditional tied square knot at the top.
+ * Draws the wide horizontal waist band and central knot wrap of the tied Taekwondo belt,
+ * matching authentic Kukkiwon silhouette with smooth rounded ends and longitudinal stitches.
  */
-private fun DrawScope.drawBeltKnot(
-    knotLeft: Float,
-    knotWidth: Float,
-    knotHeight: Float,
-    baseColor: Color
+private fun DrawScope.drawBeltWaistAndKnot(
+    centerX: Float,
+    waistWidth: Float,
+    waistHeight: Float,
+    waistTop: Float,
+    knotWrapWidth: Float,
+    knotWrapHeight: Float,
+    knotWrapTop: Float,
+    baseColor: Color,
+    stitchColor: Color
 ) {
-    // Knot drop shadow
+    val waistLeft = centerX - (waistWidth / 2f)
+    val knotWrapLeft = centerX - (knotWrapWidth / 2f)
+    val waistRadius = 4.5.dp.toPx()
+    val knotRadius = 5.0.dp.toPx()
+
+    // 1. Waist band drop shadow
     drawRoundRect(
         color = Color.Black.copy(alpha = 0.22f),
-        topLeft = Offset(knotLeft + 2.dp.toPx(), 4.dp.toPx()),
-        size = Size(knotWidth, knotHeight),
-        cornerRadius = CornerRadius(6.dp.toPx())
+        topLeft = Offset(waistLeft + 1.5.dp.toPx(), waistTop + 2.5.dp.toPx()),
+        size = Size(waistWidth, waistHeight),
+        cornerRadius = CornerRadius(waistRadius)
     )
 
-    // Knot body
+    // 2. Waist band base fabric fill
     drawRoundRect(
         color = baseColor,
-        topLeft = Offset(knotLeft, 2.dp.toPx()),
-        size = Size(knotWidth, knotHeight),
-        cornerRadius = CornerRadius(6.dp.toPx())
+        topLeft = Offset(waistLeft, waistTop),
+        size = Size(waistWidth, waistHeight),
+        cornerRadius = CornerRadius(waistRadius)
     )
 
-    // Shading highlight
+    // 3. Waist band fabric shading gradient
+    drawRoundRect(
+        brush = Brush.verticalGradient(
+            colors = listOf(
+                Color.White.copy(alpha = 0.18f),
+                Color.Transparent,
+                Color.Black.copy(alpha = 0.18f)
+            ),
+            startY = waistTop,
+            endY = waistTop + waistHeight
+        ),
+        topLeft = Offset(waistLeft, waistTop),
+        size = Size(waistWidth, waistHeight),
+        cornerRadius = CornerRadius(waistRadius)
+    )
+
+    // 4. Waist band longitudinal seam stitches (3 horizontal rows)
+    val seamFractions = listOf(-0.52f, 0f, 0.52f)
+    val halfWaist = waistHeight / 2f
+    for (frac in seamFractions) {
+        val sy = waistTop + halfWaist + (halfWaist * frac)
+        drawLine(
+            color = stitchColor,
+            start = Offset(waistLeft + 4.dp.toPx(), sy),
+            end = Offset(waistLeft + waistWidth - 4.dp.toPx(), sy),
+            strokeWidth = 1.0.dp.toPx(),
+            pathEffect = PathEffect.dashPathEffect(floatArrayOf(5.5.dp.toPx(), 3.5.dp.toPx()), 0f)
+        )
+    }
+
+    // 5. Center knot wrap drop shadow
+    drawRoundRect(
+        color = Color.Black.copy(alpha = 0.26f),
+        topLeft = Offset(knotWrapLeft + 2.dp.toPx(), knotWrapTop + 2.dp.toPx()),
+        size = Size(knotWrapWidth, knotWrapHeight),
+        cornerRadius = CornerRadius(knotRadius)
+    )
+
+    // 6. Center knot wrap base fabric
+    drawRoundRect(
+        color = baseColor,
+        topLeft = Offset(knotWrapLeft, knotWrapTop),
+        size = Size(knotWrapWidth, knotWrapHeight),
+        cornerRadius = CornerRadius(knotRadius)
+    )
+
+    // 7. Center knot wrap 3D cylinder highlight
     drawRoundRect(
         brush = Brush.horizontalGradient(
             colors = listOf(
-                Color.Black.copy(alpha = 0.20f),
-                Color.White.copy(alpha = 0.18f),
-                Color.Black.copy(alpha = 0.20f)
+                Color.Black.copy(alpha = 0.22f),
+                Color.White.copy(alpha = 0.24f),
+                Color.Transparent,
+                Color.Black.copy(alpha = 0.24f)
             ),
-            startX = knotLeft,
-            endX = knotLeft + knotWidth
+            startX = knotWrapLeft,
+            endX = knotWrapLeft + knotWrapWidth
         ),
-        topLeft = Offset(knotLeft, 2.dp.toPx()),
-        size = Size(knotWidth, knotHeight),
-        cornerRadius = CornerRadius(6.dp.toPx())
+        topLeft = Offset(knotWrapLeft, knotWrapTop),
+        size = Size(knotWrapWidth, knotWrapHeight),
+        cornerRadius = CornerRadius(knotRadius)
     )
 
-    // Center wrap tie
-    val tieWidth = knotWidth * 0.30f
-    val tieLeft = knotLeft + (knotWidth - tieWidth) / 2f
+    // 8. Center knot wrap subtle contour border
     drawRoundRect(
-        color = baseColor,
-        topLeft = Offset(tieLeft, 0.dp.toPx()),
-        size = Size(tieWidth, knotHeight + 3.dp.toPx()),
-        cornerRadius = CornerRadius(4.dp.toPx())
-    )
-
-    drawRoundRect(
-        color = Color.Black.copy(alpha = 0.18f),
-        topLeft = Offset(tieLeft, 0.dp.toPx()),
-        size = Size(tieWidth, knotHeight + 3.dp.toPx()),
-        cornerRadius = CornerRadius(4.dp.toPx()),
-        style = Stroke(width = 1.1.dp.toPx())
+        color = Color.Black.copy(alpha = 0.16f),
+        topLeft = Offset(knotWrapLeft, knotWrapTop),
+        size = Size(knotWrapWidth, knotWrapHeight),
+        cornerRadius = CornerRadius(knotRadius),
+        style = Stroke(width = 1.0.dp.toPx())
     )
 }
 

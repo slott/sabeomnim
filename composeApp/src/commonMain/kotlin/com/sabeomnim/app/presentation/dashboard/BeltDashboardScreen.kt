@@ -1,5 +1,9 @@
 package com.sabeomnim.app.presentation.dashboard
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,6 +19,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,30 +51,15 @@ fun BeltDashboardScreen(
     val poomsae = PoomsaeRepository.getPoomsaeForBelt(selectedBelt)
     val quizCount = QuizRepository.getQuestionsForBelt(selectedBelt).size
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Sabeomnim",
-                        fontWeight = FontWeight.Bold,
-                        color = TaegeukRed,
-                        fontSize = 20.sp
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            )
-        }
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
+    var hasInteractedWithBelt by rememberSaveable { mutableStateOf(false) }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
             item {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
@@ -145,16 +138,24 @@ fun BeltDashboardScreen(
                         ) {
                             UnfoldingBeltView(
                                 belt = selectedBelt,
-                                beltWidth = 40.dp,
-                                maxBeltLength = 175.dp
+                                boxWidth = 96.dp,
+                                maxBeltLength = 175.dp,
+                                onInteraction = { hasInteractedWithBelt = true }
                             )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = "Drag tails to swing",
-                                fontSize = 10.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.65f),
-                                fontWeight = FontWeight.Medium
-                            )
+                            AnimatedVisibility(
+                                visible = !hasInteractedWithBelt,
+                                exit = fadeOut(animationSpec = tween(300)) + shrinkVertically()
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = "Drag tails to swing",
+                                        fontSize = 10.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.65f),
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -339,7 +340,6 @@ fun BeltDashboardScreen(
             }
         }
     }
-}
 
 @Composable
 fun BeltSelectorRow(
