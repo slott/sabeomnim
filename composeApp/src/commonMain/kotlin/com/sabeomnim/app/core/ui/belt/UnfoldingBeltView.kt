@@ -211,6 +211,23 @@ class BeltPhysicsSystem(
         }
     }
 
+    val isDragged: Boolean
+        get() = draggedTail != null
+
+    fun hasKineticEnergy(): Boolean {
+        var maxV2 = 0f
+        for (tail in listOf(leftTail, rightTail)) {
+            for (i in 1 until tail.particles.size) {
+                val p = tail.particles[i]
+                val dx = p.x - p.prevX
+                val dy = p.y - p.prevY
+                val v2 = dx * dx + dy * dy
+                if (v2 > maxV2) maxV2 = v2
+            }
+        }
+        return maxV2 > (0.05f * density * density)
+    }
+
     fun update(dt: Float) {
         val tails = listOf(leftTail, rightTail)
 
@@ -310,9 +327,13 @@ fun UnfoldingBeltView(
         }
     }
 
+    var isSimulating by remember { mutableStateOf(true) }
+    var frameTick by remember { mutableStateOf(0L) }
+
     // Trigger unfolding animation when belt changes
     LaunchedEffect(belt) {
         physics.initialize(knotCenterXPx, knotAnchorY, fullTailLenPx)
+        isSimulating = true
         if (autoPlay) {
             unfoldProgress.snapTo(0.10f)
             unfoldProgress.animateTo(
@@ -324,19 +345,28 @@ fun UnfoldingBeltView(
         }
     }
 
-    // Real-time physics simulation loop
-    var frameTick by remember { mutableStateOf(0L) }
-    LaunchedEffect(Unit) {
-        var lastNanos = 0L
-        while (isActive) {
+    // Real-time physics simulation loop: runs at VSync rate, sleeps when belt is at rest
+    LaunchedEffect(isSimulating) {
+        if (!isSimulating) return@LaunchedEffect
+        var lastNanos = withFrameNanos { it }
+        var restFrames = 0
+        while (isActive && isSimulating) {
             withFrameNanos { timeNanos ->
-                if (lastNanos != 0L) {
-                    val dt = ((timeNanos - lastNanos) / 1_000_000_000f).coerceIn(0.005f, 0.033f)
-                    physics.onUnfoldProgress(unfoldProgress.value, fullTailLenPx)
-                    physics.update(dt)
-                    frameTick = timeNanos
-                }
+                val dt = ((timeNanos - lastNanos) / 1_000_000_000f).coerceIn(0.005f, 0.033f)
                 lastNanos = timeNanos
+                physics.onUnfoldProgress(unfoldProgress.value, fullTailLenPx)
+                physics.update(dt)
+                frameTick = timeNanos
+
+                // Automatically sleep after settling
+                if (unfoldProgress.value >= 1f && !physics.isDragged && !physics.hasKineticEnergy()) {
+                    restFrames++
+                    if (restFrames > 25) {
+                        isSimulating = false
+                    }
+                } else {
+                    restFrames = 0
+                }
             }
         }
     }
@@ -353,22 +383,28 @@ fun UnfoldingBeltView(
             .pointerInput(belt) {
                 detectTapGestures { offset ->
                     physics.onTap(offset.x, offset.y)
+                    isSimulating = true
                 }
             }
             .pointerInput(belt) {
                 detectDragGestures(
                     onDragStart = { offset ->
-                        physics.onDragStart(offset.x, offset.y)
+                        if (physics.onDragStart(offset.x, offset.y)) {
+                            isSimulating = true
+                        }
                     },
                     onDrag = { change, _ ->
                         change.consume()
                         physics.onDrag(change.position.x, change.position.y)
+                        isSimulating = true
                     },
                     onDragEnd = {
                         physics.onDragEnd()
+                        isSimulating = true
                     },
                     onDragCancel = {
                         physics.onDragEnd()
+                        isSimulating = true
                     }
                 )
             },

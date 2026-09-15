@@ -182,19 +182,21 @@ fun QuizScreen(
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = if (passed) Color(0xFF2E7D32) else TaegeukRed
                                     ),
-                                    shape = RoundedCornerShape(12.dp)
+                                    shape = RoundedCornerShape(12.dp),
+                                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp)
                                 ) {
                                     Icon(Icons.Default.Refresh, contentDescription = null)
                                     Spacer(modifier = Modifier.width(6.dp))
-                                    Text("Retake Exam")
+                                    Text("Retake", maxLines = 1)
                                 }
 
                                 if (passed) {
                                     FilledTonalButton(
                                         onClick = { confettiState.spawnCelebration(180) },
-                                        shape = RoundedCornerShape(12.dp)
+                                        shape = RoundedCornerShape(12.dp),
+                                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp)
                                     ) {
-                                        Text("🎊 Confetti!")
+                                        Text("🎊 Confetti", maxLines = 1)
                                     }
                                 }
                             }

@@ -6,13 +6,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlin.math.PI
 import kotlin.math.cos
@@ -32,22 +29,19 @@ class ConfettiParticle(
     var vy: Float,
     var rotationX: Float = Random.nextFloat() * 2f * PI.toFloat(),
     var rotationY: Float = Random.nextFloat() * 2f * PI.toFloat(),
-    var rotationZ: Float = Random.nextFloat() * 360f,
-    val vRotX: Float = (Random.nextFloat() * 8f - 4f),
-    val vRotY: Float = (Random.nextFloat() * 8f - 4f),
-    val vRotZ: Float = (Random.nextFloat() * 300f - 150f),
+    var rotationZ: Float = Random.nextFloat() * 2f * PI.toFloat(),
+    val vRotX: Float = (Random.nextFloat() * 6f - 3f),
+    val vRotY: Float = (Random.nextFloat() * 6f - 3f),
+    val vRotZ: Float = (Random.nextFloat() * 5f - 2.5f),
     val width: Float,
     val height: Float,
-    val color: Color,
+    val baseColor: Color,
     val shape: ConfettiShape,
     val maxLifeTimeMs: Float,
     var currentLifeTimeMs: Float = 0f
 ) {
     val isDead: Boolean
         get() = currentLifeTimeMs >= maxLifeTimeMs
-
-    val lifeRatio: Float
-        get() = (1f - (currentLifeTimeMs / maxLifeTimeMs)).coerceIn(0f, 1f)
 }
 
 val ConfettiCelebrationColors = listOf(
@@ -60,17 +54,23 @@ val ConfettiCelebrationColors = listOf(
     Color(0xFF8E24AA)  // Royal Purple
 )
 
+/**
+ * High-performance Confetti State.
+ * Uses flat ArrayList with O(1) swap-removal and zero Compose SnapshotStateList overhead.
+ */
 @Stable
 class ConfettiState {
-    var particles = mutableStateListOf<ConfettiParticle>()
-        private set
+    val particles = ArrayList<ConfettiParticle>()
 
     var isRunning by mutableStateOf(false)
         private set
 
+    var frameTick by mutableStateOf(0L)
+        internal set
+
     var containerSize by mutableStateOf(IntSize.Zero)
 
-    fun spawnCelebration(count: Int = 160) {
+    fun spawnCelebration(count: Int = 140) {
         val width = if (containerSize.width > 0) containerSize.width.toFloat() else 1080f
         val height = if (containerSize.height > 0) containerSize.height.toFloat() else 1920f
 
@@ -79,12 +79,12 @@ class ConfettiState {
         // Cannon 1: Bottom Left shooting up-right
         val leftCount = count / 3
         for (i in 0 until leftCount) {
-            val angle = (-Random.nextFloat() * 35f - 45f) * (PI.toFloat() / 180f) // -45° to -80°
-            val speed = Random.nextFloat() * 650f + 650f
+            val angle = (-Random.nextFloat() * 32f - 48f) * (PI.toFloat() / 180f)
+            val speed = Random.nextFloat() * 700f + 650f
             newParticles.add(
                 createParticle(
-                    startX = Random.nextFloat() * 80f,
-                    startY = height * 0.85f + Random.nextFloat() * 80f,
+                    startX = Random.nextFloat() * 60f,
+                    startY = height * 0.88f + Random.nextFloat() * 60f,
                     vx = cos(angle) * speed,
                     vy = sin(angle) * speed
                 )
@@ -94,12 +94,12 @@ class ConfettiState {
         // Cannon 2: Bottom Right shooting up-left
         val rightCount = count / 3
         for (i in 0 until rightCount) {
-            val angle = (-Random.nextFloat() * 35f - 100f) * (PI.toFloat() / 180f) // -100° to -135°
-            val speed = Random.nextFloat() * 650f + 650f
+            val angle = (-Random.nextFloat() * 32f - 100f) * (PI.toFloat() / 180f)
+            val speed = Random.nextFloat() * 700f + 650f
             newParticles.add(
                 createParticle(
-                    startX = width - Random.nextFloat() * 80f,
-                    startY = height * 0.85f + Random.nextFloat() * 80f,
+                    startX = width - Random.nextFloat() * 60f,
+                    startY = height * 0.88f + Random.nextFloat() * 60f,
                     vx = cos(angle) * speed,
                     vy = sin(angle) * speed
                 )
@@ -109,12 +109,12 @@ class ConfettiState {
         // Fountain 3: Center bursting outward
         val centerCount = count - leftCount - rightCount
         for (i in 0 until centerCount) {
-            val angle = (-Random.nextFloat() * 90f - 45f) * (PI.toFloat() / 180f) // -45° to -135°
+            val angle = (-Random.nextFloat() * 100f - 40f) * (PI.toFloat() / 180f)
             val speed = Random.nextFloat() * 550f + 500f
             newParticles.add(
                 createParticle(
-                    startX = width * 0.5f + (Random.nextFloat() * 120f - 60f),
-                    startY = height * 0.65f + (Random.nextFloat() * 80f - 40f),
+                    startX = width * 0.5f + (Random.nextFloat() * 100f - 50f),
+                    startY = height * 0.65f + (Random.nextFloat() * 60f - 30f),
                     vx = cos(angle) * speed,
                     vy = sin(angle) * speed
                 )
@@ -133,19 +133,19 @@ class ConfettiState {
         }
 
         val width = when (shapeType) {
-            ConfettiShape.RECTANGLE -> Random.nextFloat() * 12f + 16f
-            ConfettiShape.RIBBON -> Random.nextFloat() * 8f + 10f
-            ConfettiShape.CIRCLE -> Random.nextFloat() * 10f + 12f
+            ConfettiShape.RECTANGLE -> Random.nextFloat() * 10f + 16f
+            ConfettiShape.RIBBON -> Random.nextFloat() * 7f + 9f
+            ConfettiShape.CIRCLE -> Random.nextFloat() * 10f + 11f
         }
 
         val height = when (shapeType) {
             ConfettiShape.RECTANGLE -> Random.nextFloat() * 8f + 12f
-            ConfettiShape.RIBBON -> Random.nextFloat() * 22f + 26f
+            ConfettiShape.RIBBON -> Random.nextFloat() * 20f + 24f
             ConfettiShape.CIRCLE -> width
         }
 
         val color = ConfettiCelebrationColors[Random.nextInt(ConfettiCelebrationColors.size)]
-        val lifeTimeMs = Random.nextFloat() * 1500f + 2800f
+        val lifeTimeMs = Random.nextFloat() * 1200f + 2500f
 
         return ConfettiParticle(
             x = startX,
@@ -154,7 +154,7 @@ class ConfettiState {
             vy = vy,
             width = width,
             height = height,
-            color = color,
+            baseColor = color,
             shape = shapeType,
             maxLifeTimeMs = lifeTimeMs
         )
@@ -166,29 +166,33 @@ class ConfettiState {
             return
         }
 
-        val gravity = 780f // downward acceleration
-        val drag = 0.985f  // air resistance
+        val gravity = 880f
+        val drag = 0.984f
+        val dtMs = dtSec * 1000f
 
-        val iterator = particles.iterator()
-        while (iterator.hasNext()) {
-            val p = iterator.next()
-            p.currentLifeTimeMs += dtSec * 1000f
+        var i = particles.size - 1
+        while (i >= 0) {
+            val p = particles[i]
+            p.currentLifeTimeMs += dtMs
 
             if (p.isDead) {
-                iterator.remove()
-                continue
+                // O(1) swap remove
+                val lastIdx = particles.size - 1
+                if (i != lastIdx) {
+                    particles[i] = particles[lastIdx]
+                }
+                particles.removeAt(lastIdx)
+            } else {
+                p.vy += gravity * dtSec
+                p.vx *= drag
+                p.x += p.vx * dtSec
+                p.y += p.vy * dtSec
+
+                p.rotationX += p.vRotX * dtSec
+                p.rotationY += p.vRotY * dtSec
+                p.rotationZ += p.vRotZ * dtSec
             }
-
-            // Physics integration
-            p.vy += gravity * dtSec
-            p.vx *= drag
-            p.x += p.vx * dtSec
-            p.y += p.vy * dtSec
-
-            // 3D tumble rotations
-            p.rotationX += p.vRotX * dtSec
-            p.rotationY += p.vRotY * dtSec
-            p.rotationZ += p.vRotZ * dtSec
+            i--
         }
 
         if (particles.isEmpty()) {
@@ -202,6 +206,11 @@ fun rememberConfettiState(): ConfettiState {
     return remember { ConfettiState() }
 }
 
+/**
+ * Ultra-smooth, hardware-accelerated Confetti Canvas host.
+ * Synchronized with Choreographer VSync, zero memory allocations per frame,
+ * direct trigonometric vertex computation (no Skia matrix save/restore stack thrashing).
+ */
 @Composable
 fun ConfettiHost(
     state: ConfettiState,
@@ -210,12 +219,13 @@ fun ConfettiHost(
     LaunchedEffect(state.isRunning) {
         if (!state.isRunning) return@LaunchedEffect
 
-        var lastFrameTime = withFrameMillis { it }
+        var lastFrameNanos = withFrameNanos { it }
         while (isActive && state.isRunning) {
-            withFrameMillis { currentFrameTime ->
-                val dtSec = ((currentFrameTime - lastFrameTime) / 1000f).coerceIn(0.001f, 0.05f)
-                lastFrameTime = currentFrameTime
+            withFrameNanos { currentFrameNanos ->
+                val dtSec = ((currentFrameNanos - lastFrameNanos) / 1_000_000_000f).coerceIn(0.005f, 0.033f)
+                lastFrameNanos = currentFrameNanos
                 state.update(dtSec)
+                state.frameTick = currentFrameNanos
             }
         }
     }
@@ -224,42 +234,69 @@ fun ConfettiHost(
         modifier = modifier
             .onSizeChanged { state.containerSize = it }
     ) {
-        if (state.particles.isNotEmpty()) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val canvasWidth = size.width
-                val canvasHeight = size.height
+        if (state.isRunning || state.particles.isNotEmpty()) {
+            val reusablePath = remember { Path() }
 
-                for (p in state.particles) {
-                    val alpha = p.lifeRatio
-                    if (alpha <= 0.01f) continue
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                // Reading frameTick triggers exact 60/120fps VSync invalidation
+                val tick = state.frameTick
+                if (tick == -1L) return@Canvas
+
+                val count = state.particles.size
+                for (idx in 0 until count) {
+                    val p = state.particles[idx]
+                    val alpha = (1f - (p.currentLifeTimeMs / p.maxLifeTimeMs)).coerceIn(0f, 1f)
+                    if (alpha <= 0.02f) continue
 
                     // 3D fluttering projection
-                    val scaleX = cos(p.rotationX).coerceIn(-1f, 1f)
-                    val scaleY = cos(p.rotationY).coerceIn(-1f, 1f)
+                    val scaleX = cos(p.rotationX)
+                    val scaleY = cos(p.rotationY)
+                    val absScaleX = if (scaleX < 0f) -scaleX else scaleX
+                    val absScaleY = if (scaleY < 0f) -scaleY else scaleY
 
-                    if (scaleX == 0f || scaleY == 0f) continue
+                    if (absScaleX < 0.05f || absScaleY < 0.05f) continue
 
-                    val particleColor = p.color.copy(alpha = alpha)
+                    val particleColor = p.baseColor.copy(alpha = alpha)
 
                     when (p.shape) {
                         ConfettiShape.CIRCLE -> {
                             drawCircle(
                                 color = particleColor,
-                                radius = (p.width / 2f) * kotlin.math.abs(scaleX),
+                                radius = (p.width * 0.5f) * absScaleX,
                                 center = Offset(p.x, p.y)
                             )
                         }
                         ConfettiShape.RECTANGLE, ConfettiShape.RIBBON -> {
-                            val w = p.width * kotlin.math.abs(scaleX)
-                            val h = p.height * kotlin.math.abs(scaleY)
+                            val w = p.width * absScaleX
+                            val h = p.height * absScaleY
+                            val hw = w * 0.5f
+                            val hh = h * 0.5f
 
-                            rotate(degrees = p.rotationZ, pivot = Offset(p.x, p.y)) {
-                                drawRect(
-                                    color = particleColor,
-                                    topLeft = Offset(p.x - w / 2f, p.y - h / 2f),
-                                    size = Size(w, h)
-                                )
-                            }
+                            val rotZ = p.rotationZ
+                            val cosZ = cos(rotZ)
+                            val sinZ = sin(rotZ)
+
+                            // Direct rotated 4 corner vertices
+                            val x1 = p.x - hw * cosZ + hh * sinZ
+                            val y1 = p.y - hw * sinZ - hh * cosZ
+
+                            val x2 = p.x + hw * cosZ + hh * sinZ
+                            val y2 = p.y + hw * sinZ - hh * cosZ
+
+                            val x3 = p.x + hw * cosZ - hh * sinZ
+                            val y3 = p.y + hw * sinZ + hh * cosZ
+
+                            val x4 = p.x - hw * cosZ - hh * sinZ
+                            val y4 = p.y - hw * sinZ + hh * cosZ
+
+                            reusablePath.rewind()
+                            reusablePath.moveTo(x1, y1)
+                            reusablePath.lineTo(x2, y2)
+                            reusablePath.lineTo(x3, y3)
+                            reusablePath.lineTo(x4, y4)
+                            reusablePath.close()
+
+                            drawPath(path = reusablePath, color = particleColor)
                         }
                     }
                 }
