@@ -7,17 +7,24 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import com.sabeomnim.app.core.audio.rememberAudioService
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -29,6 +36,9 @@ import com.sabeomnim.app.core.designsystem.TaegeukRed
 import com.sabeomnim.app.core.i18n.AppLanguage
 import com.sabeomnim.app.core.i18n.AppStrings
 import com.sabeomnim.app.core.i18n.LocalAppLanguage
+import com.sabeomnim.app.core.platform.BackHandler
+import com.sabeomnim.app.core.platform.LockScreenOrientation
+import com.sabeomnim.app.core.platform.ScreenOrientation
 import com.sabeomnim.app.core.player.PlatformVideoPlayer
 import com.sabeomnim.app.data.models.Poomsae
 import com.sabeomnim.app.data.models.PoomsaeStep
@@ -60,6 +70,7 @@ fun PoomsaePlayerScreen(
     var durationMs by remember { mutableStateOf(0L) }
     var seekTargetMs by remember { mutableStateOf<Long?>(null) }
     var isStepLoopEnabled by remember { mutableStateOf(false) }
+    var isFullScreen by remember { mutableStateOf(false) }
 
     val activeUrl = if (selectedAngle == VideoAngle.FRONT) {
         selectedPoomsae.frontVideoUrl
@@ -79,6 +90,37 @@ fun PoomsaePlayerScreen(
         if (isStepLoopEnabled && currentStep != null && currentPositionMs >= currentStep.endTimeMs) {
             seekTargetMs = currentStep.startTimeMs
         }
+    }
+
+    if (isFullScreen) {
+        PoomsaeLandscapeFullscreenPlayer(
+            poomsae = selectedPoomsae,
+            videoUrl = activeUrl,
+            isPlaying = isPlaying,
+            playbackSpeed = playbackSpeed,
+            currentPositionMs = currentPositionMs,
+            durationMs = durationMs,
+            seekTargetMs = seekTargetMs,
+            selectedAngle = selectedAngle,
+            currentStep = currentStep,
+            isStepLoopEnabled = isStepLoopEnabled,
+            lang = lang,
+            onPlayPauseToggle = { isPlaying = !isPlaying },
+            onSpeedChange = { playbackSpeed = it },
+            onAngleChange = { selectedAngle = it },
+            onSeekTo = { seekTargetMs = it },
+            onStepLoopToggle = { isStepLoopEnabled = !isStepLoopEnabled },
+            onProgressUpdate = { current, dur ->
+                currentPositionMs = current
+                if (dur > 0) durationMs = dur
+                if (seekTargetMs != null && kotlin.math.abs(current - (seekTargetMs ?: 0L)) < 500) {
+                    seekTargetMs = null
+                }
+            },
+            onAudioSpeak = { audioService.speak(it) },
+            onExitFullscreen = { isFullScreen = false }
+        )
+        return
     }
 
     when (displayMode) {
@@ -216,23 +258,6 @@ fun PoomsaePlayerScreen(
                         modifier = Modifier.fillMaxSize()
                     )
 
-                    // On-screen overlay showing current active camera angle
-                    Surface(
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .padding(10.dp),
-                        shape = RoundedCornerShape(6.dp),
-                        color = Color.Black.copy(alpha = 0.65f)
-                    ) {
-                        Text(
-                            text = if (selectedAngle == VideoAngle.FRONT) "📷 FRONT" else "📷 SIDE",
-                            color = Color.White,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                        )
-                    }
-
                     // Kihap Banner indicator when active step has a shout
                     if (currentStep?.isKihap == true) {
                         Surface(
@@ -250,6 +275,23 @@ fun PoomsaePlayerScreen(
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                             )
                         }
+                    }
+
+                    // Fullscreen Landscape Toggle Button
+                    IconButton(
+                        onClick = { isFullScreen = true },
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(8.dp)
+                            .size(36.dp)
+                            .background(Color.Black.copy(alpha = 0.65f), CircleShape)
+                    ) {
+                        Icon(
+                            Icons.Default.Fullscreen,
+                            contentDescription = "Fullscreen Landscape",
+                            tint = Color.White,
+                            modifier = Modifier.size(22.dp)
+                        )
                     }
                 }
 
@@ -670,5 +712,414 @@ private fun formatTime(ms: Long): String {
     val minutes = totalSeconds / 60
     val seconds = totalSeconds % 60
     return "${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}"
+}
+
+@Composable
+fun PoomsaeLandscapeFullscreenPlayer(
+    poomsae: Poomsae,
+    videoUrl: String,
+    isPlaying: Boolean,
+    playbackSpeed: Float,
+    currentPositionMs: Long,
+    durationMs: Long,
+    seekTargetMs: Long?,
+    selectedAngle: VideoAngle,
+    currentStep: PoomsaeStep?,
+    isStepLoopEnabled: Boolean,
+    lang: AppLanguage,
+    onPlayPauseToggle: () -> Unit,
+    onSpeedChange: (Float) -> Unit,
+    onAngleChange: (VideoAngle) -> Unit,
+    onSeekTo: (Long) -> Unit,
+    onStepLoopToggle: () -> Unit,
+    onProgressUpdate: (Long, Long) -> Unit,
+    onAudioSpeak: (String) -> Unit,
+    onExitFullscreen: () -> Unit
+) {
+    LockScreenOrientation(ScreenOrientation.LANDSCAPE)
+    BackHandler(enabled = true) {
+        onExitFullscreen()
+    }
+
+    var showControls by remember { mutableStateOf(true) }
+
+    // Auto-hide controls after 4 seconds of playback
+    LaunchedEffect(showControls, isPlaying) {
+        if (showControls && isPlaying) {
+            kotlinx.coroutines.delay(4000)
+            showControls = false
+        }
+    }
+
+    val effectiveDuration = if (durationMs > 0) durationMs else 60000L
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                showControls = !showControls
+            }
+    ) {
+        PlatformVideoPlayer(
+            videoUrl = videoUrl,
+            isPlaying = isPlaying,
+            playbackSpeed = playbackSpeed,
+            seekToMs = seekTargetMs,
+            initialPositionMs = currentPositionMs,
+            onProgressUpdate = onProgressUpdate,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        AnimatedVisibility(
+            visible = showControls,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                // Top gradient bar
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.TopCenter)
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Color.Black.copy(alpha = 0.85f), Color.Transparent)
+                            )
+                        )
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            IconButton(
+                                onClick = onExitFullscreen,
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .background(Color.White.copy(alpha = 0.15f), CircleShape)
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Exit Fullscreen",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                val title = if (lang == AppLanguage.DANISH && poomsae.nameDanish != null) {
+                                    poomsae.nameDanish
+                                } else {
+                                    poomsae.nameEnglish
+                                }
+                                Text(
+                                    text = "$title (${poomsae.nameKorean})",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 15.sp
+                                )
+                                Text(
+                                    text = "Step ${currentStep?.stepIndex ?: 1} / ${poomsae.movementCount}",
+                                    color = Color.White.copy(alpha = 0.8f),
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
+
+                        // Angle & Speed & Exit buttons
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            // Camera Angle Switcher
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = Color.White.copy(alpha = 0.15f)
+                            ) {
+                                Row(modifier = Modifier.padding(2.dp)) {
+                                    Surface(
+                                        shape = RoundedCornerShape(6.dp),
+                                        color = if (selectedAngle == VideoAngle.FRONT) TaegeukBlue else Color.Transparent,
+                                        modifier = Modifier.clickable { onAngleChange(VideoAngle.FRONT) }
+                                    ) {
+                                        Text(
+                                            text = "Front 0°",
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 11.sp,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                        )
+                                    }
+                                    Surface(
+                                        shape = RoundedCornerShape(6.dp),
+                                        color = if (selectedAngle == VideoAngle.SIDE) TaegeukRed else Color.Transparent,
+                                        modifier = Modifier.clickable { onAngleChange(VideoAngle.SIDE) }
+                                    ) {
+                                        Text(
+                                            text = "Side 90°",
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 11.sp,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                        )
+                                    }
+                                }
+                            }
+
+                            // Speed Selector
+                            var showSpeedMenu by remember { mutableStateOf(false) }
+                            Box {
+                                Surface(
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = Color.White.copy(alpha = 0.15f),
+                                    modifier = Modifier.clickable { showSpeedMenu = true }
+                                ) {
+                                    Text(
+                                        text = "${playbackSpeed}x",
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp,
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                                    )
+                                }
+                                DropdownMenu(
+                                    expanded = showSpeedMenu,
+                                    onDismissRequest = { showSpeedMenu = false }
+                                ) {
+                                    listOf(0.25f, 0.5f, 0.75f, 1.0f).forEach { spd ->
+                                        DropdownMenuItem(
+                                            text = { Text("${spd}x") },
+                                            onClick = {
+                                                onSpeedChange(spd)
+                                                showSpeedMenu = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+
+                            // Fullscreen Exit Button
+                            IconButton(
+                                onClick = onExitFullscreen,
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .background(Color.White.copy(alpha = 0.15f), CircleShape)
+                            ) {
+                                Icon(
+                                    Icons.Default.FullscreenExit,
+                                    contentDescription = "Exit Fullscreen",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Center Play/Pause & Step Skip Buttons
+                Row(
+                    modifier = Modifier.align(Alignment.Center),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(28.dp)
+                ) {
+                    // Previous Step
+                    IconButton(
+                        onClick = {
+                            val currentIdx = currentStep?.stepIndex ?: 1
+                            val prev = poomsae.steps.find { it.stepIndex == currentIdx - 1 }
+                                ?: poomsae.steps.firstOrNull()
+                            prev?.let { onSeekTo(it.startTimeMs) }
+                        },
+                        modifier = Modifier
+                            .size(48.dp)
+                            .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                    ) {
+                        Icon(
+                            Icons.Default.SkipPrevious,
+                            contentDescription = "Previous Step",
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+
+                    // Play / Pause
+                    IconButton(
+                        onClick = onPlayPauseToggle,
+                        modifier = Modifier
+                            .size(64.dp)
+                            .background(TaegeukBlue.copy(alpha = 0.85f), CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                            contentDescription = if (isPlaying) "Pause" else "Play",
+                            tint = Color.White,
+                            modifier = Modifier.size(36.dp)
+                        )
+                    }
+
+                    // Next Step
+                    IconButton(
+                        onClick = {
+                            val currentIdx = currentStep?.stepIndex ?: 1
+                            val next = poomsae.steps.find { it.stepIndex == currentIdx + 1 }
+                            next?.let { onSeekTo(it.startTimeMs) }
+                        },
+                        modifier = Modifier
+                            .size(48.dp)
+                            .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                    ) {
+                        Icon(
+                            Icons.Default.SkipNext,
+                            contentDescription = "Next Step",
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                }
+
+                // Bottom gradient bar with step details & scrubber
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.85f))
+                            )
+                        )
+                        .padding(horizontal = 20.dp, vertical = 8.dp)
+                ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        // Current Step HUD Info
+                        if (currentStep != null) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Surface(
+                                        shape = CircleShape,
+                                        color = if (currentStep.isKihap) TaegeukRed else TaegeukBlue,
+                                        modifier = Modifier.size(24.dp)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Text(
+                                                text = "${currentStep.stepIndex}",
+                                                color = Color.White,
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = currentStep.romanized,
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 13.sp
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "• ${currentStep.korean}",
+                                        color = Color.White.copy(alpha = 0.85f),
+                                        fontSize = 12.sp
+                                    )
+                                    if (currentStep.isKihap) {
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Surface(
+                                            shape = RoundedCornerShape(4.dp),
+                                            color = TaegeukRed
+                                        ) {
+                                            Text(
+                                                text = "⚡ KIHAP",
+                                                color = Color.White,
+                                                fontSize = 9.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                            )
+                                        }
+                                    }
+                                }
+
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    // Audio pronunciation button
+                                    IconButton(
+                                        onClick = { onAudioSpeak(currentStep.korean) },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(
+                                            Icons.AutoMirrored.Filled.VolumeUp,
+                                            contentDescription = "Speak Korean",
+                                            tint = Color.White,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+
+                                    // Step Loop toggle
+                                    IconButton(
+                                        onClick = onStepLoopToggle,
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Repeat,
+                                            contentDescription = "Loop Step",
+                                            tint = if (isStepLoopEnabled) TaegeukBlue else Color.White.copy(alpha = 0.6f),
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        // Scrubber Slider Row
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = formatTime(currentPositionMs),
+                                color = Color.White,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Slider(
+                                value = currentPositionMs.coerceIn(0L, effectiveDuration).toFloat(),
+                                onValueChange = { onSeekTo(it.toLong()) },
+                                valueRange = 0f..effectiveDuration.toFloat(),
+                                colors = SliderDefaults.colors(
+                                    thumbColor = TaegeukBlue,
+                                    activeTrackColor = TaegeukBlue,
+                                    inactiveTrackColor = Color.White.copy(alpha = 0.3f)
+                                ),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(horizontal = 8.dp)
+                            )
+                            Text(
+                                text = formatTime(effectiveDuration),
+                                color = Color.White.copy(alpha = 0.8f),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 

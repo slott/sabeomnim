@@ -52,6 +52,9 @@ The app covers all 10 Geup grades up to 1st Dan:
   * Previous Step (`|<`) and Next Step (`>|`) buttons.
   * Loop Current Step (`⟲`) for repetitive drill rehearsal.
   * Speed toggles: `0.25x`, `0.5x`, `0.75x`, `1.0x`.
+* **Fullscreen Landscape Player**:
+  * Tap fullscreen icon on video to enter immersive landscape view with hardware/sensor orientation lock and hidden system bars.
+  * Full controls HUD: angle switcher (Front/Side), speed menu, step skip, loop toggle, Korean audio pronunciation, scrubber, and auto-hiding overlays.
 * **Visual Movement Diagram**:
   * Clean, content-wrapping card displaying the full Taegeuk movement pattern.
   * Tap to open a fullscreen interactive modal supporting smooth pinch-to-zoom and pan gestures.
