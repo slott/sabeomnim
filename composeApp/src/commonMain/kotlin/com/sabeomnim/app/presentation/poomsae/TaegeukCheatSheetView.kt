@@ -47,23 +47,8 @@ fun TaegeukCheatSheetView(
     lang: AppLanguage = LocalAppLanguage.current,
     headerContent: (@Composable () -> Unit)? = null
 ) {
-    var scale by remember(poomsae.id) { mutableStateOf(1f) }
-    var offset by remember(poomsae.id) { mutableStateOf(Offset.Zero) }
     var isFullScreenOpen by remember { mutableStateOf(false) }
     val audioService = rememberAudioService()
-
-    val transformState = rememberTransformableState { zoomChange, panChange, _ ->
-        scale = (scale * zoomChange).coerceIn(1f, 3.5f)
-        if (scale > 1f) {
-            val maxOffset = (scale - 1f) * 400f
-            offset = Offset(
-                x = (offset.x + panChange.x).coerceIn(-maxOffset, maxOffset),
-                y = (offset.y + panChange.y).coerceIn(-maxOffset, maxOffset)
-            )
-        } else {
-            offset = Offset.Zero
-        }
-    }
 
     LazyColumn(
         modifier = modifier
@@ -184,127 +169,63 @@ fun TaegeukCheatSheetView(
         // Interactive Cheat Sheet Visual Diagram
         item {
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { isFullScreenOpen = true },
                 shape = RoundedCornerShape(14.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
-                    // Header & Zoom controls
+                    // Header
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Default.Map,
-                                contentDescription = null,
-                                tint = TaegeukBlue,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = AppStrings.diagramTitle(lang),
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-
-                        // Zoom control pills
-                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            IconButton(
-                                onClick = { scale = (scale + 0.5f).coerceAtMost(3.5f) },
-                                modifier = Modifier.size(32.dp)
-                            ) {
-                                Icon(Icons.Default.ZoomIn, contentDescription = "Zoom In", modifier = Modifier.size(18.dp))
-                            }
-                            IconButton(
-                                onClick = {
-                                    scale = (scale - 0.5f).coerceAtLeast(1f)
-                                    if (scale == 1f) offset = Offset.Zero
-                                },
-                                modifier = Modifier.size(32.dp)
-                            ) {
-                                Icon(Icons.Default.ZoomOut, contentDescription = "Zoom Out", modifier = Modifier.size(18.dp))
-                            }
-                            IconButton(
-                                onClick = {
-                                    scale = 1f
-                                    offset = Offset.Zero
-                                },
-                                modifier = Modifier.size(32.dp)
-                            ) {
-                                Icon(Icons.Default.Refresh, contentDescription = "Reset Zoom", modifier = Modifier.size(18.dp))
-                            }
-                            IconButton(
-                                onClick = { isFullScreenOpen = true },
-                                modifier = Modifier.size(32.dp)
-                            ) {
-                                Icon(Icons.Default.Fullscreen, contentDescription = "Full Screen", modifier = Modifier.size(18.dp))
-                            }
-                        }
+                        Icon(
+                            Icons.Default.Map,
+                            contentDescription = null,
+                            tint = TaegeukBlue,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = AppStrings.diagramTitle(lang),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Cheat sheet image container with pinch & pan gestures
+                    // Cheat sheet image container (opens fullscreen on tap)
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(280.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(Color.White)
-                            .transformable(state = transformState, enabled = scale > 1.05f),
+                            .background(Color.White),
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
                             painter = painterResource(getTaegeukCheatSheetResource(poomsae.number)),
                             contentDescription = "Taegeuk ${poomsae.number} Diagram Cheat Sheet",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .graphicsLayer(
-                                    scaleX = scale,
-                                    scaleY = scale,
-                                    translationX = offset.x,
-                                    translationY = offset.y
-                                ),
+                            modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Fit
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = AppStrings.diagramTip(lang),
-                        fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
                 }
             }
         }
 
         // Section Title: Choreography Step Breakdown
         item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = AppStrings.stepDirectoryTitle(lang),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = AppStrings.tapToHearAudio(lang),
-                    fontSize = 11.sp,
-                    color = TaegeukBlue,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
+            Text(
+                text = AppStrings.stepDirectoryTitle(lang),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(top = 8.dp)
+            )
         }
 
         // Ready Position Info Card
@@ -391,16 +312,20 @@ fun TaegeukCheatSheetView(
             onDismissRequest = { isFullScreenOpen = false },
             properties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
-            var dialogScale by remember { mutableStateOf(1.2f) }
+            var dialogScale by remember { mutableStateOf(1f) }
             var dialogOffset by remember { mutableStateOf(Offset.Zero) }
 
             val dialogTransform = rememberTransformableState { zoomChange, panChange, _ ->
                 dialogScale = (dialogScale * zoomChange).coerceIn(1f, 5f)
-                val maxOffset = (dialogScale - 1f) * 600f
-                dialogOffset = Offset(
-                    x = (dialogOffset.x + panChange.x).coerceIn(-maxOffset, maxOffset),
-                    y = (dialogOffset.y + panChange.y).coerceIn(-maxOffset, maxOffset)
-                )
+                if (dialogScale > 1f) {
+                    val maxOffset = (dialogScale - 1f) * 600f
+                    dialogOffset = Offset(
+                        x = (dialogOffset.x + panChange.x).coerceIn(-maxOffset, maxOffset),
+                        y = (dialogOffset.y + panChange.y).coerceIn(-maxOffset, maxOffset)
+                    )
+                } else {
+                    dialogOffset = Offset.Zero
+                }
             }
 
             Surface(
@@ -435,17 +360,19 @@ fun TaegeukCheatSheetView(
                     }
 
                     // Reset button
-                    IconButton(
-                        onClick = {
-                            dialogScale = 1.2f
-                            dialogOffset = Offset.Zero
-                        },
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(16.dp)
-                            .background(Color.Black.copy(alpha = 0.6f), CircleShape)
-                    ) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Reset Zoom", tint = Color.White)
+                    if (dialogScale > 1.05f) {
+                        IconButton(
+                            onClick = {
+                                dialogScale = 1f
+                                dialogOffset = Offset.Zero
+                            },
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(16.dp)
+                                .background(Color.Black.copy(alpha = 0.6f), CircleShape)
+                        ) {
+                            Icon(Icons.Default.Refresh, contentDescription = "Reset Zoom", tint = Color.White)
+                        }
                     }
                 }
             }

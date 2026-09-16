@@ -22,8 +22,8 @@ object AppStrings {
     fun btnSide(lang: AppLanguage) = "Side"
     fun viewFront(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "📷 FORFRA" else "📷 FRONT VIEW"
     fun viewSide(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "📷 FRA SIDEN" else "📷 SIDE VIEW"
-    fun modeVideo(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Dobbeltvinkel video" else "Dual-Angle Video"
-    fun modeCheatSheet(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Visuel oversigt" else "Visual Cheat Sheet"
+    fun modeVideo(lang: AppLanguage) = "Video"
+    fun modeCheatSheet(lang: AppLanguage) = "Diagram"
     fun stepLabel(lang: AppLanguage, index: Int, total: Int) =
         if (lang == AppLanguage.DANISH) "TRIN ${index.toString().padStart(2, '0')} / $total"
         else "STEP ${index.toString().padStart(2, '0')} / $total"

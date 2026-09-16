@@ -33,8 +33,8 @@ import com.sabeomnim.app.data.models.VideoAngle
 import com.sabeomnim.app.data.repository.PoomsaeRepository
 
 enum class PoomsaeDisplayMode(val label: String, val icon: ImageVector) {
-    VIDEO("Dual-Angle Video", Icons.Default.PlayCircle),
-    CHEAT_SHEET("Visual Cheat Sheet", Icons.Default.Map)
+    VIDEO("Video", Icons.Default.PlayCircle),
+    CHEAT_SHEET("Diagram", Icons.Default.Map)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
