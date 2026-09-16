@@ -92,7 +92,7 @@ The app covers all 10 Geup grades up to 1st Dan:
 * **Theme Selection**: Dark, Light, and System modes.
 * **Voice Gender Selection**:
   * Toggle between Female and Male voice in Settings with live preview speech audition (*"사범님"*).
-  * Android: Maps to high-quality network/embedded voices (`ko-kr-x-ism` female, `ko-kr-x-kob` male) with tuned pitch multiplier fallback.
+  * Android: Maps to high-quality network/embedded voices (`ko-kr-x-ism` female, `ko-kr-x-kod` Voice D deep baritone male / Sabeomnim) with tuned pitch multiplier fallback.
   * iOS: Maps to `AVSpeechSynthesisVoiceGender.AVSpeechSynthesisVoiceGenderFemale` and `AVSpeechSynthesisVoiceGender.AVSpeechSynthesisVoiceGenderMale`.
 
 ---
