@@ -6,8 +6,7 @@ import com.sabeomnim.app.core.storage.AppSettings
 import com.sabeomnim.app.core.storage.VoiceGender
 import platform.AVFAudio.AVSpeechSynthesizer
 import platform.AVFAudio.AVSpeechSynthesisVoice
-import platform.AVFAudio.AVSpeechSynthesisVoiceGenderFemale
-import platform.AVFAudio.AVSpeechSynthesisVoiceGenderMale
+import platform.AVFAudio.AVSpeechSynthesisVoiceGender
 import platform.AVFAudio.AVSpeechUtterance
 
 class IosAudioService : AudioService {
@@ -16,9 +15,9 @@ class IosAudioService : AudioService {
 
     private fun getKoreanVoice(gender: VoiceGender): AVSpeechSynthesisVoice? {
         val targetGender = if (gender == VoiceGender.MALE) {
-            AVSpeechSynthesisVoiceGenderMale
+            AVSpeechSynthesisVoiceGender.AVSpeechSynthesisVoiceGenderMale
         } else {
-            AVSpeechSynthesisVoiceGenderFemale
+            AVSpeechSynthesisVoiceGender.AVSpeechSynthesisVoiceGenderFemale
         }
         val allVoices = AVSpeechSynthesisVoice.speechVoices()
         for (v in allVoices) {

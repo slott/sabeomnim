@@ -2,7 +2,7 @@ package com.sabeomnim.app.core.storage
 
 import com.sabeomnim.app.core.designsystem.ThemeMode
 import com.sabeomnim.app.core.i18n.AppLanguage
-import platform.foundation.NSUserDefaults
+import platform.Foundation.NSUserDefaults
 
 actual object AppSettings {
     private const val KEY_LANGUAGE = "app_language"
