@@ -107,6 +107,7 @@ sabeomnim/
 │   │   │   ├── audio/            # AudioService expect/actual contracts & voice gender
 │   │   │   ├── designsystem/     # Theme, BeltColors, Typography, Shared UI components
 │   │   │   ├── i18n/             # AppLanguage enum, translations (EN, DA) & localized string helpers
+│   │   │   ├── logging/          # CrashlyticsLogger expect/actual multiplatform contracts
 │   │   │   ├── navigation/       # Navigation destinations & NavHost
 │   │   │   ├── player/           # Multiplatform VideoPlayer interface & state
 │   │   │   └── storage/          # AppSettings expect/actual persistent preferences
@@ -120,7 +121,7 @@ sabeomnim/
 │   │       ├── poomsae/          # Taegeuk video player, diagram viewer & step list
 │   │       ├── quiz/             # Grading exam simulator & flashcards
 │   │       └── settings/         # App language, theme, and voice selection
-│   ├── androidMain/              # ExoPlayer (Media3), Android TTS, SharedPreferences AppSettings
+│   ├── androidMain/              # ExoPlayer (Media3), Android TTS, FirebaseCrashlytics, SharedPreferences AppSettings
 │   └── iosMain/                  # AVPlayer, iOS AVSpeechSynthesizer, NSUserDefaults AppSettings
 ├── gradle/
 │   └── libs.versions.toml        # Version Catalog
@@ -128,9 +129,13 @@ sabeomnim/
 └── settings.gradle.kts
 ```
 
+* **Application ID**: `dk.slott_hansen.sabeomnim`
 * **Kotlin**: 2.1.0+
 * **Compose Multiplatform**: 1.7.x+
 * **Android Gradle Plugin**: 8.7+
+* **Crash & Analytics Reporting**:
+  * Android: Google Services (`4.4.2`) + Firebase Crashlytics (`3.0.2` / BOM `33.7.0`) via multiplatform `CrashlyticsLogger`
+  * iOS: `CrashlyticsLogger` bridging to console / native handlers
 * **Video Playback**:
   * Android: AndroidX Media3 ExoPlayer
   * iOS: AVPlayer wrapped via UIKitView
