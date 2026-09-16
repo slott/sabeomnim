@@ -45,6 +45,8 @@ import com.sabeomnim.app.data.models.PoomsaeStep
 import com.sabeomnim.app.data.models.VideoAngle
 import com.sabeomnim.app.data.repository.PoomsaeRepository
 
+import androidx.compose.runtime.saveable.rememberSaveable
+
 enum class PoomsaeDisplayMode(val label: String, val icon: ImageVector) {
     VIDEO("Video", Icons.Default.PlayCircle),
     CHEAT_SHEET("Diagram", Icons.Default.Map)
@@ -54,23 +56,24 @@ enum class PoomsaeDisplayMode(val label: String, val icon: ImageVector) {
 @Composable
 fun PoomsaePlayerScreen(
     initialPoomsaeId: String = "taegeuk_1",
+    isFullScreen: Boolean = false,
+    onToggleFullScreen: (Boolean) -> Unit = {},
     onOpenSettings: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val lang = LocalAppLanguage.current
     val audioService = rememberAudioService()
-    var selectedPoomsae by remember {
+    var selectedPoomsae by remember(initialPoomsaeId) {
         mutableStateOf(PoomsaeRepository.getPoomsaeById(initialPoomsaeId) ?: PoomsaeRepository.poomsaeTaegeuk1)
     }
-    var displayMode by remember { mutableStateOf(PoomsaeDisplayMode.VIDEO) }
-    var selectedAngle by remember { mutableStateOf(VideoAngle.FRONT) }
-    var isPlaying by remember { mutableStateOf(true) }
-    var playbackSpeed by remember { mutableStateOf(1.0f) }
-    var currentPositionMs by remember { mutableStateOf(0L) }
-    var durationMs by remember { mutableStateOf(0L) }
+    var displayMode by rememberSaveable { mutableStateOf(PoomsaeDisplayMode.VIDEO) }
+    var selectedAngle by rememberSaveable { mutableStateOf(VideoAngle.FRONT) }
+    var isPlaying by rememberSaveable { mutableStateOf(true) }
+    var playbackSpeed by rememberSaveable { mutableStateOf(1.0f) }
+    var currentPositionMs by rememberSaveable { mutableStateOf(0L) }
+    var durationMs by rememberSaveable { mutableStateOf(0L) }
     var seekTargetMs by remember { mutableStateOf<Long?>(null) }
-    var isStepLoopEnabled by remember { mutableStateOf(false) }
-    var isFullScreen by remember { mutableStateOf(false) }
+    var isStepLoopEnabled by rememberSaveable { mutableStateOf(false) }
 
     val activeUrl = if (selectedAngle == VideoAngle.FRONT) {
         selectedPoomsae.frontVideoUrl
@@ -118,7 +121,7 @@ fun PoomsaePlayerScreen(
                 }
             },
             onAudioSpeak = { audioService.speak(it) },
-            onExitFullscreen = { isFullScreen = false }
+            onExitFullscreen = { onToggleFullScreen(false) }
         )
         return
     }
@@ -279,7 +282,7 @@ fun PoomsaePlayerScreen(
 
                     // Fullscreen Landscape Toggle Button
                     IconButton(
-                        onClick = { isFullScreen = true },
+                        onClick = { onToggleFullScreen(true) },
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .padding(8.dp)

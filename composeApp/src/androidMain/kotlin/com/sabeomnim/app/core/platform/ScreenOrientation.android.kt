@@ -43,7 +43,11 @@ actual fun LockScreenOrientation(orientation: ScreenOrientation) {
 
         onDispose {
             activity?.let { act ->
-                act.requestedOrientation = originalOrientation
+                act.requestedOrientation = if (originalOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
+                    originalOrientation
+                } else {
+                    ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
+                }
                 val insetsController = WindowCompat.getInsetsController(act.window, act.window.decorView)
                 insetsController.show(WindowInsetsCompat.Type.systemBars())
             }
