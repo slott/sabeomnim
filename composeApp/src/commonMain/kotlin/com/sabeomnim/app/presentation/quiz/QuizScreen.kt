@@ -284,9 +284,22 @@ fun QuizScreen(
                 }
 
                 // Question Card
-                item {
+                item(key = "question_${currentQuestion.id}") {
+                    val hasAudio = currentQuestion.koreanTerm != null
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .then(
+                                if (hasAudio) {
+                                    Modifier.clickable {
+                                        currentQuestion.koreanTerm?.let { term ->
+                                            audioService.speak(term)
+                                        }
+                                    }
+                                } else {
+                                    Modifier
+                                }
+                            ),
                         shape = RoundedCornerShape(14.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surfaceVariant
@@ -344,9 +357,15 @@ fun QuizScreen(
                                     }
                                     currentQuestion.koreanTerm?.let { term ->
                                         IconButton(
-                                            onClick = { audioService.speak(term) }
+                                            onClick = { audioService.speak(term) },
+                                            modifier = Modifier.size(38.dp)
                                         ) {
-                                            Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = "Hear Term", tint = TaegeukBlue)
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.VolumeUp,
+                                                contentDescription = "Hear Term",
+                                                tint = TaegeukBlue,
+                                                modifier = Modifier.size(24.dp)
+                                            )
                                         }
                                     }
                                 }

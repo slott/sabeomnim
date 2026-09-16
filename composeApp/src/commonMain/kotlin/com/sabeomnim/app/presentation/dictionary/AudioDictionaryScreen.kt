@@ -238,23 +238,20 @@ fun AudioDictionaryScreen(
                                 )
                             }
 
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
 
                             // One-tap Audio Speaker Button
-                            FilledIconButton(
+                            IconButton(
                                 onClick = {
                                     currentlyPlayingId = term.id
                                     audioService.speak(term.hangul, isSlow = isSlowMode)
                                 },
-                                colors = IconButtonDefaults.filledIconButtonColors(
-                                    containerColor = if (isPlaying) TaegeukRed else TaegeukBlue
-                                ),
-                                modifier = Modifier.size(46.dp)
+                                modifier = Modifier.size(38.dp)
                             ) {
                                 Icon(
-                                    Icons.AutoMirrored.Filled.VolumeUp,
+                                    imageVector = Icons.AutoMirrored.Filled.VolumeUp,
                                     contentDescription = "Pronounce",
-                                    tint = Color.White,
+                                    tint = if (isPlaying) TaegeukRed else TaegeukBlue,
                                     modifier = Modifier.size(24.dp)
                                 )
                             }
