@@ -172,35 +172,32 @@ fun AudioDictionaryScreen(
                             Column(modifier = Modifier.weight(1f)) {
                                 val cleanRomanized = term.romanized.replace(Regex("\\s*\\([^)]*\\)"), "").trim()
 
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                ) {
-                                    Text(
-                                        text = cleanRomanized,
-                                        fontSize = 18.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (isPlaying) TaegeukBlue else MaterialTheme.colorScheme.onSurface
-                                    )
-                                    val catBadge = if (lang == AppLanguage.DANISH) {
-                                        term.category.titleDanish.substringBefore(" (").substringBefore(" &")
-                                    } else {
-                                        term.category.title.substringBefore(" (").substringBefore(" &")
-                                    }
-                                    if (term.category != TermCategory.GENERAL && !catBadge.equals("General", ignoreCase = true) && !catBadge.equals("Generelt", ignoreCase = true)) {
-                                        Surface(
-                                            shape = RoundedCornerShape(4.dp),
-                                            color = MaterialTheme.colorScheme.surfaceVariant
-                                        ) {
-                                            Text(
-                                                text = catBadge,
-                                                fontSize = 10.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                            )
-                                        }
-                                    }
+                                val catBadge = if (lang == AppLanguage.DANISH) {
+                                    term.category.titleDanish.substringBefore(" (").substringBefore(" &")
+                                } else {
+                                    term.category.title.substringBefore(" (").substringBefore(" &")
                                 }
+                                if (term.category != TermCategory.GENERAL && !catBadge.equals("General", ignoreCase = true) && !catBadge.equals("Generelt", ignoreCase = true)) {
+                                    Surface(
+                                        shape = RoundedCornerShape(4.dp),
+                                        color = MaterialTheme.colorScheme.surfaceVariant
+                                    ) {
+                                        Text(
+                                            text = catBadge,
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                }
+
+                                Text(
+                                    text = cleanRomanized,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isPlaying) TaegeukBlue else MaterialTheme.colorScheme.onSurface
+                                )
 
                                 if (!term.phoneticSpelling.isNullOrBlank() && !term.phoneticSpelling.equals(cleanRomanized, ignoreCase = true)) {
                                     Spacer(modifier = Modifier.height(2.dp))
