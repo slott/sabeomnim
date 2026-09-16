@@ -11,3 +11,5 @@ local.properties
 *.hprof
 *.png
 *.mp4
+*.jks
+*.keystore
