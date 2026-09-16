@@ -14,7 +14,7 @@ object AppStrings {
     fun tabCurriculum(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Pensum" else "Curriculum"
     fun tabTaegeuk(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Taegeuk" else "Taegeuks"
     fun tabPoomsae(lang: AppLanguage) = tabTaegeuk(lang)
-    fun tabGlossary(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Ordbog & Lyd" else "Glossary & Audio"
+    fun tabGlossary(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Ordbog" else "Glossary"
     fun tabQuiz(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Bæltequiz" else "Belt Quiz"
 
     // Video Player
