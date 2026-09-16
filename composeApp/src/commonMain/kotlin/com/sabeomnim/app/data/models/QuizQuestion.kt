@@ -7,11 +7,24 @@ data class QuizQuestion(
     val id: String,
     val beltRank: BeltRank,
     val question: String,
+    val questionDanish: String? = null,
     val koreanTerm: String? = null,
     val options: List<String>,
+    val optionsDanish: List<String>? = null,
     val correctIndex: Int,
-    val explanation: String
-)
+    val explanation: String,
+    val explanationDanish: String? = null,
+    val category: String? = null
+) {
+    fun localizedQuestion(lang: com.sabeomnim.app.core.i18n.AppLanguage): String =
+        if (lang == com.sabeomnim.app.core.i18n.AppLanguage.DANISH && !questionDanish.isNullOrBlank()) questionDanish else question
+
+    fun localizedOptions(lang: com.sabeomnim.app.core.i18n.AppLanguage): List<String> =
+        if (lang == com.sabeomnim.app.core.i18n.AppLanguage.DANISH && optionsDanish != null && optionsDanish.size == options.size) optionsDanish else options
+
+    fun localizedExplanation(lang: com.sabeomnim.app.core.i18n.AppLanguage): String =
+        if (lang == com.sabeomnim.app.core.i18n.AppLanguage.DANISH && !explanationDanish.isNullOrBlank()) explanationDanish else explanation
+}
 
 @Serializable
 data class BeltTechnique(

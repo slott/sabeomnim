@@ -58,14 +58,22 @@ fun QuizScreen(
 
     val audioService = rememberAudioService()
 
-    val questions: List<QuizQuestion> = remember(selectedBelt) {
+    var quizRoundSeed by remember { mutableStateOf(0) }
+    val questions: List<QuizQuestion> = remember(selectedBelt, quizRoundSeed) {
         val list = QuizRepository.getQuestionsForBelt(selectedBelt)
-        if (list.isEmpty()) QuizRepository.getAllQuestions().take(5) else list
+        if (list.size > 10) {
+            list.shuffled(kotlin.random.Random(quizRoundSeed + selectedBelt.order * 997)).take(10)
+        } else if (list.isEmpty()) {
+            QuizRepository.getAllQuestions().take(5)
+        } else {
+            list
+        }
     }
 
     val currentQuestion = questions.getOrNull(currentQuestionIndex)
 
     fun resetQuiz() {
+        quizRoundSeed++
         currentQuestionIndex = 0
         selectedOptionIndex = null
         score = 0
@@ -285,35 +293,68 @@ fun QuizScreen(
                         )
                     ) {
                         Column(modifier = Modifier.padding(18.dp)) {
-                            currentQuestion.koreanTerm?.let { term ->
+                            if (currentQuestion.koreanTerm != null || currentQuestion.category != null) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Surface(
-                                        shape = RoundedCornerShape(6.dp),
-                                        color = TaegeukBlue.copy(alpha = 0.15f)
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
-                                        Text(
-                                            text = term,
-                                            fontSize = 13.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = TaegeukBlue,
-                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                        )
+                                        currentQuestion.koreanTerm?.let { term ->
+                                            Surface(
+                                                shape = RoundedCornerShape(6.dp),
+                                                color = TaegeukBlue.copy(alpha = 0.15f)
+                                            ) {
+                                                Text(
+                                                    text = term,
+                                                    fontSize = 13.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = TaegeukBlue,
+                                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                                )
+                                            }
+                                        }
+                                        currentQuestion.category?.let { cat ->
+                                            val localizedCat = if (lang == com.sabeomnim.app.core.i18n.AppLanguage.DANISH) {
+                                                when (cat) {
+                                                    "Stances" -> "Standstillinger"
+                                                    "Hand Techniques" -> "Håndteknikker"
+                                                    "Kicking Techniques" -> "Sparketeknikker"
+                                                    "Theory & Commands" -> "Teori & Kommandoer"
+                                                    else -> cat
+                                                }
+                                            } else cat
+
+                                            Surface(
+                                                shape = RoundedCornerShape(6.dp),
+                                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                                            ) {
+                                                Text(
+                                                    text = localizedCat,
+                                                    fontSize = 11.sp,
+                                                    fontWeight = FontWeight.Medium,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+                                                )
+                                            }
+                                        }
                                     }
-                                    IconButton(
-                                        onClick = { audioService.speak(term) }
-                                    ) {
-                                        Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = "Hear Term", tint = TaegeukBlue)
+                                    currentQuestion.koreanTerm?.let { term ->
+                                        IconButton(
+                                            onClick = { audioService.speak(term) }
+                                        ) {
+                                            Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = "Hear Term", tint = TaegeukBlue)
+                                        }
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
 
                             Text(
-                                text = currentQuestion.question,
+                                text = currentQuestion.localizedQuestion(lang),
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 lineHeight = 24.sp
@@ -323,8 +364,9 @@ fun QuizScreen(
                 }
 
                 // Options List
-                items(currentQuestion.options.indices.toList()) { index ->
-                    val optionText = currentQuestion.options[index]
+                val currentOptions = currentQuestion.localizedOptions(lang)
+                items(currentOptions.indices.toList()) { index ->
+                    val optionText = currentOptions[index]
                     val isSelected = selectedOptionIndex == index
                     val isCorrectOption = index == currentQuestion.correctIndex
 
@@ -409,7 +451,7 @@ fun QuizScreen(
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = currentQuestion.explanation,
+                                    text = currentQuestion.localizedExplanation(lang),
                                     fontSize = 13.sp,
                                     lineHeight = 18.sp
                                 )
