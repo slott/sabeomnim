@@ -209,35 +209,20 @@ fun AudioDictionaryScreen(
                                     )
                                 }
 
-                                Spacer(modifier = Modifier.height(2.dp))
-                                if (lang == AppLanguage.DANISH && term.danish != null) {
+                                val termTranslation = if (lang == AppLanguage.DANISH && !term.danish.isNullOrBlank()) {
+                                    term.danish!!
+                                } else {
+                                    term.english
+                                }
+
+                                if (!termTranslation.equals(term.romanized.trim(), ignoreCase = true)) {
+                                    Spacer(modifier = Modifier.height(2.dp))
                                     Text(
-                                        text = term.danish!!,
+                                        text = termTranslation,
                                         fontSize = 14.5.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         color = TaegeukBlue
                                     )
-                                    Spacer(modifier = Modifier.height(1.dp))
-                                    Text(
-                                        text = "🇬🇧 ${term.english}",
-                                        fontSize = 12.5.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                } else {
-                                    Text(
-                                        text = term.english,
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    if (term.danish != null) {
-                                        Spacer(modifier = Modifier.height(1.dp))
-                                        Text(
-                                            text = "🇩🇰 ${term.danish}",
-                                            fontSize = 12.5.sp,
-                                            color = TaegeukBlue
-                                        )
-                                    }
                                 }
 
                                 Spacer(modifier = Modifier.height(4.dp))

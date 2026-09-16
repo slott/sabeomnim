@@ -31,7 +31,7 @@ enum class AppTab(val title: String, val icon: ImageVector) {
     BELTS("Curriculum", Icons.Default.SportsMartialArts),
     POOMSAE("Taegeuks", Icons.Default.PlayCircle),
     AUDIO_DICT("Glossary", Icons.AutoMirrored.Filled.VolumeUp),
-    QUIZ("Belt Quiz", Icons.Default.Quiz);
+    QUIZ("Quiz", Icons.Default.Quiz);
 
     fun localizedTitle(lang: AppLanguage): String = when (this) {
         BELTS -> AppStrings.tabCurriculum(lang)
