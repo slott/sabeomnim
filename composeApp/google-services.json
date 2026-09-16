@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1030539059871",
+    "project_id": "sabeomnim-62011",
+    "storage_bucket": "sabeomnim-62011.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1030539059871:android:08ae343f1d0ac1db8eb8aa",
+        "android_client_info": {
+          "package_name": "dk.slott_hansen.sabeomnim"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAh5D7oEHqA1nB6xJNjhn6TtTkofNv9U7Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
