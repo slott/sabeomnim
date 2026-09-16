@@ -10,5 +10,6 @@ expect fun PlatformVideoPlayer(
     playbackSpeed: Float,
     seekToMs: Long?,
     onProgressUpdate: (currentMs: Long, durationMs: Long) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    initialPositionMs: Long = 0L
 )

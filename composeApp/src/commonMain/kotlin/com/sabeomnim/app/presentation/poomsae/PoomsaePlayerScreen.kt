@@ -6,8 +6,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import com.sabeomnim.app.core.audio.rememberAudioService
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -45,6 +48,7 @@ fun PoomsaePlayerScreen(
     modifier: Modifier = Modifier
 ) {
     val lang = LocalAppLanguage.current
+    val audioService = rememberAudioService()
     var selectedPoomsae by remember {
         mutableStateOf(PoomsaeRepository.getPoomsaeById(initialPoomsaeId) ?: PoomsaeRepository.poomsaeTaegeuk1)
     }
@@ -102,472 +106,462 @@ fun PoomsaePlayerScreen(
         }
 
         PoomsaeDisplayMode.VIDEO -> {
-            LazyColumn(
-                modifier = modifier.fillMaxSize(),
-                contentPadding = PaddingValues(top = 12.dp, bottom = 32.dp)
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(top = 12.dp, bottom = 32.dp)
             ) {
-                item(key = "poomsae_header") {
-                    PoomsaeHeader(
-                        selectedPoomsae = selectedPoomsae,
-                        lang = lang,
-                        onSelectPoomsae = {
-                            selectedPoomsae = it
-                            currentPositionMs = 0L
-                            seekTargetMs = 0L
-                        },
-                        displayMode = displayMode,
-                        onDisplayModeChange = { displayMode = it },
-                        onOpenSettings = onOpenSettings,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                }
+                PoomsaeHeader(
+                    selectedPoomsae = selectedPoomsae,
+                    lang = lang,
+                    onSelectPoomsae = {
+                        selectedPoomsae = it
+                        currentPositionMs = 0L
+                        seekTargetMs = 0L
+                    },
+                    displayMode = displayMode,
+                    onDisplayModeChange = { displayMode = it },
+                    onOpenSettings = onOpenSettings,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
 
                 // Angle Switcher Bar & Speed Controls
-                item {
-                    Row(
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(
+                            onClick = { selectedAngle = VideoAngle.FRONT },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (selectedAngle == VideoAngle.FRONT) TaegeukBlue else MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = if (selectedAngle == VideoAngle.FRONT) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+                            ),
+                            shape = RoundedCornerShape(20.dp),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp)
+                        ) {
+                            Icon(Icons.Default.Videocam, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Front", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        }
+
+                        Button(
+                            onClick = { selectedAngle = VideoAngle.SIDE },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (selectedAngle == VideoAngle.SIDE) TaegeukRed else MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = if (selectedAngle == VideoAngle.SIDE) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+                            ),
+                            shape = RoundedCornerShape(20.dp),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp)
+                        ) {
+                            Icon(Icons.Default.Videocam, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Side", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+
+                    // Speed rate toggle
+                    Box {
+                        var speedMenuExpanded by remember { mutableStateOf(false) }
+                        OutlinedButton(
+                            onClick = { speedMenuExpanded = true },
+                            shape = RoundedCornerShape(16.dp),
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                        ) {
+                            Text("${playbackSpeed}x", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        }
+                        DropdownMenu(
+                            expanded = speedMenuExpanded,
+                            onDismissRequest = { speedMenuExpanded = false }
+                        ) {
+                            listOf(0.25f, 0.5f, 0.75f, 1.0f).forEach { speed ->
+                                DropdownMenuItem(
+                                    text = { Text("${speed}x") },
+                                    onClick = {
+                                        playbackSpeed = speed
+                                        speedMenuExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Video Player Container
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(230.dp)
+                        .padding(horizontal = 16.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color.Black)
+                ) {
+                    PlatformVideoPlayer(
+                        videoUrl = activeUrl,
+                        isPlaying = isPlaying,
+                        playbackSpeed = playbackSpeed,
+                        seekToMs = seekTargetMs,
+                        initialPositionMs = currentPositionMs,
+                        onProgressUpdate = { current, dur ->
+                            currentPositionMs = current
+                            if (dur > 0) durationMs = dur
+                            if (seekTargetMs != null && kotlin.math.abs(current - (seekTargetMs ?: 0L)) < 500) {
+                                seekTargetMs = null
+                            }
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
+
+                    // On-screen overlay showing current active camera angle
+                    Surface(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 6.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    Button(
-                                        onClick = { selectedAngle = VideoAngle.FRONT },
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = if (selectedAngle == VideoAngle.FRONT) TaegeukBlue else MaterialTheme.colorScheme.surfaceVariant,
-                                            contentColor = if (selectedAngle == VideoAngle.FRONT) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
-                                        ),
-                                        shape = RoundedCornerShape(20.dp),
-                                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp)
-                                    ) {
-                                        Icon(Icons.Default.Videocam, contentDescription = null, modifier = Modifier.size(16.dp))
-                                        Spacer(modifier = Modifier.width(6.dp))
-                                        Text("Front", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                                    }
-
-                                    Button(
-                                        onClick = { selectedAngle = VideoAngle.SIDE },
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = if (selectedAngle == VideoAngle.SIDE) TaegeukRed else MaterialTheme.colorScheme.surfaceVariant,
-                                            contentColor = if (selectedAngle == VideoAngle.SIDE) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
-                                        ),
-                                        shape = RoundedCornerShape(20.dp),
-                                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp)
-                                    ) {
-                                        Icon(Icons.Default.Videocam, contentDescription = null, modifier = Modifier.size(16.dp))
-                                        Spacer(modifier = Modifier.width(6.dp))
-                                        Text("Side", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                                    }
-                                }
-
-                            // Speed rate toggle
-                            Box {
-                                var speedMenuExpanded by remember { mutableStateOf(false) }
-                                OutlinedButton(
-                                    onClick = { speedMenuExpanded = true },
-                                    shape = RoundedCornerShape(16.dp),
-                                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
-                                ) {
-                                    Text("${playbackSpeed}x", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                }
-                                DropdownMenu(
-                                    expanded = speedMenuExpanded,
-                                    onDismissRequest = { speedMenuExpanded = false }
-                                ) {
-                                    listOf(0.25f, 0.5f, 0.75f, 1.0f).forEach { speed ->
-                                        DropdownMenuItem(
-                                            text = { Text("${speed}x") },
-                                            onClick = {
-                                                playbackSpeed = speed
-                                                speedMenuExpanded = false
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // Video Player Container
-                    item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(230.dp)
-                                .padding(horizontal = 16.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(Color.Black)
-                        ) {
-                            PlatformVideoPlayer(
-                                videoUrl = activeUrl,
-                                isPlaying = isPlaying,
-                                playbackSpeed = playbackSpeed,
-                                seekToMs = seekTargetMs,
-                                onProgressUpdate = { current, dur ->
-                                    currentPositionMs = current
-                                    if (dur > 0) durationMs = dur
-                                    if (seekTargetMs != null && kotlin.math.abs(current - (seekTargetMs ?: 0L)) < 500) {
-                                        seekTargetMs = null
-                                    }
-                                },
-                                modifier = Modifier.fillMaxSize()
-                            )
-
-                            // On-screen overlay showing current active camera angle
-                            Surface(
-                                modifier = Modifier
-                                    .align(Alignment.TopStart)
-                                    .padding(10.dp),
-                                shape = RoundedCornerShape(6.dp),
-                                color = Color.Black.copy(alpha = 0.65f)
-                            ) {
-                                Text(
-                                    text = if (selectedAngle == VideoAngle.FRONT) "📷 FRONT" else "📷 SIDE",
-                                    color = Color.White,
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                )
-                            }
-
-                            // Kihap Banner indicator when active step has a shout
-                            if (currentStep?.isKihap == true) {
-                                Surface(
-                                    modifier = Modifier
-                                        .align(Alignment.TopEnd)
-                                        .padding(10.dp),
-                                    shape = RoundedCornerShape(6.dp),
-                                    color = TaegeukRed
-                                ) {
-                                    Text(
-                                        text = "⚡ KIHAP!",
-                                        color = Color.White,
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.ExtraBold,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    // Precision Scrubber & Step Navigation Controls
-                    item {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 4.dp)
-                        ) {
-                            // Slider
-                            val effectiveDuration = if (durationMs > 0) durationMs else 60000L
-                            Slider(
-                                value = currentPositionMs.coerceIn(0L, effectiveDuration).toFloat(),
-                                onValueChange = { newPos ->
-                                    seekTargetMs = newPos.toLong()
-                                },
-                                valueRange = 0f..effectiveDuration.toFloat(),
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            // Time Readout
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text(
-                                    text = formatTime(currentPositionMs),
-                                    fontSize = 11.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Text(
-                                    text = formatTime(effectiveDuration),
-                                    fontSize = 11.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-
-                            // Playback Control Buttons
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 4.dp),
-                                horizontalArrangement = Arrangement.SpaceEvenly,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                // Previous Step
-                                IconButton(
-                                    onClick = {
-                                        val currentIdx = currentStep?.stepIndex ?: 1
-                                        val prevStep = selectedPoomsae.steps.firstOrNull { it.stepIndex == currentIdx - 1 }
-                                            ?: selectedPoomsae.steps.firstOrNull()
-                                        prevStep?.let { seekTargetMs = it.startTimeMs }
-                                    }
-                                ) {
-                                    Icon(Icons.Default.SkipPrevious, contentDescription = "Previous Step", modifier = Modifier.size(28.dp))
-                                }
-
-                                // Replay / Loop Current Step
-                                IconButton(
-                                    onClick = {
-                                        isStepLoopEnabled = !isStepLoopEnabled
-                                    }
-                                ) {
-                                    Icon(
-                                        Icons.Default.Repeat,
-                                        contentDescription = "Loop Step",
-                                        tint = if (isStepLoopEnabled) TaegeukBlue else MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                }
-
-                                // Play / Pause
-                                FilledIconButton(
-                                    onClick = { isPlaying = !isPlaying },
-                                    colors = IconButtonDefaults.filledIconButtonColors(
-                                        containerColor = TaegeukBlue
-                                    ),
-                                    modifier = Modifier.size(52.dp)
-                                ) {
-                                    Icon(
-                                        if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                                        contentDescription = if (isPlaying) "Pause" else "Play",
-                                        tint = Color.White,
-                                        modifier = Modifier.size(32.dp)
-                                    )
-                                }
-
-                                // Rewind 2s
-                                IconButton(
-                                    onClick = {
-                                        seekTargetMs = (currentPositionMs - 2000L).coerceAtLeast(0L)
-                                    }
-                                ) {
-                                    Icon(Icons.Default.Replay5, contentDescription = "Back 2s")
-                                }
-
-                                // Next Step
-                                IconButton(
-                                    onClick = {
-                                        val currentIdx = currentStep?.stepIndex ?: 1
-                                        val nextStep = selectedPoomsae.steps.firstOrNull { it.stepIndex == currentIdx + 1 }
-                                            ?: selectedPoomsae.steps.lastOrNull()
-                                        nextStep?.let { seekTargetMs = it.startTimeMs }
-                                    }
-                                ) {
-                                    Icon(Icons.Default.SkipNext, contentDescription = "Next Step", modifier = Modifier.size(28.dp))
-                                }
-                            }
-                        }
-                    }
-
-                    // Real-time Move Subtitle Heads-Up Display (HUD)
-                    item {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 6.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant
-                            )
-                        ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Surface(
-                                        shape = RoundedCornerShape(4.dp),
-                                        color = TaegeukBlue
-                                    ) {
-                                        Text(
-                                            text = AppStrings.stepLabel(lang, currentStep?.stepIndex ?: 1, selectedPoomsae.movementCount),
-                                            color = Color.White,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
-                                        )
-                                    }
-
-                                    if (isStepLoopEnabled) {
-                                        Text(
-                                            text = AppStrings.stepLoopActive(lang),
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = TaegeukBlue
-                                        )
-                                    }
-                                }
-
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                     text = currentStep?.romanized ?: (if (lang == AppLanguage.DANISH) "Junbi (Klarstilling)" else "Junbi (Ready)"),
-                                     fontSize = 19.sp,
-                                     fontWeight = FontWeight.Bold
-                                 )
-                                val stepDescription = if (lang == AppLanguage.DANISH && currentStep?.danish != null) {
-                                    currentStep.danish!!
-                                } else if (lang == AppLanguage.DANISH && currentStep == null) {
-                                    "Indtag naturlig klarstilling"
-                                } else {
-                                    currentStep?.english ?: "Assume natural ready position"
-                                }
-                                Text(
-                                     text = stepDescription,
-                                     fontSize = 13.5.sp,
-                                     color = MaterialTheme.colorScheme.onSurfaceVariant
-                                 )
-                                if (lang == AppLanguage.ENGLISH && currentStep?.danish != null) {
-                                    Spacer(modifier = Modifier.height(2.dp))
-                                    Text(
-                                        text = "🇩🇰 ${currentStep.danish}",
-                                        fontSize = 12.sp,
-                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f)
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.height(10.dp))
-                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    currentStep?.stance?.let {
-                                        AssistChip(
-                                            onClick = {},
-                                            label = { Text(AppStrings.stanceLabel(lang, it), fontSize = 11.sp) }
-                                        )
-                                    }
-                                    currentStep?.technique?.let {
-                                        AssistChip(
-                                            onClick = {},
-                                            label = { Text(AppStrings.moveLabel(lang, it), fontSize = 11.sp) }
-                                        )
-                                    }
-                                }
-
-                                val coachingTip = if (lang == AppLanguage.DANISH && currentStep?.coachingTipDanish != null) {
-                                    currentStep.coachingTipDanish
-                                } else {
-                                    currentStep?.coachingTip
-                                }
-                                coachingTip?.let { tip ->
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    Row(verticalAlignment = Alignment.Top) {
-                                        Icon(
-                                            Icons.Default.Lightbulb,
-                                            contentDescription = null,
-                                            tint = KukkiwonGold,
-                                            modifier = Modifier.size(16.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(6.dp))
-                                        Text(
-                                            text = tip,
-                                            fontSize = 12.sp,
-                                            lineHeight = 16.sp,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // Step List Directory Header
-                    item {
+                            .align(Alignment.TopStart)
+                            .padding(10.dp),
+                        shape = RoundedCornerShape(6.dp),
+                        color = Color.Black.copy(alpha = 0.65f)
+                    ) {
                         Text(
-                            text = AppStrings.movementChecklist(lang, selectedPoomsae.steps.size),
-                            style = MaterialTheme.typography.titleMedium,
+                            text = if (selectedAngle == VideoAngle.FRONT) "📷 FRONT" else "📷 SIDE",
+                            color = Color.White,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
 
-                    // Interactive Step Items
-                    items(selectedPoomsae.steps) { step ->
-                        val isCurrent = step.stepIndex == currentStep?.stepIndex
-                        Card(
+                    // Kihap Banner indicator when active step has a shout
+                    if (currentStep?.isKihap == true) {
+                        Surface(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 4.dp)
-                                .clickable {
-                                    seekTargetMs = step.startTimeMs
-                                },
-                            shape = RoundedCornerShape(10.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = if (isCurrent) TaegeukBlue.copy(alpha = 0.12f) else MaterialTheme.colorScheme.surface
-                            ),
-                            border = if (isCurrent) borderForCurrentStep() else null
+                                .align(Alignment.TopEnd)
+                                .padding(10.dp),
+                            shape = RoundedCornerShape(6.dp),
+                            color = TaegeukRed
                         ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                            Text(
+                                text = "⚡ KIHAP!",
+                                color = Color.White,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                            )
+                        }
+                    }
+                }
+
+                // Precision Scrubber & Step Navigation Controls
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                ) {
+                    // Slider
+                    val effectiveDuration = if (durationMs > 0) durationMs else 60000L
+                    Slider(
+                        value = currentPositionMs.coerceIn(0L, effectiveDuration).toFloat(),
+                        onValueChange = { newPos ->
+                            seekTargetMs = newPos.toLong()
+                        },
+                        valueRange = 0f..effectiveDuration.toFloat(),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Time Readout
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = formatTime(currentPositionMs),
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = formatTime(effectiveDuration),
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    // Playback Control Buttons
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Previous Step
+                        IconButton(
+                            onClick = {
+                                val currentIdx = currentStep?.stepIndex ?: 1
+                                val prevStep = selectedPoomsae.steps.firstOrNull { it.stepIndex == currentIdx - 1 }
+                                    ?: selectedPoomsae.steps.firstOrNull()
+                                prevStep?.let { seekTargetMs = it.startTimeMs }
+                            }
+                        ) {
+                            Icon(Icons.Default.SkipPrevious, contentDescription = "Previous Step", modifier = Modifier.size(28.dp))
+                        }
+
+                        // Replay / Loop Current Step
+                        IconButton(
+                            onClick = {
+                                isStepLoopEnabled = !isStepLoopEnabled
+                            }
+                        ) {
+                            Icon(
+                                Icons.Default.Repeat,
+                                contentDescription = "Loop Step",
+                                tint = if (isStepLoopEnabled) TaegeukBlue else MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+
+                        // Play / Pause
+                        FilledIconButton(
+                            onClick = { isPlaying = !isPlaying },
+                            colors = IconButtonDefaults.filledIconButtonColors(
+                                containerColor = TaegeukBlue
+                            ),
+                            modifier = Modifier.size(52.dp)
+                        ) {
+                            Icon(
+                                if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                                contentDescription = if (isPlaying) "Pause" else "Play",
+                                tint = Color.White,
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
+
+                        // Rewind 2s
+                        IconButton(
+                            onClick = {
+                                seekTargetMs = (currentPositionMs - 2000L).coerceAtLeast(0L)
+                            }
+                        ) {
+                            Icon(Icons.Default.Replay5, contentDescription = "Back 2s")
+                        }
+
+                        // Next Step
+                        IconButton(
+                            onClick = {
+                                val currentIdx = currentStep?.stepIndex ?: 1
+                                val nextStep = selectedPoomsae.steps.firstOrNull { it.stepIndex == currentIdx + 1 }
+                                    ?: selectedPoomsae.steps.lastOrNull()
+                                nextStep?.let { seekTargetMs = it.startTimeMs }
+                            }
+                        ) {
+                            Icon(Icons.Default.SkipNext, contentDescription = "Next Step", modifier = Modifier.size(28.dp))
+                        }
+                    }
+                }
+
+                // Real-time Move Subtitle Heads-Up Display (HUD)
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Surface(
+                                shape = RoundedCornerShape(4.dp),
+                                color = TaegeukBlue
                             ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                        .clip(CircleShape)
-                                        .background(if (isCurrent) TaegeukBlue else MaterialTheme.colorScheme.surfaceVariant),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = "${step.stepIndex}",
-                                        color = if (isCurrent) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 13.sp
-                                    )
-                                }
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(
-                                            text = step.romanized,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 14.sp
-                                        )
-                                        if (step.isKihap) {
-                                            Spacer(modifier = Modifier.width(6.dp))
-                                            Surface(
-                                                shape = RoundedCornerShape(4.dp),
-                                                color = TaegeukRed
-                                            ) {
-                                                Text(
-                                                    text = "KIHAP",
-                                                    color = Color.White,
-                                                    fontSize = 9.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
-                                                )
-                                            }
-                                        }
-                                    }
-                                    val itemDescription = if (lang == AppLanguage.DANISH && step.danish != null) {
-                                        step.danish
-                                    } else {
-                                        step.english
-                                    }
-                                    Text(
-                                        text = itemDescription,
-                                        fontSize = 12.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
+                                Text(
+                                    text = AppStrings.stepLabel(lang, currentStep?.stepIndex ?: 1, selectedPoomsae.movementCount),
+                                    color = Color.White,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                )
+                            }
+
+                            if (isStepLoopEnabled) {
+                                Text(
+                                    text = AppStrings.stepLoopActive(lang),
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = TaegeukBlue
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = currentStep?.romanized ?: (if (lang == AppLanguage.DANISH) "Junbi (Klarstilling)" else "Junbi (Ready)"),
+                            fontSize = 19.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        val stepDescription = if (lang == AppLanguage.DANISH && currentStep?.danish != null) {
+                            currentStep.danish!!
+                        } else if (lang == AppLanguage.DANISH && currentStep == null) {
+                            "Indtag naturlig klarstilling"
+                        } else {
+                            currentStep?.english ?: "Assume natural ready position"
+                        }
+                        Text(
+                            text = stepDescription,
+                            fontSize = 13.5.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        if (lang == AppLanguage.ENGLISH && currentStep?.danish != null) {
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "🇩🇰 ${currentStep.danish}",
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            currentStep?.stance?.let {
+                                AssistChip(
+                                    onClick = {},
+                                    label = { Text(AppStrings.stanceLabel(lang, it), fontSize = 11.sp) }
+                                )
+                            }
+                            currentStep?.technique?.let {
+                                AssistChip(
+                                    onClick = {},
+                                    label = { Text(AppStrings.moveLabel(lang, it), fontSize = 11.sp) }
+                                )
+                            }
+                        }
+
+                        val coachingTip = if (lang == AppLanguage.DANISH && currentStep?.coachingTipDanish != null) {
+                            currentStep.coachingTipDanish
+                        } else {
+                            currentStep?.coachingTip
+                        }
+                        coachingTip?.let { tip ->
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(verticalAlignment = Alignment.Top) {
                                 Icon(
-                                    Icons.Default.PlayArrow,
-                                    contentDescription = "Jump",
-                                    tint = if (isCurrent) TaegeukBlue else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                                    modifier = Modifier.size(20.dp)
+                                    Icons.Default.Lightbulb,
+                                    contentDescription = null,
+                                    tint = KukkiwonGold,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = tip,
+                                    fontSize = 12.sp,
+                                    lineHeight = 16.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
                     }
+                }
 
-                    item {
-                        Spacer(modifier = Modifier.height(32.dp))
+                // Step List Directory Header
+                Text(
+                    text = AppStrings.movementChecklist(lang, selectedPoomsae.steps.size),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+
+                // Interactive Step Items
+                selectedPoomsae.steps.forEach { step ->
+                    val isCurrent = step.stepIndex == currentStep?.stepIndex
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                            .clickable {
+                                seekTargetMs = step.startTimeMs
+                                audioService.speak(step.korean)
+                            },
+                        shape = RoundedCornerShape(10.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isCurrent) TaegeukBlue.copy(alpha = 0.12f) else MaterialTheme.colorScheme.surface
+                        ),
+                        border = if (isCurrent) borderForCurrentStep() else null
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .clip(CircleShape)
+                                    .background(if (isCurrent) TaegeukBlue else MaterialTheme.colorScheme.surfaceVariant),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "${step.stepIndex}",
+                                    color = if (isCurrent) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = step.romanized,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp
+                                    )
+                                    if (step.isKihap) {
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Surface(
+                                            shape = RoundedCornerShape(4.dp),
+                                            color = TaegeukRed
+                                        ) {
+                                            Text(
+                                                text = "KIHAP",
+                                                color = Color.White,
+                                                fontSize = 9.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                                val itemDescription = if (lang == AppLanguage.DANISH && step.danish != null) {
+                                    step.danish
+                                } else {
+                                    step.english
+                                }
+                                Text(
+                                    text = itemDescription,
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                Icons.Default.PlayArrow,
+                                contentDescription = "Jump",
+                                tint = if (isCurrent) TaegeukBlue else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(32.dp))
             }
         }
+    }
 }
 
 @Composable

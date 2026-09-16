@@ -7,7 +7,7 @@ import com.sabeomnim.app.data.models.PoomsaeStep
 object PoomsaeRepository {
 
     // Default GitHub CDN base URL for video hosting
-    private const val GITHUB_CDN_BASE = "https://raw.githubusercontent.com/sabeomnim/assets/main/videos"
+    private const val GITHUB_CDN_BASE = "https://github.com/slott/sabeomnim/releases/download/v1.0.0-assets"
 
     fun getAllPoomsae(): List<Poomsae> = listOf(
         poomsaeTaegeuk1,

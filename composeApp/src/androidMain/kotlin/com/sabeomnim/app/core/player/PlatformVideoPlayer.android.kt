@@ -6,7 +6,10 @@ import androidx.annotation.OptIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
@@ -27,7 +30,8 @@ actual fun PlatformVideoPlayer(
     playbackSpeed: Float,
     seekToMs: Long?,
     onProgressUpdate: (currentMs: Long, durationMs: Long) -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
+    initialPositionMs: Long
 ) {
     val context = LocalContext.current
     val exoPlayer = remember {
@@ -35,6 +39,7 @@ actual fun PlatformVideoPlayer(
             repeatMode = Player.REPEAT_MODE_OFF
         }
     }
+    var initialSeekApplied by remember { mutableStateOf(false) }
 
     // Handle video URL updates (including angle switching)
     LaunchedEffect(videoUrl) {
@@ -44,8 +49,16 @@ actual fun PlatformVideoPlayer(
             val mediaItem = MediaItem.fromUri(videoUrl)
             exoPlayer.setMediaItem(mediaItem)
             exoPlayer.prepare()
-            if (currentPos > 0) {
-                exoPlayer.seekTo(currentPos)
+            val targetSeek = if (currentPos > 0) {
+                currentPos
+            } else if (!initialSeekApplied && initialPositionMs > 0) {
+                initialSeekApplied = true
+                initialPositionMs
+            } else {
+                0L
+            }
+            if (targetSeek > 0) {
+                exoPlayer.seekTo(targetSeek)
             }
             exoPlayer.playWhenReady = wasPlaying || isPlaying
         }

@@ -29,7 +29,8 @@ actual fun PlatformVideoPlayer(
     playbackSpeed: Float,
     seekToMs: Long?,
     onProgressUpdate: (currentMs: Long, durationMs: Long) -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
+    initialPositionMs: Long
 ) {
     if (videoUrl.isBlank()) {
         Box(modifier = modifier.background(Color.Black), contentAlignment = Alignment.Center) {
