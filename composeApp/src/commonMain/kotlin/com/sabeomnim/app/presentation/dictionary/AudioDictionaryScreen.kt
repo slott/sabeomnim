@@ -170,12 +170,14 @@ fun AudioDictionaryScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
+                                val cleanRomanized = term.romanized.replace(Regex("\\s*\\([^)]*\\)"), "").trim()
+
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
                                     Text(
-                                        text = term.romanized,
+                                        text = cleanRomanized,
                                         fontSize = 18.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = if (isPlaying) TaegeukBlue else MaterialTheme.colorScheme.onSurface
@@ -200,7 +202,7 @@ fun AudioDictionaryScreen(
                                     }
                                 }
 
-                                if (term.phoneticSpelling != null && term.phoneticSpelling != term.romanized) {
+                                if (!term.phoneticSpelling.isNullOrBlank() && !term.phoneticSpelling.equals(cleanRomanized, ignoreCase = true)) {
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
                                         text = "Alt: ${term.phoneticSpelling}",
@@ -215,7 +217,7 @@ fun AudioDictionaryScreen(
                                     term.english
                                 }
 
-                                if (!termTranslation.equals(term.romanized.trim(), ignoreCase = true)) {
+                                if (!termTranslation.equals(cleanRomanized, ignoreCase = true)) {
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
                                         text = termTranslation,
