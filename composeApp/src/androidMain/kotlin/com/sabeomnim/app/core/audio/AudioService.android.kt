@@ -40,36 +40,55 @@ class AndroidAudioService(context: Context) : AudioService {
             it.locale.language == "ko" || it.locale.toString().startsWith("ko")
         } ?: emptyList()
 
+        android.util.Log.d("TTS_VOICES", "Available ko voices (${koVoices.size}): " + koVoices.map { "${it.name} (latency=${it.latency}, quality=${it.quality}, features=${it.features})" })
+
         if (gender == VoiceGender.MALE) {
             // Find male voice:
-            // Google TTS uses "kob" (Voice B) or "koc" (Voice C) for male.
-            // Other engines may contain "male" or "#male".
+            // Google TTS Korean:
+            // - "kod" is Voice D (deeper, mature baritone male voice - preferred for Sabeomnim)
+            // - "kob" is Voice B (higher tenor male voice)
             val maleVoice = koVoices.firstOrNull { v ->
                 val name = v.name.lowercase()
-                (name.contains("kob") || name.contains("koc") || name.contains("male")) && !name.contains("female")
+                name.contains("kod") && !name.contains("female")
             } ?: koVoices.firstOrNull { v ->
                 val name = v.name.lowercase()
-                name.contains("kob") || name.contains("koc") || name.contains("male")
+                name.contains("kob") && !name.contains("female")
+            } ?: koVoices.firstOrNull { v ->
+                val name = v.name.lowercase()
+                name.contains("male") && !name.contains("female")
             }
 
             if (maleVoice != null) {
                 try {
                     ttsInstance.voice = maleVoice
-                } catch (_: Exception) {}
+                    android.util.Log.d("TTS_VOICES", "Selected Male Voice: ${maleVoice.name}")
+                } catch (e: Exception) {
+                    android.util.Log.w("TTS_VOICES", "Failed to set male voice", e)
+                }
             }
-            ttsInstance.setPitch(0.85f)
+            // Voice D has natural baritone depth; set pitch to 0.92f for clear, commanding resonance
+            ttsInstance.setPitch(0.92f)
         } else {
             // Female voice:
-            // Google TTS uses "ism" (Voice A) or "kod" (Voice D) for female.
+            // Google TTS uses "ism" (Voice A) or "koc" (Voice C) for female.
             val femaleVoice = koVoices.firstOrNull { v ->
                 val name = v.name.lowercase()
-                (name.contains("ism") || name.contains("kod") || name.contains("female"))
+                name.contains("ism") && !name.contains("male")
+            } ?: koVoices.firstOrNull { v ->
+                val name = v.name.lowercase()
+                name.contains("koc") && !name.contains("male")
+            } ?: koVoices.firstOrNull { v ->
+                val name = v.name.lowercase()
+                name.contains("female")
             } ?: koVoices.firstOrNull()
 
             if (femaleVoice != null) {
                 try {
                     ttsInstance.voice = femaleVoice
-                } catch (_: Exception) {}
+                    android.util.Log.d("TTS_VOICES", "Selected Female Voice: ${femaleVoice.name}")
+                } catch (e: Exception) {
+                    android.util.Log.w("TTS_VOICES", "Failed to set female voice", e)
+                }
             }
             ttsInstance.setPitch(1.05f)
         }
