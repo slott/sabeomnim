@@ -39,7 +39,7 @@ import com.sabeomnim.app.data.models.Poomsae
 import com.sabeomnim.app.data.models.PoomsaeStep
 import org.jetbrains.compose.resources.painterResource
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun TaegeukCheatSheetView(
     poomsae: Poomsae,
@@ -66,23 +66,34 @@ fun TaegeukCheatSheetView(
         // Form Overview & Trigram Philosophy Card
         item {
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
                 shape = RoundedCornerShape(14.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = TaegeukBlue.copy(alpha = 0.08f)
                 ),
                 border = androidx.compose.foundation.BorderStroke(1.dp, TaegeukBlue.copy(alpha = 0.3f))
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(16.dp)
+                ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column {
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 8.dp)
+                        ) {
                             Text(
                                 text = AppStrings.cheatSheetTitle(lang, poomsae.number),
-                                fontSize = 19.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = TaegeukBlue
                             )
@@ -99,12 +110,12 @@ fun TaegeukCheatSheetView(
                         Surface(
                             shape = RoundedCornerShape(10.dp),
                             color = TaegeukBlue,
-                            modifier = Modifier.size(48.dp)
+                            modifier = Modifier.size(44.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Text(
                                     text = poomsae.trigramSymbol,
-                                    fontSize = 26.sp,
+                                    fontSize = 24.sp,
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -112,19 +123,20 @@ fun TaegeukCheatSheetView(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     val desc = if (lang == AppLanguage.DANISH && poomsae.descriptionDanish != null) poomsae.descriptionDanish else poomsae.description
                     Text(
                         text = desc,
                         fontSize = 12.sp,
-                        lineHeight = 17.sp,
+                        lineHeight = 16.sp,
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Surface(
                             shape = RoundedCornerShape(6.dp),

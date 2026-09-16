@@ -25,6 +25,7 @@ import com.sabeomnim.app.presentation.quiz.QuizScreen
 
 import androidx.compose.ui.text.font.FontWeight
 import com.sabeomnim.app.core.designsystem.ThemeMode
+import com.sabeomnim.app.core.storage.AppSettings
 import com.sabeomnim.app.presentation.settings.SettingsScreen
 
 enum class AppTab(val title: String, val icon: ImageVector) {
@@ -73,8 +74,8 @@ private fun SabeomnimTopBar(
 
 @Composable
 fun App() {
-    var currentLanguage by rememberSaveable { mutableStateOf(AppLanguage.DANISH) }
-    var currentThemeMode by rememberSaveable { mutableStateOf(ThemeMode.DARK) }
+    var currentLanguage by rememberSaveable { mutableStateOf(AppSettings.getLanguage()) }
+    var currentThemeMode by rememberSaveable { mutableStateOf(AppSettings.getThemeMode()) }
     var isShowingSettings by rememberSaveable { mutableStateOf(false) }
 
     CompositionLocalProvider(LocalAppLanguage provides currentLanguage) {
@@ -82,8 +83,14 @@ fun App() {
             if (isShowingSettings) {
                 SettingsScreen(
                     currentThemeMode = currentThemeMode,
-                    onThemeModeChange = { currentThemeMode = it },
-                    onLanguageChange = { currentLanguage = it },
+                    onThemeModeChange = {
+                        currentThemeMode = it
+                        AppSettings.setThemeMode(it)
+                    },
+                    onLanguageChange = {
+                        currentLanguage = it
+                        AppSettings.setLanguage(it)
+                    },
                     onClose = { isShowingSettings = false }
                 )
             } else {
