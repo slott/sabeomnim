@@ -302,20 +302,13 @@ fun BeltDashboardScreen(
                                     fontWeight = FontWeight.Bold
                                 )
                             }
-                            Spacer(modifier = Modifier.height(6.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = tech.nameRomanized,
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
+                                fontSize = 15.sp,
                                 color = if (isPlaying) TaegeukBlue else MaterialTheme.colorScheme.onSurface
                             )
-                            Text(
-                                text = tech.nameHangul,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = if (isPlaying) TaegeukBlue else MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = tech.localizedName(lang),
                                 fontSize = 13.sp,
