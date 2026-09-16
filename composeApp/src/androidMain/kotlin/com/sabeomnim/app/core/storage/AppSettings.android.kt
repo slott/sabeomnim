@@ -9,6 +9,7 @@ actual object AppSettings {
     private const val PREFS_NAME = "sabeomnim_prefs"
     private const val KEY_LANGUAGE = "app_language"
     private const val KEY_THEME = "app_theme"
+    private const val KEY_VOICE_GENDER = "app_voice_gender"
 
     private var prefs: SharedPreferences? = null
 
@@ -42,5 +43,18 @@ actual object AppSettings {
 
     actual fun setThemeMode(mode: ThemeMode) {
         prefs?.edit()?.putString(KEY_THEME, mode.name)?.apply()
+    }
+
+    actual fun getVoiceGender(): VoiceGender {
+        val genderStr = prefs?.getString(KEY_VOICE_GENDER, null) ?: return VoiceGender.FEMALE
+        return try {
+            VoiceGender.valueOf(genderStr)
+        } catch (_: Exception) {
+            VoiceGender.FEMALE
+        }
+    }
+
+    actual fun setVoiceGender(gender: VoiceGender) {
+        prefs?.edit()?.putString(KEY_VOICE_GENDER, gender.name)?.apply()
     }
 }

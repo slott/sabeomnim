@@ -21,24 +21,29 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sabeomnim.app.core.audio.rememberAudioService
 import com.sabeomnim.app.core.designsystem.TaegeukBlue
 import com.sabeomnim.app.core.designsystem.TaegeukRed
 import com.sabeomnim.app.core.designsystem.ThemeMode
 import com.sabeomnim.app.core.i18n.AppLanguage
 import com.sabeomnim.app.core.i18n.AppStrings
 import com.sabeomnim.app.core.i18n.LocalAppLanguage
+import com.sabeomnim.app.core.storage.VoiceGender
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     currentThemeMode: ThemeMode,
     onThemeModeChange: (ThemeMode) -> Unit,
+    currentVoiceGender: VoiceGender,
+    onVoiceGenderChange: (VoiceGender) -> Unit,
     onLanguageChange: (AppLanguage) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val lang = LocalAppLanguage.current
     val scrollState = rememberScrollState()
+    val audioService = rememberAudioService()
 
     Scaffold(
         topBar = {
@@ -96,7 +101,36 @@ fun SettingsScreen(
                 }
             }
 
-            // 2. Dark Mode / Theme Section (On / Off / System)
+            // 2. Korean Pronunciation Voice (Female / Male)
+            SettingsSectionCard(
+                title = AppStrings.settingsVoice(lang),
+                icon = Icons.Default.RecordVoiceOver
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    VoiceOptionRow(
+                        title = AppStrings.voiceFemale(lang),
+                        description = AppStrings.voiceFemaleDesc(lang),
+                        icon = Icons.Default.Female,
+                        isSelected = currentVoiceGender == VoiceGender.FEMALE,
+                        onClick = {
+                            onVoiceGenderChange(VoiceGender.FEMALE)
+                            audioService.speak("사범님")
+                        }
+                    )
+                    VoiceOptionRow(
+                        title = AppStrings.voiceMale(lang),
+                        description = AppStrings.voiceMaleDesc(lang),
+                        icon = Icons.Default.Male,
+                        isSelected = currentVoiceGender == VoiceGender.MALE,
+                        onClick = {
+                            onVoiceGenderChange(VoiceGender.MALE)
+                            audioService.speak("사범님")
+                        }
+                    )
+                }
+            }
+
+            // 3. Dark Mode / Theme Section (On / Off / System)
             SettingsSectionCard(
                 title = AppStrings.settingsTheme(lang),
                 icon = Icons.Default.DarkMode
@@ -306,3 +340,55 @@ private fun ThemeOptionRow(
         }
     }
 }
+
+@Composable
+private fun VoiceOptionRow(
+    title: String,
+    description: String,
+    icon: ImageVector,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(12.dp),
+        color = if (isSelected) TaegeukBlue.copy(alpha = 0.12f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+        border = if (isSelected) androidx.compose.foundation.BorderStroke(1.5.dp, TaegeukBlue) else null,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (isSelected) TaegeukBlue else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    fontSize = 15.sp,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                    color = if (isSelected) TaegeukBlue else MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = description,
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            if (isSelected) {
+                Icon(
+                    imageVector = Icons.Default.CheckCircle,
+                    contentDescription = "Valgt",
+                    tint = TaegeukBlue,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+        }
+    }
+}
+

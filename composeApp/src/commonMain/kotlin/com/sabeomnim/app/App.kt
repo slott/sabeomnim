@@ -76,6 +76,7 @@ private fun SabeomnimTopBar(
 fun App() {
     var currentLanguage by rememberSaveable { mutableStateOf(AppSettings.getLanguage()) }
     var currentThemeMode by rememberSaveable { mutableStateOf(AppSettings.getThemeMode()) }
+    var currentVoiceGender by rememberSaveable { mutableStateOf(AppSettings.getVoiceGender()) }
     var isShowingSettings by rememberSaveable { mutableStateOf(false) }
 
     CompositionLocalProvider(LocalAppLanguage provides currentLanguage) {
@@ -86,6 +87,11 @@ fun App() {
                     onThemeModeChange = {
                         currentThemeMode = it
                         AppSettings.setThemeMode(it)
+                    },
+                    currentVoiceGender = currentVoiceGender,
+                    onVoiceGenderChange = {
+                        currentVoiceGender = it
+                        AppSettings.setVoiceGender(it)
                     },
                     onLanguageChange = {
                         currentLanguage = it
