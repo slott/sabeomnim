@@ -1,9 +1,5 @@
 package com.sabeomnim.app.presentation.dashboard
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,10 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,8 +47,6 @@ fun BeltDashboardScreen(
     val curriculum = BeltRepository.getCurriculum(selectedBelt)
     val poomsae = PoomsaeRepository.getPoomsaeForBelt(selectedBelt)
     val quizCount = QuizRepository.getQuestionsForBelt(selectedBelt).size
-
-    var hasInteractedWithBelt by rememberSaveable { mutableStateOf(false) }
 
     LazyColumn(
         modifier = Modifier
@@ -137,30 +127,11 @@ fun BeltDashboardScreen(
                         }
 
                         // Authentic Unfolding Taekwondo Belt in the side
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            UnfoldingBeltView(
-                                belt = selectedBelt,
-                                boxWidth = 96.dp,
-                                maxBeltLength = 175.dp,
-                                onInteraction = { hasInteractedWithBelt = true }
-                            )
-                            AnimatedVisibility(
-                                visible = !hasInteractedWithBelt,
-                                exit = fadeOut(animationSpec = tween(300)) + shrinkVertically()
-                            ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Spacer(modifier = Modifier.height(2.dp))
-                                    Text(
-                                        text = AppStrings.dragTailsHint(lang),
-                                        fontSize = 10.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.65f),
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                }
-                            }
-                        }
+                        UnfoldingBeltView(
+                            belt = selectedBelt,
+                            boxWidth = 96.dp,
+                            maxBeltLength = 175.dp
+                        )
                     }
                 }
             }

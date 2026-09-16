@@ -65,7 +65,6 @@ object AppStrings {
 
     // Belt Dashboard
     fun selectBeltGrade(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Vælg bæltegrad" else "Select Belt Grade"
-    fun dragTailsHint(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Træk i bæltet for at svinge" else "Drag tails to swing"
     fun trainingLabel(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Træning" else "Training"
     fun monthsSuffix(lang: AppLanguage, mos: Int) = if (lang == AppLanguage.DANISH) "$mos mdr" else "$mos Mos"
     fun techniquesLabel(lang: AppLanguage) = if (lang == AppLanguage.DANISH) "Teknikker" else "Techniques"
