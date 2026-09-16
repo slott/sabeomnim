@@ -9,6 +9,8 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.googleServices)
+    alias(libs.plugins.firebaseCrashlytics)
 }
 
 kotlin {
@@ -57,6 +59,11 @@ kotlin {
             implementation(libs.media3.exoplayer)
             implementation(libs.media3.ui)
             implementation(libs.media3.common)
+
+            // Firebase Crashlytics & Analytics
+            implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation(libs.firebase.crashlytics)
+            implementation(libs.firebase.analytics)
         }
 
         iosMain.dependencies {
@@ -76,7 +83,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.sabeomnim.app"
+        applicationId = "dk.slott_hansen.sabeomnim"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
