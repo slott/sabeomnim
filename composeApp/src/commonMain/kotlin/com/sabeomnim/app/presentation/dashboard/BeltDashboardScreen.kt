@@ -12,9 +12,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sabeomnim.app.core.audio.rememberAudioService
 import com.sabeomnim.app.core.designsystem.KukkiwonGold
 import com.sabeomnim.app.core.designsystem.TaegeukBlue
 import com.sabeomnim.app.core.designsystem.TaegeukRed
@@ -44,6 +46,8 @@ fun BeltDashboardScreen(
     onOpenSettings: () -> Unit = {}
 ) {
     val lang = LocalAppLanguage.current
+    val audioService = rememberAudioService()
+    var currentlyPlayingTechName by remember { mutableStateOf<String?>(null) }
     val curriculum = BeltRepository.getCurriculum(selectedBelt)
     val poomsae = PoomsaeRepository.getPoomsaeForBelt(selectedBelt)
     val quizCount = QuizRepository.getQuestionsForBelt(selectedBelt).size
@@ -259,48 +263,86 @@ fun BeltDashboardScreen(
             }
 
             items(curriculum.techniques) { tech ->
+                val isPlaying = currentlyPlayingTechName == tech.nameRomanized
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            currentlyPlayingTechName = tech.nameRomanized
+                            audioService.speak(tech.nameHangul)
+                        },
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
+                        containerColor = if (isPlaying) TaegeukBlue.copy(alpha = 0.08f) else MaterialTheme.colorScheme.surface
                     ),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                    border = if (isPlaying) {
+                        BorderStroke(1.5.dp, TaegeukBlue)
+                    } else {
+                        BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                    }
                 ) {
-                    Column(
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(14.dp)
+                            .padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Surface(
-                            shape = RoundedCornerShape(6.dp),
-                            color = TaegeukBlue.copy(alpha = 0.12f),
-                            contentColor = TaegeukBlue
+                        Column(
+                            modifier = Modifier.weight(1f)
                         ) {
+                            Surface(
+                                shape = RoundedCornerShape(6.dp),
+                                color = TaegeukBlue.copy(alpha = 0.12f),
+                                contentColor = TaegeukBlue
+                            ) {
+                                Text(
+                                    text = tech.localizedType(lang),
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
                             Text(
-                                text = tech.localizedType(lang),
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold
+                                text = tech.nameRomanized,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = if (isPlaying) TaegeukBlue else MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = tech.nameHangul,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = if (isPlaying) TaegeukBlue else MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = tech.localizedName(lang),
+                                fontSize = 13.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = tech.localizedDescription(lang),
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
                             )
                         }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = tech.nameRomanized,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp
-                        )
-                        Text(
-                            text = tech.localizedName(lang),
-                            fontSize = 13.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = tech.localizedDescription(lang),
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
-                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        IconButton(
+                            onClick = {
+                                currentlyPlayingTechName = tech.nameRomanized
+                                audioService.speak(tech.nameHangul)
+                            },
+                            modifier = Modifier.size(38.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.VolumeUp,
+                                contentDescription = "Udtal",
+                                tint = if (isPlaying) TaegeukRed else TaegeukBlue,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
                     }
                 }
             }
