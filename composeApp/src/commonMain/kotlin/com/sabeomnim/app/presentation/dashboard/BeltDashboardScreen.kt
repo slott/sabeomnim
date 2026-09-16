@@ -16,6 +16,7 @@ import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,13 +53,20 @@ fun BeltDashboardScreen(
     val poomsae = PoomsaeRepository.getPoomsaeForBelt(selectedBelt)
     val quizCount = QuizRepository.getQuestionsForBelt(selectedBelt).size
 
+    var lastAnimatedBelt by rememberSaveable { mutableStateOf<String?>(null) }
+    val shouldAnimateBelt = (lastAnimatedBelt != selectedBelt.name)
+
+    LaunchedEffect(selectedBelt) {
+        lastAnimatedBelt = selectedBelt.name
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-            item {
+            item(key = "belt_selector") {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = AppStrings.selectBeltGrade(lang),
@@ -73,7 +81,7 @@ fun BeltDashboardScreen(
             }
 
             // Current Belt Hero Card with Unfolding Belt in the side
-            item {
+            item(key = "hero_belt_card") {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
@@ -134,14 +142,15 @@ fun BeltDashboardScreen(
                         UnfoldingBeltView(
                             belt = selectedBelt,
                             boxWidth = 96.dp,
-                            maxBeltLength = 175.dp
+                            maxBeltLength = 175.dp,
+                            autoPlay = shouldAnimateBelt
                         )
                     }
                 }
             }
 
             // Poomsae Card (if this belt has one)
-            item {
+            item(key = "poomsae_card") {
                 if (poomsae != null) {
                     Card(
                         modifier = Modifier
@@ -202,7 +211,7 @@ fun BeltDashboardScreen(
             }
 
             // Belt Grading Theory Quiz Card
-            item {
+            item(key = "quiz_card") {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -254,7 +263,7 @@ fun BeltDashboardScreen(
             }
 
             // Required Techniques Breakdown Header
-            item {
+            item(key = "techniques_header") {
                 Text(
                     text = "${AppStrings.requiredTechniques(lang)} (${selectedBelt.localizedGrade(lang)})",
                     style = MaterialTheme.typography.titleMedium,
@@ -262,7 +271,10 @@ fun BeltDashboardScreen(
                 )
             }
 
-            items(curriculum.techniques) { tech ->
+            items(
+                items = curriculum.techniques,
+                key = { it.nameRomanized }
+            ) { tech ->
                 val isPlaying = currentlyPlayingTechName == tech.nameRomanized
                 Card(
                     modifier = Modifier

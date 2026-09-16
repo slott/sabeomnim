@@ -304,7 +304,7 @@ fun UnfoldingBeltView(
     onInteraction: () -> Unit = {}
 ) {
     val density = LocalDensity.current.density
-    val unfoldProgress = remember { Animatable(0f) }
+    val unfoldProgress = remember(belt, autoPlay) { Animatable(if (autoPlay) 0.10f else 1f) }
 
     val boxHeight = maxBeltLength + 32.dp
 
@@ -316,7 +316,7 @@ fun UnfoldingBeltView(
     val fullTailLenPx = maxBeltLength.value * density
 
     // Create and remember the 2D physics system
-    val physics = remember {
+    val physics = remember(belt) {
         BeltPhysicsSystem(
             density = density,
             boxWidthPx = boxWidthPx,
@@ -324,24 +324,30 @@ fun UnfoldingBeltView(
             tailWidthPx = tailWidthPx
         ).apply {
             initialize(knotCenterXPx, knotAnchorY, fullTailLenPx)
+            if (!autoPlay) {
+                onUnfoldProgress(1f, fullTailLenPx)
+            }
         }
     }
 
-    var isSimulating by remember { mutableStateOf(true) }
+    var isSimulating by remember(belt, autoPlay) { mutableStateOf(autoPlay) }
     var frameTick by remember { mutableStateOf(0L) }
 
-    // Trigger unfolding animation when belt changes
-    LaunchedEffect(belt) {
-        physics.initialize(knotCenterXPx, knotAnchorY, fullTailLenPx)
-        isSimulating = true
+    // Trigger unfolding animation when belt changes or requested
+    LaunchedEffect(belt, autoPlay) {
         if (autoPlay) {
+            physics.initialize(knotCenterXPx, knotAnchorY, fullTailLenPx)
+            isSimulating = true
             unfoldProgress.snapTo(0.10f)
             unfoldProgress.animateTo(
                 targetValue = 1f,
                 animationSpec = tween(durationMillis = 1100, easing = FastOutSlowInEasing)
             )
         } else {
+            physics.initialize(knotCenterXPx, knotAnchorY, fullTailLenPx)
+            physics.onUnfoldProgress(1f, fullTailLenPx)
             unfoldProgress.snapTo(1f)
+            isSimulating = false
         }
     }
 
