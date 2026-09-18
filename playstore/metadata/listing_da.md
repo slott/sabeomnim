@@ -1,0 +1,77 @@
+# Google Play Store Listing — Dansk (DA)
+
+## App-oplysninger
+* **App-navn (Titel)** (Maks 30 tegn):
+  `Sabeomnim: Taekwondo Mester` *(27 tegn)*
+* **Kort beskrivelse** (Maks 80 tegn):
+  `WT & Kukkiwon pensum, multi-vinkel Taegeuk poomsae, lydordbog og teoriprøve.` *(76 tegn)*
+* **Kategori**: Sport / Uddannelse
+* **Aldersmærkning**: Alle (PEGI 3)
+* **Indeholder annoncer**: Nej
+* **Køb i appen**: Nej
+
+---
+
+## Fuld beskrivelse (Maks 4.000 tegn)
+
+Mestr det officielle World Taekwondo (WT / Kukkiwon) pensum fra hvidt bælte (10. Geup) til sort bælte (1. Dan) med Sabeomnim (사범님) — din personlige Taekwondo-instruktør og træningsmakker.
+
+Uanset om du træder ind i dojangen for allerførste gang eller finpudser dine former til en sortbæltegraduering, giver Sabeomnim dig en komplet, struktureret og officiel pensumvejledning baseret på Kukkiwon-standarder.
+
+---
+
+### 🥋 KOMPLET PENSUM FRA 10. GEUP TIL 1. DAN
+Følg en overskuelig trin-for-trin guide gennem alle bæltegrader med krav til stillinger, teknikker og teori:
+• 10. Geup (Hvidt bælte) — Grundstillinger (Moa-, Naranhi-, Ap-seogi, Ap-kubi), lav blokering (Arae-makgi), midterstød (Momtong-jireugi), frontspark (Ap-chagi).
+• 9. Geup (Hvidt m/ gul snip) — Momtong an-makgi, grundlæggende Dollyo-chagi.
+• 8. Geup (Gult bælte) — Taegeuk 1 Jang (태극 1장).
+• 7. Geup (Gult m/ grøn snip) — Taegeuk 2 Jang (태극 2장), Dwit-kubi stilling.
+• 6. Geup (Grønt bælte) — Taegeuk 3 Jang (태극 3장), Sonnal mok-chigi, Yeop-chagi.
+• 5. Geup (Grønt m/ blå snip) — Taegeuk 4 Jang (태극 4장), Sonnal momtong-makgi.
+• 4. Geup (Blåt bælte) — Taegeuk 5 Jang (태극 5장), Palkup-chigi, Me-jumeok.
+• 3. Geup (Blåt m/ rød snip) — Taegeuk 6 Jang (태극 6장), Batangson-makgi, Dwi-chagi.
+• 2. Geup (Rødt bælte) — Taegeuk 7 Jang (태극 7장), Beom-seogi, Gawi-makgi.
+• 1. Geup (Rødt m/ sort snip) — Taegeuk 8 Jang (태극 8장), Oe-santeul-makgi, Dwi-hurigi.
+• 1. Dan (Sort bælte / Cho Dan) — Koryo forberedelse, Kukkiwon filosofi, OL kampregler og Dan-teori.
+
+---
+
+### 🎥 MULTI-VINKEL TAEGEUK POOMSAE VIDEOSPILLER
+Studér alle bevægelser med synkroniseret HD-video:
+• To kameravinkler: Skift problemfrit mellem frontvinkel (0°) og sidevinkel (90°) for at studere stillingsdybde, balance og vinkler uden afbrydelse i afspilningen.
+• Live trin-undertekster: Se trin-nummer, koreansk Hangul, romanisering og dansk beskrivelse i realtid.
+• Præcisionsstyring: Spring frem/tilbage mellem trin, gentag et enkelt trin i uendelig løkke (drill rehearsal), og juster afspilningshastighed (0.25x, 0.5x, 0.75x, 1.0x).
+• Fuldskærmsvisning: Skift til liggende format for maksimal detaljegrad.
+
+---
+
+### 📐 SKRIDTDIAGRAMMER & TEORETISKE OVERSIGTER
+• Officielle Kukkiwon bevægelsesdiagrammer for alle 8 Taegeuk former.
+• Zoom og panorer i detaljerede tegnede mønstre.
+• Markering af Kihap råb og trigrammernes filosofiske betydning.
+
+---
+
+### 🔊 KOREANSK TERMINOLOGI MED RIGTIG UDTALE
+• Mere end 160 Taekwondo-udtryk opdelt i stillinger (Seogi), blokeringer (Makgi), slag/stød, spark (Chagi), kommandoer og dojang-etikette.
+• Autentisk tale: Hør den korrekte koreanske udtale af alle teknikker og navne.
+• Valgfri stemme: Vælg mellem dyb, autoritær mandestemme ("Sabeomnim") eller klar kvindestemme.
+• Hurtig søgning: Søg på dansk, engelsk, koreansk Hangul eller udtale.
+
+---
+
+### 📝 GRADUERINGSPRØVE & TEORISIMULATOR
+• Bæltespecifikke spørgsmål i koreanske gloser, former, stillinger og dommertegn.
+• Test dig selv inden din næste graduering og vær 100% velforberedt.
+• Øjeblikkelig evaluering med forklaringer.
+
+---
+
+### ⚡ 100% OFFLINE & PRIVATLIVSBESKYTTET
+• Ingen kontooprettelse eller login påkrævet.
+• Ingen reklamer og ingen pop-ups.
+• Ingen indsamling af personlige data.
+• Fungerer fuldstændig offline i træningssalen.
+
+Understøtter både dansk og engelsk.
+Udviklet til taekwondo-udøvere, instruktører og mestre.
