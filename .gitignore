@@ -10,6 +10,7 @@ build/
 local.properties
 *.hprof
 *.png
+!playstore/**/*.png
 *.mp4
 *.jks
 *.keystore
