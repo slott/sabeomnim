@@ -107,7 +107,7 @@ if (localPropertiesFile.exists()) {
     localProperties.load(FileInputStream(localPropertiesFile))
 }
 
-val appVersionName = project.findProperty("versionName") as? String ?: "1.0.2"
+val appVersionName = project.findProperty("versionName") as? String ?: "1.0.3"
 val appVersionCode = buildVersionCode(appVersionName)
 
 println("Configuring Sabeomnim: VersionName=$appVersionName, VersionCode=$appVersionCode")
