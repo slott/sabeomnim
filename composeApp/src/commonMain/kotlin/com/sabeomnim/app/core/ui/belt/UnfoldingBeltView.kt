@@ -93,9 +93,23 @@ class BeltTail(
 }
 
 /**
+ * State of an active pointer drag on a belt tail node.
+ */
+data class BeltDrag(
+    val pointerId: Long,
+    val tail: BeltTail,
+    val particleIndex: Int,
+    var lastDragX: Float,
+    var lastDragY: Float,
+    var dragVelX: Float = 0f,
+    var dragVelY: Float = 0f,
+    var totalDragDist: Float = 0f
+)
+
+/**
  * 2D Physics Simulator for Taekwondo belt tails.
  * Implements Verlet cloth physics, natural vertical fabric drape,
- * harmonic oscillation, and interactive touch/drag response.
+ * harmonic oscillation, and multi-touch interactive drag response.
  */
 class BeltPhysicsSystem(
     val density: Float,
@@ -106,12 +120,7 @@ class BeltPhysicsSystem(
     val leftTail = BeltTail(isRightTail = false, numSegments = 6)
     val rightTail = BeltTail(isRightTail = true, numSegments = 6)
 
-    private var draggedTail: BeltTail? = null
-    private var draggedParticleIndex: Int = -1
-    private var lastDragX: Float = 0f
-    private var lastDragY: Float = 0f
-    private var dragVelX: Float = 0f
-    private var dragVelY: Float = 0f
+    private val activeDrags = mutableMapOf<Long, BeltDrag>()
 
     val gravityY = 3200f * density
     val damping = 0.985f
@@ -143,15 +152,33 @@ class BeltPhysicsSystem(
         }
     }
 
-    fun onDragStart(touchX: Float, touchY: Float): Boolean {
-        val maxRadius = 50.dp.value * density
+    fun isPointerActive(pointerId: Long): Boolean = activeDrags.containsKey(pointerId)
+
+    private fun isParticleDragged(tail: BeltTail, index: Int): Boolean {
+        return activeDrags.values.any { it.tail == tail && it.particleIndex == index }
+    }
+
+    /**
+     * Attempts to grab a tail particle node with a touch pointer.
+     * Prioritizes un-grabbed tails so two fingers naturally grab both tails.
+     */
+    fun onDragStart(pointerId: Long, touchX: Float, touchY: Float): Boolean {
+        val maxRadius = 55.dp.value * density
         var closestDist = Float.MAX_VALUE
         var foundTail: BeltTail? = null
         var foundIndex = -1
 
-        // Look for movable nodes (i >= 1)
-        for (tail in listOf(rightTail, leftTail)) {
+        val alreadyDraggedTails = activeDrags.values.map { it.tail }.toSet()
+        val alreadyDraggedNodes = activeDrags.values.map { it.tail to it.particleIndex }.toSet()
+
+        // Prioritize unheld tails so a second finger immediately latches onto the other tail
+        val candidateTails = listOf(rightTail, leftTail).sortedBy { tail ->
+            if (tail in alreadyDraggedTails) 1 else 0
+        }
+
+        for (tail in candidateTails) {
             for (i in 1 until tail.particles.size) {
+                if ((tail to i) in alreadyDraggedNodes) continue
                 val p = tail.particles[i]
                 val d = hypot(p.x - touchX, p.y - touchY)
                 if (d < maxRadius && d < closestDist) {
@@ -160,16 +187,19 @@ class BeltPhysicsSystem(
                     foundIndex = i
                 }
             }
+            if (foundTail != null && foundTail !in alreadyDraggedTails) {
+                break
+            }
         }
 
         if (foundTail != null && foundIndex >= 1) {
-            draggedTail = foundTail
-            draggedParticleIndex = foundIndex
-            lastDragX = touchX
-            lastDragY = touchY
-            dragVelX = 0f
-            dragVelY = 0f
-
+            activeDrags[pointerId] = BeltDrag(
+                pointerId = pointerId,
+                tail = foundTail,
+                particleIndex = foundIndex,
+                lastDragX = touchX,
+                lastDragY = touchY
+            )
             foundTail.particles[foundIndex].x = touchX
             foundTail.particles[foundIndex].y = touchY
             return true
@@ -177,29 +207,48 @@ class BeltPhysicsSystem(
         return false
     }
 
-    fun onDrag(touchX: Float, touchY: Float) {
-        val tail = draggedTail ?: return
-        val idx = draggedParticleIndex
+    fun onDrag(pointerId: Long, touchX: Float, touchY: Float) {
+        val drag = activeDrags[pointerId] ?: return
+        val tail = drag.tail
+        val idx = drag.particleIndex
         if (idx >= 1 && idx < tail.particles.size) {
-            dragVelX = (touchX - lastDragX) * 0.85f
-            dragVelY = (touchY - lastDragY) * 0.85f
-            lastDragX = touchX
-            lastDragY = touchY
+            val dx = touchX - drag.lastDragX
+            val dy = touchY - drag.lastDragY
+            drag.totalDragDist += hypot(dx, dy)
+            drag.dragVelX = dx * 0.85f
+            drag.dragVelY = dy * 0.85f
+            drag.lastDragX = touchX
+            drag.lastDragY = touchY
 
             tail.particles[idx].x = touchX
             tail.particles[idx].y = touchY
         }
     }
 
-    fun onDragEnd() {
-        val tail = draggedTail
-        val idx = draggedParticleIndex
-        if (tail != null && idx >= 1 && idx < tail.particles.size) {
-            // Impart release swing momentum
-            tail.particles[idx].applyImpulse(dragVelX * 8f, dragVelY * 5f)
+    fun onDragEnd(pointerId: Long) {
+        val drag = activeDrags.remove(pointerId) ?: return
+        val tail = drag.tail
+        val idx = drag.particleIndex
+        if (idx >= 1 && idx < tail.particles.size) {
+            if (drag.totalDragDist < (8.dp.value * density)) {
+                // Barely moved -> playful flick/tap
+                onTap(drag.lastDragX, drag.lastDragY)
+            } else {
+                // Impart release swing momentum
+                tail.particles[idx].applyImpulse(drag.dragVelX * 8f, drag.dragVelY * 5f)
+            }
         }
-        draggedTail = null
-        draggedParticleIndex = -1
+    }
+
+    fun onDragCancel() {
+        for (drag in activeDrags.values) {
+            val tail = drag.tail
+            val idx = drag.particleIndex
+            if (idx >= 1 && idx < tail.particles.size) {
+                tail.particles[idx].applyImpulse(drag.dragVelX * 4f, drag.dragVelY * 3f)
+            }
+        }
+        activeDrags.clear()
     }
 
     fun onTap(touchX: Float, touchY: Float) {
@@ -214,7 +263,7 @@ class BeltPhysicsSystem(
     }
 
     val isDragged: Boolean
-        get() = draggedTail != null
+        get() = activeDrags.isNotEmpty()
 
     fun hasKineticEnergy(): Boolean {
         var maxV2 = 0f
@@ -236,10 +285,9 @@ class BeltPhysicsSystem(
         // 1. Verlet Integration
         for (tail in tails) {
             val anchor = tail.particles[0]
-            val isBeingDragged = (tail == draggedTail)
 
             for (i in 1 until tail.particles.size) {
-                if (isBeingDragged && i == draggedParticleIndex) continue
+                if (isParticleDragged(tail, i)) continue
 
                 val p = tail.particles[i]
                 val vx = (p.x - p.prevX) * damping
@@ -265,8 +313,8 @@ class BeltPhysicsSystem(
                     val p1 = tail.particles[i]
                     val p2 = tail.particles[i + 1]
 
-                    val isP1Fixed = p1.isAnchor || (tail == draggedTail && i == draggedParticleIndex)
-                    val isP2Fixed = (tail == draggedTail && (i + 1) == draggedParticleIndex)
+                    val isP1Fixed = p1.isAnchor || isParticleDragged(tail, i)
+                    val isP2Fixed = isParticleDragged(tail, i + 1)
 
                     val dx = p2.x - p1.x
                     val dy = p2.y - p1.y
@@ -389,34 +437,55 @@ fun UnfoldingBeltView(
             .width(boxWidth)
             .height(boxHeight)
             .pointerInput(belt) {
-                detectTapGestures { offset ->
-                    onInteraction()
-                    physics.onTap(offset.x, offset.y)
-                    isSimulating = true
-                }
-            }
-            .pointerInput(belt) {
-                detectDragGestures(
-                    onDragStart = { offset ->
-                        onInteraction()
-                        if (physics.onDragStart(offset.x, offset.y)) {
-                            isSimulating = true
+                val unhandledTaps = mutableMapOf<Long, Offset>()
+                try {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            for (change in event.changes) {
+                                val id = change.id.value
+                                val isDown = !change.previousPressed && change.pressed
+                                val isMove = change.previousPressed && change.pressed
+                                val isUp = change.previousPressed && !change.pressed
+
+                                if (isDown) {
+                                    onInteraction()
+                                    val latched = physics.onDragStart(id, change.position.x, change.position.y)
+                                    if (latched) {
+                                        change.consume()
+                                        isSimulating = true
+                                    } else {
+                                        unhandledTaps[id] = change.position
+                                    }
+                                } else if (isMove) {
+                                    if (physics.isPointerActive(id)) {
+                                        physics.onDrag(id, change.position.x, change.position.y)
+                                        change.consume()
+                                        isSimulating = true
+                                    } else if (id in unhandledTaps) {
+                                        val startPos = unhandledTaps[id]!!
+                                        if (hypot(change.position.x - startPos.x, change.position.y - startPos.y) > (12.dp.value * density)) {
+                                            unhandledTaps.remove(id)
+                                        }
+                                    }
+                                } else if (isUp) {
+                                    if (physics.isPointerActive(id)) {
+                                        physics.onDragEnd(id)
+                                        change.consume()
+                                        isSimulating = true
+                                    } else if (id in unhandledTaps) {
+                                        unhandledTaps.remove(id)
+                                        physics.onTap(change.position.x, change.position.y)
+                                        change.consume()
+                                        isSimulating = true
+                                    }
+                                }
+                            }
                         }
-                    },
-                    onDrag = { change, _ ->
-                        change.consume()
-                        physics.onDrag(change.position.x, change.position.y)
-                        isSimulating = true
-                    },
-                    onDragEnd = {
-                        physics.onDragEnd()
-                        isSimulating = true
-                    },
-                    onDragCancel = {
-                        physics.onDragEnd()
-                        isSimulating = true
                     }
-                )
+                } finally {
+                    physics.onDragCancel()
+                }
             },
         contentAlignment = Alignment.TopCenter
     ) {
