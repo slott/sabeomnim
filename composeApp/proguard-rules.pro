@@ -5,7 +5,6 @@
 -ignorewarnings
 
 # Media3 ExoPlayer
--keep class androidx.media3.** { *; }
 -dontwarn androidx.media3.**
 
 # Kotlinx Serialization
@@ -19,5 +18,4 @@
 }
 
 # AndroidX Core & Lifecycle
--keep class androidx.lifecycle.** { *; }
 -dontwarn androidx.lifecycle.**

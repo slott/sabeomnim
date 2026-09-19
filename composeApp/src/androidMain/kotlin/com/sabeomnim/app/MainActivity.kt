@@ -10,10 +10,10 @@ import com.sabeomnim.app.core.logging.CrashlyticsLogger
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         AppSettings.init(applicationContext)
         CrashlyticsLogger.log("Sabeomnim MainActivity initialized")
-        enableEdgeToEdge()
         setContent {
             App()
         }
