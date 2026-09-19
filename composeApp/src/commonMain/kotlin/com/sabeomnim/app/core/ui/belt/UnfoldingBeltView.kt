@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -548,32 +549,62 @@ private fun DrawScope.drawBeltTail(
     // Base belt fabric fill
     drawPath(path = beltPath, color = baseColor)
 
-    // Subtle fabric shading gradient
-    drawPath(
-        path = beltPath,
-        brush = Brush.horizontalGradient(
-            colors = listOf(
-                Color.Black.copy(alpha = 0.08f),
-                Color.White.copy(alpha = 0.12f),
-                Color.Transparent,
-                Color.Black.copy(alpha = 0.14f)
-            ),
-            startX = particles[0].x - halfWidth,
-            endX = particles[0].x + halfWidth
+    // Helper to build smooth longitudinal spline curves that bend with the belt ribbon
+    fun buildRibbonSplinePath(frac: Float): Path {
+        val path = Path()
+        val pts = ArrayList<Offset>(numNodes)
+        for (i in 0 until numNodes) {
+            val p = particles[i]
+            val norm = normals[i]
+            pts.add(Offset(p.x + (norm.x * halfWidth * frac), p.y + (norm.y * halfWidth * frac)))
+        }
+        path.moveTo(pts[0].x, pts[0].y)
+        for (i in 0 until numNodes - 1) {
+            val pCurr = pts[i]
+            val pNext = pts[i + 1]
+            val midX = (pCurr.x + pNext.x) / 2f
+            val midY = (pCurr.y + pNext.y) / 2f
+            path.quadraticTo(pCurr.x, pCurr.y, midX, midY)
+        }
+        path.lineTo(pts.last().x, pts.last().y)
+        return path
+    }
+
+    // Dynamic 3D fabric shading & sheen that bends and follows the moving ribbon perfectly
+    clipPath(beltPath) {
+        // 1. Left edge cylindrical shadow (bevel)
+        drawPath(
+            path = buildRibbonSplinePath(0.92f),
+            color = Color.Black.copy(alpha = 0.10f),
+            style = Stroke(width = halfWidth * 0.40f, cap = StrokeCap.Round)
         )
-    )
+
+        // 2. Left-inner fabric sheen highlight (woven satin/cotton reflection)
+        drawPath(
+            path = buildRibbonSplinePath(0.38f),
+            color = Color.White.copy(alpha = 0.15f),
+            style = Stroke(width = halfWidth * 0.60f, cap = StrokeCap.Round)
+        )
+
+        // 3. Central subtle fabric depression between stitch seams
+        drawPath(
+            path = buildRibbonSplinePath(0f),
+            color = Color.Black.copy(alpha = 0.05f),
+            style = Stroke(width = halfWidth * 0.30f, cap = StrokeCap.Round)
+        )
+
+        // 4. Right edge cylindrical shadow (depth & thickness)
+        drawPath(
+            path = buildRibbonSplinePath(-0.90f),
+            color = Color.Black.copy(alpha = 0.16f),
+            style = Stroke(width = halfWidth * 0.45f, cap = StrokeCap.Round)
+        )
+    }
 
     // Authentic martial arts belt longitudinal seam stitches (3 parallel running rows)
     val seamOffsets = listOf(-0.55f, 0f, 0.55f)
     for (frac in seamOffsets) {
-        val stitchPath = Path()
-        for (i in 0 until numNodes) {
-            val p = particles[i]
-            val norm = normals[i]
-            val sx = p.x + (norm.x * halfWidth * frac)
-            val sy = p.y + (norm.y * halfWidth * frac)
-            if (i == 0) stitchPath.moveTo(sx, sy) else stitchPath.lineTo(sx, sy)
-        }
+        val stitchPath = buildRibbonSplinePath(frac)
         drawPath(
             path = stitchPath,
             color = stitchColor,
