@@ -213,5 +213,5 @@ sabeomnim/
 
 ### 5.4 Keystore, Signing & Privacy
 * **Keystore**: `composeApp/lego_keystore.jks` with key aliases and passwords securely stored in `local.properties`.
-* **Privacy Policy**: Maintained in `playstore/PRIVACY_POLICY.md` (Markdown for Google Sites) and `playstore/privacy_policy.html` (responsive standalone HTML), hosted at the developer's Google Sites website.
+* **Privacy Policy**: Maintained in `playstore/PRIVACY_POLICY.md` (Markdown for Google Sites) and `playstore/privacy_policy.html` (responsive standalone HTML), hosted at the developer's Google Sites website: `https://sites.google.com/view/sabeomnim/privacy`.
 

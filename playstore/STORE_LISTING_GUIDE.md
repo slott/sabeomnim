@@ -41,9 +41,9 @@ All texts are formatted within the strict character limits:
 When completing the Google Play Console **App Content** questionnaire:
 
 1. **Privacy Policy**:
-   * Markdown: [`playstore/metadata/PRIVACY_POLICY.md`](file:///Users/msh/git/sabeomnim/playstore/metadata/PRIVACY_POLICY.md)
-   * HTML: [`playstore/metadata/privacy_policy.html`](file:///Users/msh/git/sabeomnim/playstore/metadata/privacy_policy.html)
-   * Public URL host: Host on GitHub Pages (e.g. `https://<user>.github.io/sabeomnim/privacy_policy.html`) or raw GitHub file link.
+   * Live Public URL: `https://sites.google.com/view/sabeomnim/privacy`
+   * Source Markdown: [`playstore/PRIVACY_POLICY.md`](file:///Users/msh/git/sabeomnim/playstore/PRIVACY_POLICY.md)
+   * Standalone HTML: [`playstore/privacy_policy.html`](file:///Users/msh/git/sabeomnim/playstore/privacy_policy.html)
 2. **Ads**: Select **"No, my app does not contain ads"**.
 3. **App Access**: Select **"All functionality is available without special access"** (no login credentials needed).
 4. **Content Rating (IARC)**:
