@@ -73,11 +73,43 @@ kotlin {
     }
 }
 
+fun buildVersionCode(versionName: String): Int {
+    val cleanVersion = versionName.lowercase().replace("-", "")
+    val parts = cleanVersion.split(".")
+    
+    val yearPart = parts.getOrNull(0)?.toIntOrNull() ?: 0
+    val year = if (yearPart >= 2000) yearPart % 100 else yearPart 
+    
+    val week = parts.getOrNull(1)?.toIntOrNull() ?: 0
+    val releasePart = parts.getOrNull(2) ?: "0"
+    
+    var candidate = 99
+    var release = 0
+
+    if (releasePart.contains("snapshot")) {
+        candidate = 0
+        release = releasePart.replace(Regex("[^0-9]"), "").toIntOrNull() ?: 0
+    } else if (releasePart.contains("rc")) {
+        val rcParts = releasePart.split("rc")
+        release = rcParts.getOrNull(0)?.toIntOrNull() ?: 0
+        candidate = rcParts.getOrNull(1)?.toIntOrNull() ?: 1
+    } else {
+        release = releasePart.toIntOrNull() ?: 0
+    }
+
+    return (year * 1000000) + (week * 10000) + (release * 100) + candidate
+}
+
 val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
     localProperties.load(FileInputStream(localPropertiesFile))
 }
+
+val appVersionName = project.findProperty("versionName") as? String ?: "1.0.1"
+val appVersionCode = buildVersionCode(appVersionName)
+
+println("Configuring Sabeomnim: VersionName=$appVersionName, VersionCode=$appVersionCode")
 
 android {
     namespace = "com.sabeomnim.app"
@@ -87,8 +119,8 @@ android {
         applicationId = "dk.slott_hansen.sabeomnim"
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = appVersionCode
+        versionName = appVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
