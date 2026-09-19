@@ -158,3 +158,60 @@ sabeomnim/
 4. **Git Discipline**:
    * Keep commits concise and meaningful.
    * Ensure `.gitignore` properly excludes Gradle caches, `.idea`, `build/`, `.gradle/`, and local SDK configs (`local.properties`).
+
+---
+
+## 5. Release & Deployment Operations (Google Play & GPP)
+
+### 5.1 Dynamic Versioning (`versioning.gradle.kts`)
+* **Single Source of Truth**: The `versionName` is declared in [`gradle.properties`](file:///Users/msh/git/sabeomnim/gradle.properties) (e.g. `versionName = 1.0.1` or `2026.38.0`).
+* **Dynamic `versionCode` Calculation**: Evaluated automatically in [`composeApp/build.gradle.kts`](file:///Users/msh/git/sabeomnim/composeApp/build.gradle.kts) and [`versioning.gradle.kts`](file:///Users/msh/git/sabeomnim/versioning.gradle.kts):
+  * Formula: `(year * 1,000,000) + (week * 10,000) + (release * 100) + candidate`
+  * SemVer example: `1.0.1` ➔ `1,000,199`
+  * CalVer example: `2026.38.0` ➔ `26,380,099`
+  * Pre-release tags: `-snapshot` (`00`), `-rc1` (`01`), final release (`99`).
+  * Never manually hardcode `versionCode` in Gradle. Always bump `versionName` in `gradle.properties`.
+
+### 5.2 Gradle Play Publisher (GPP) Setup & Directory Structure
+* **Plugin**: `com.github.triplet.play` (configured in `composeApp/build.gradle.kts`).
+* **Service Account Credentials**: `composeApp/play-service-account.json` (git-ignored for security).
+* **Listing Metadata Directory** (`composeApp/src/androidMain/play/`):
+  * `default-language.txt`: Specifies default store listing locale (`en-GB`).
+  * `contact-email.txt`: Developer support email (`slott.hansen@gmail.com`).
+  * `contact-website.txt`: App support website (`https://sites.google.com/view/sabeomnim`).
+  * `listings/<locale>/`:
+    * `title.txt`: App title (max 30 chars).
+    * `short-description.txt`: Promo snippet (max 80 chars).
+    * `full-description.txt`: Complete store listing text (max 4000 chars).
+    * `graphics/icon/`: 512x512 32-bit PNG.
+    * `graphics/feature-graphic/`: 1024x500 PNG.
+    * `graphics/phone-screenshots/`: 1080x2400 phone showcase screenshots (`1.png` to `6.png`).
+* **Automated Asset Sync**: Run `python3 setup_gpp_assets.py` to regenerate all GPP listing files and structured screenshot hierarchies from `playstore/`.
+
+### 5.3 Publishing Workflows & CLI Commands
+* **Build Production Bundle (AAB)**:
+  ```bash
+  ./gradlew :composeApp:bundleRelease
+  ```
+  Generates `composeApp/build/outputs/bundle/release/composeApp-release.aab` with R8 minification and automatically embedded de-obfuscation mapping at `BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map`.
+* **Sync Store Listings, Graphics & Screenshots**:
+  ```bash
+  ./gradlew publishReleaseListing
+  ```
+* **Publish AAB Directly to Internal Testing Track**:
+  ```bash
+  ./gradlew publishReleaseBundle
+  ```
+* **Promote Releases Across Tracks**:
+  ```bash
+  # Promote internal release to Production (draft status for review submission):
+  ./gradlew :composeApp:promoteReleaseArtifact --from-track=internal --promote-track=production --release-status=draft
+
+  # Promote internal release to Beta (Open Testing):
+  ./gradlew :composeApp:promoteReleaseArtifact --from-track=internal --promote-track=beta --release-status=completed
+  ```
+
+### 5.4 Keystore, Signing & Privacy
+* **Keystore**: `composeApp/lego_keystore.jks` with key aliases and passwords securely stored in `local.properties`.
+* **Privacy Policy**: Maintained in `playstore/PRIVACY_POLICY.md` (Markdown for Google Sites) and `playstore/privacy_policy.html` (responsive standalone HTML), hosted at the developer's Google Sites website.
+
