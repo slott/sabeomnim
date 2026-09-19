@@ -17,3 +17,5 @@ local.properties
 *.keystore
 *service-account*.json
 play-service-account.json
+*.aab
+*.apk
