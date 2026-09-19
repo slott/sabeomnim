@@ -143,7 +143,7 @@ sabeomnim/
   * Android: `android.speech.tts.TextToSpeech` + `MediaPlayer`
   * iOS: `AVSpeechSynthesizer` + `AVAudioPlayer`
 * **Target Architectures**:
-  * Android: JVM 21, API 26 to 35
+  * Android: JVM 21, API 26 to 36
   * iOS: `iosSimulatorArm64`, `iosArm64`, `iosX64` producing static framework `ComposeApp.framework`
 
 ---
