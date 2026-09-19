@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.googleServices)
     alias(libs.plugins.firebaseCrashlytics)
+    alias(libs.plugins.playPublisher)
 }
 
 kotlin {
@@ -128,4 +129,13 @@ android {
 
 dependencies {
     debugImplementation(compose.uiTooling)
+}
+
+play {
+    val serviceAccountFile = rootProject.file("play-service-account.json")
+    if (serviceAccountFile.exists()) {
+        serviceAccountCredentials.set(serviceAccountFile)
+    }
+    track.set("internal")
+    defaultToAppBundles.set(true)
 }

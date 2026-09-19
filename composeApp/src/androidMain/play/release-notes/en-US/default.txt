@@ -1,0 +1,7 @@
+• Initial release of Sabeomnim for Android
+• Official Kukkiwon World Taekwondo curriculum (10th Geup to 1st Dan)
+• Synchronized dual-angle Taegeuk Poomsae video player (Front 0° & Side 90°)
+• Interactive movement pattern diagrams
+• Korean audio terminology glossary with authentic native spoken pronunciation
+• Belt promotion grading theory exam simulator
+• Offline-first with Black Dobok Dark Mode

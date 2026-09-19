@@ -11,6 +11,9 @@ local.properties
 *.hprof
 *.png
 !playstore/**/*.png
+!**/play/**/*.png
 *.mp4
 *.jks
 *.keystore
+*service-account*.json
+play-service-account.json
