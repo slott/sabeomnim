@@ -130,11 +130,11 @@ sabeomnim/
 ```
 
 * **Application ID**: `dk.slott_hansen.sabeomnim`
-* **Kotlin**: 2.1.0+
-* **Compose Multiplatform**: 1.7.x+
-* **Android Gradle Plugin**: 8.7+
+* **Kotlin**: 2.2.10+
+* **Compose Multiplatform**: 1.9.3+
+* **Android Gradle Plugin**: 9.0.1+ (Gradle 9.1.0+)
 * **Crash & Analytics Reporting**:
-  * Android: Google Services (`4.4.2`) + Firebase Crashlytics (`3.0.2` / BOM `33.7.0`) via multiplatform `CrashlyticsLogger`
+  * Android: Google Services (`4.4.4`) + Firebase Crashlytics (`3.0.8` / BOM `33.7.0`) via multiplatform `CrashlyticsLogger`
   * iOS: `CrashlyticsLogger` bridging to console / native handlers
 * **Video Playback**:
   * Android: AndroidX Media3 ExoPlayer
