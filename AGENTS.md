@@ -155,8 +155,13 @@ sabeomnim/
 3. **Automated Testing & Deployment**:
    * Following code changes, always build and install the Android app via ADB to an attached Android device or emulator (`./gradlew installDebug` and `adb shell am start ...`), unless explicitly told otherwise.
    * Verify compilation and tests via `./gradlew build`, `./gradlew assembleDebug`, or iOS compilation targets (`./gradlew compileKotlinIosSimulatorArm64`).
-4. **Git Discipline**:
+4. **Git Discipline & Release Tagging**:
    * Keep commits concise and meaningful.
+   * **Version Tagging**: Whenever a new version is pushed and published, create an annotated Git tag matching the version name (e.g., `v1.0.4`) and push it to the remote repository:
+     ```bash
+     git tag -a v1.0.4 -m "Release v1.0.4"
+     git push origin v1.0.4
+     ```
    * Ensure `.gitignore` properly excludes Gradle caches, `.idea`, `build/`, `.gradle/`, and local SDK configs (`local.properties`).
 
 ---
@@ -214,4 +219,16 @@ sabeomnim/
 ### 5.4 Keystore, Signing & Privacy
 * **Keystore**: `composeApp/lego_keystore.jks` with key aliases and passwords securely stored in `local.properties`.
 * **Privacy Policy**: Maintained in `playstore/PRIVACY_POLICY.md` (Markdown for Google Sites) and `playstore/privacy_policy.html` (responsive standalone HTML), hosted at the developer's Google Sites website: `https://sites.google.com/view/sabeomnim/privacy`.
+
+### 5.5 Google Play Quality & Optimization Standards
+* **Edge-to-Edge Execution**:
+  * Call `enableEdgeToEdge()` in `MainActivity.onCreate()` before `super.onCreate()`.
+  * Never declare deprecated attributes such as `android:windowOptOutEdgeToEdgeEnforcement` or API 35+ deprecated XML items (`statusBarColor`, `navigationBarColor`) in theme resources (`values-v35/styles.xml`), as Google Play static analyzers flag them.
+* **Large Screen & Multi-Window Resizability**:
+  * Maintain `android:resizeableActivity="true"` on `<application>` and `<activity>` tags.
+  * Declare `<supports-screens>` in `AndroidManifest.xml` with all standard screen sizes enabled to ensure compatibility with tablets, foldables, and desktop windowing environments.
+* **R8 Full-Mode Optimization & Minification**:
+  * Keep `android.enableR8.fullMode=true` enabled in `gradle.properties`.
+  * Ensure `isMinifyEnabled = true` and `isShrinkResources = true` in `composeApp/build.gradle.kts`.
+  * Avoid blanket `-keep` rules on third-party libraries (Media3, Lifecycle) in `proguard-rules.pro`; let library consumer ProGuard rules strip unused codecs and classes, keeping `classes.dex` under 5 MB.
 
